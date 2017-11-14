@@ -1,0 +1,320 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+    "Description": "Netscaler AWS-VPX template creates a  instance of VPX with 1 ENIs ",
+
+    "Parameters": {
+        "VpcID": {
+            "Type": "AWS::EC2::VPC::Id",
+            "Description": "VpcId of your existing Virtual Private Cloud (VPC)"
+        },
+        "AMI" : {
+            "Type": "AWS::EC2::Image::Id",
+            "Description": "VPX AMI to use"
+        },
+        "VPX": {
+            "ConstraintDescription": "Must be a valid EC2 instance type.",
+            "Type": "String",
+            "Description": "VPX instance",
+            "Default": "m4.large",
+            "AllowedValues": [
+                "m3.large",
+                "m3.xlarge",
+                "m3.2xlarge",
+                "m4.large",
+                "m4.xlarge",
+                "m4.2xlarge",
+                "m4.4xlarge",
+                "m4.10xlarge"
+            ]
+        },
+        "Subnet": {
+            "Type": "AWS::EC2::Subnet::Id",
+            "Description": "SubnetId of an existing subnet in your Virtual Private Cloud (VPC)"
+        },
+        "KeyName": {
+            "ConstraintDescription": "Can contain only alphanumeric characters, spaces, dashes and underscores.",
+            "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instances",
+            "MinLength": "1",
+            "AllowedPattern": "[-_ a-zA-Z0-9]*",
+            "MaxLength": "64",
+            "Type": "AWS::EC2::KeyPair::KeyName"
+        }
+    },
+    "Outputs": {
+        "InstanceIdNS": {
+            "Description": "Instance Id of newly created VPX instance",
+            "Value": {
+                "Ref": "VPXInstance"
+            }
+        },
+        "PublicIpVIP": {
+            "Description": "Elastic IP address of the VPX instance associated with the VIP",
+            "Value": {
+                "Ref": "EipIp"
+            }
+        },
+        "NSIp": {
+            "Description": "Private IP (NS IP) used for management",
+            "Value": {
+                 "Fn::GetAtt" : [ "VPXInstance", "PrivateIp" ]
+            }
+        },
+        "PublicNSIp": {
+            "Description": "Public IP (NS IP) used for management",
+            "Value": {
+                 "Fn::GetAtt" : [ "VPXInstance", "PublicIp" ]
+            }
+        },
+        "PrivateVIP" : {
+           "Description": "Private IP address of the VPX instance associated with the VIP",
+           "Value": { "Fn::GetAtt": ["VPXBootStrap", "VIP" ] }
+        },
+        "SNIP" : {
+           "Description": "Private IP address of the VPX instance associated with the SNIP",
+           "Value": { "Fn::GetAtt": ["VPXBootStrap", "SNIP" ] }
+        }
+    },
+
+    "Conditions": {
+    },
+
+    "Resources": {
+        "SecurityGroup" : {
+           "Type" : "AWS::EC2::SecurityGroup",
+           "Properties" : {
+              "GroupName": "NetScalerVPXSecurityGroup",
+              "GroupDescription" : "Allow http/s and ssh to  ENI from Internet",
+              "VpcId" : {"Ref" : "VpcID"},
+              "SecurityGroupIngress" : [{
+                    "IpProtocol" : "tcp",
+                    "FromPort" : "80",
+                    "ToPort" : "80",
+                    "CidrIp" : "0.0.0.0/0"
+                 },
+                 {
+                    "IpProtocol" : "tcp",
+                    "FromPort" : "443",
+                    "ToPort" : "443",
+                    "CidrIp" : "0.0.0.0/0"
+                 },
+                 {
+                    "IpProtocol" : "tcp",
+                    "FromPort" : "22",
+                    "ToPort" : "22",
+                    "CidrIp" : "0.0.0.0/0"
+                 }]
+           }
+        },
+
+
+        "CitrixNodesInstanceRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "Path": "/",
+                "Policies": [
+                    {
+                        "PolicyName": "Citrixnode",
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Action": [
+                                        "ec2:DescribeInstances",
+                                        "ec2:DescribeNetworkInterfaces",
+                                        "ec2:DetachNetworkInterface",
+                                        "ec2:AttachNetworkInterface"
+                                    ],
+                                    "Resource": "*",
+                                    "Effect": "Allow"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Action": [
+                                "sts:AssumeRole"
+                            ],
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "ec2.amazonaws.com"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        "CitrixNodesProfile": {
+            "Type": "AWS::IAM::InstanceProfile",
+            "Properties": {
+                "Path": "/",
+                "Roles": [
+                    {
+                        "Ref": "CitrixNodesInstanceRole"
+                    }
+                ]
+            }
+        },
+        "VPXInstance": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "Tags": [
+                    {
+                        "Value": "NetScalerVPX",
+                        "Key": "Name"
+                    },
+                    {
+                        "Value": "nsvpx",
+                        "Key": "Purpose"
+                    }
+                ],
+                "ImageId": {
+                    "Ref": "AMI"
+                },
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "IamInstanceProfile": {
+                    "Ref": "CitrixNodesProfile"
+                },
+                "InstanceType": {
+                    "Ref": "VPX"
+                },
+                "NetworkInterfaces" : [{
+                     "AssociatePublicIpAddress": "true",
+                     "DeviceIndex": "0",
+                     "GroupSet": [{ "Ref" : "SecurityGroup" }],
+                     "SecondaryPrivateIpAddressCount": 2,
+                     "SubnetId": { "Ref": "Subnet" }
+                 }]
+            }
+        },
+        "EipIp": {
+            "Type": "AWS::EC2::EIP",
+            "Properties": {
+                "Domain": "vpc"
+            }
+        },
+        "AssociateEipIp": {
+            "Type": "AWS::EC2::EIPAssociation",
+            "Properties": {
+                "AllocationId": {
+                    "Fn::GetAtt": [
+                        "EipIp",
+                        "AllocationId"
+                    ]
+                },
+                "InstanceId": { "Ref": "VPXInstance"},
+                "PrivateIpAddress": {
+                    "Fn::GetAtt": ["VPXBootStrap", "VIP" ]
+                }
+            }
+        },
+        "LambdaExecutionRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "lambda.amazonaws.com"
+                                ]
+                            },
+                            "Action": [
+                                "sts:AssumeRole"
+                            ]
+                        }
+                    ]
+                },
+                "Policies": [
+                    {
+                        "PolicyName": "lambdalogtocloudwatch",
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "logs:CreateLogGroup",
+                                        "logs:CreateLogStream",
+                                        "logs:PutLogEvents"
+                                    ],
+                                    "Resource": "arn:aws:logs:*:*:*"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "PolicyName": "lambdaallowreadec2",
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Action": [
+                                        "ec2:DescribeInstances",
+                                        "ec2:DescribeNetworkInterfaces",
+                                        "ec2:DescribeSubnets",
+                                        "ec2:DescribeVpcs",
+                                        "ec2:CreateNetworkInterface",
+                                        "ec2:DeleteNetworkInterface",
+                                        "ec2:AssignPrivateIpAddresses"
+                                    ],
+                                    "Resource": "*",
+                                    "Effect": "Allow"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        "VPXBootStrapFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+                "Code": {
+                   "S3Bucket": "vpx-lambda-functions",
+                   "S3Key": "vpx-bootstrap.zip"
+                },
+                "Handler": "handler.lambda_handler",
+                "Runtime": "python2.7",
+                "Timeout": "240",
+                "Role": {
+                    "Fn::GetAtt": [
+                        "LambdaExecutionRole",
+                        "Arn"
+                    ]
+                }
+            }
+        },
+        "VPXBootStrap": {
+            "Type": "Custom::LambdaCallout",
+            "Properties": {
+                "ServiceToken": {
+                    "Fn::GetAtt": [
+                        "VPXBootStrapFunction",
+                        "Arn"
+                    ]
+                },
+                "EC2InstanceId": {
+                    "Ref": "VPXInstance"
+                },
+                "PublicNSIP": {
+                    "Fn::GetAtt" : [ "VPXInstance", "PublicIp" ]
+                },
+                "SubnetId": {
+                      "Ref": "Subnet" 
+                }
+            }
+        }
+    }
+
+}
