@@ -117,7 +117,7 @@ def do_nitro_call_with_retry(instance_id, url, json_data, timeout, max_retries=9
                     # service unavailable or internal error, just sleep and try again
                     logger.info('NS VPX is not ready to be configured, service unavailable condition, may retry...')
                     retry = True
-                    retry_count += retry_count + 1
+                    retry_count += 1
                     if retry_count > max_retries:
                         logger.info('Too many retries, giving up, retries=' + str(retry_count))
                         retry = False
@@ -135,7 +135,7 @@ def do_nitro_call_with_retry(instance_id, url, json_data, timeout, max_retries=9
             logger.info('URLError during NITRO call: reason=' + str(ure.reason))
             if type(ure.reason).__name__ == 'timeout':
                 logger.info('Socket timeout configuring NS VPX')
-                retry_count += retry_count + 1
+                retry_count += 1
                 if retry_count > 9:
                     logger.info('Too many timeouts: giving up on configuring NS VPX')
                     retry = False
