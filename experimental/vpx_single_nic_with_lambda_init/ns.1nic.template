@@ -5,6 +5,7 @@
     "Mappings": {
         "VPXRegionMap": {
           "ap-south-1": {
+            "VpxBYOL": "ami-df1250b0",
             "VpxStandard1000": "ami-d21250bd",
             "VpxPlatinum10": "ami-de1250b1",
             "VpxStandard200": "ami-7d0c4e12",
@@ -16,6 +17,7 @@
             "VpxPlatinum200": "ami-1b125074"
           },
           "us-east-1": {
+            "VpxBYOL": "ami-fec81584",
             "VpxStandard1000": "ami-bac419c0",
             "VpxPlatinum10": "ami-d6ca17ac",
             "VpxStandard200": "ami-87c71afd",
@@ -27,6 +29,7 @@
             "VpxPlatinum200": "ami-84c518fe"
           },
           "us-east-2": {
+            "VpxBYOL": "ami-aae6cacf",
             "VpxStandard1000": "ami-4ce5c929",
             "VpxPlatinum10": "ami-75e5c910",
             "VpxStandard200": "ami-b4e5c9d1",
@@ -38,6 +41,7 @@
             "VpxPlatinum200": "ami-1bebc77e"
           },
           "ap-southeast-2": {
+            "VpxBYOL": "ami-c9a549ab",
             "VpxStandard1000": "ami-2ba54949",
             "VpxPlatinum10": "ami-1fa4487d",
             "VpxStandard200": "ami-b6a549d4",
@@ -49,6 +53,7 @@
             "VpxPlatinum200": "ami-bda549df"
           },
           "ap-northeast-1": {
+            "VpxBYOL": "ami-1821fb7e",
             "VpxStandard1000": "ami-0223f964",
             "VpxPlatinum10": "ami-852cf6e3",
             "VpxStandard200": "ami-a72cf6c1",
@@ -60,6 +65,7 @@
             "VpxPlatinum200": "ami-fc2df79a"
           },
           "sa-east-1": {
+            "VpxBYOL": "ami-406b122c",
             "VpxStandard1000": "ami-536d143f",
             "VpxPlatinum10": "ami-886a13e4",
             "VpxStandard200": "ami-456b1229",
@@ -71,6 +77,7 @@
             "VpxPlatinum200": "ami-d86d14b4"
           },
           "ap-southeast-1": {
+            "VpxBYOL": "ami-bbaaeed8",
             "VpxStandard1000": "ami-61abef02",
             "VpxPlatinum10": "ami-5dabef3e",
             "VpxStandard200": "ami-55abef36",
@@ -82,6 +89,7 @@
             "VpxPlatinum200": "ami-e3aaee80"
           },
           "ca-central-1": {
+            "VpxBYOL": "ami-20b50d44",
             "VpxStandard1000": "ami-94b30bf0",
             "VpxPlatinum10": "ami-cbbc04af",
             "VpxStandard200": "ami-95b30bf1",
@@ -93,6 +101,7 @@
             "VpxPlatinum200": "ami-09b40c6d"
           },
           "ap-northeast-2": {
+            "VpxBYOL": "ami-fb6dc895",
             "VpxStandard1000": "ami-746cc91a",
             "VpxPlatinum10": "ami-766cc918",
             "VpxStandard200": "ami-dd63c6b3",
@@ -104,6 +113,7 @@
             "VpxPlatinum200": "ami-5562c73b"
           },
           "us-west-2": {
+            "VpxBYOL": "ami-7fd41607",
             "VpxStandard1000": "ami-1cd71564",
             "VpxPlatinum10": "ami-46da183e",
             "VpxStandard200": "ami-a0d614d8",
@@ -115,6 +125,7 @@
             "VpxPlatinum200": "ami-e6d4169e"
           },
           "us-west-1": {
+            "VpxBYOL": "ami-38467b58",
             "VpxStandard1000": "ami-fc477a9c",
             "VpxPlatinum10": "ami-69477a09",
             "VpxStandard200": "ami-53467b33",
@@ -126,6 +137,7 @@
             "VpxPlatinum200": "ami-3a467b5a"
           },
           "eu-central-1": {
+            "VpxBYOL": "ami-f95fe696",
             "VpxStandard1000": "ami-465ee729",
             "VpxPlatinum10": "ami-175ee778",
             "VpxStandard200": "ami-1a5ee775",
@@ -137,6 +149,7 @@
             "VpxPlatinum200": "ami-155ee77a"
           },
           "eu-west-1": {
+            "VpxBYOL": "ami-929148eb",
             "VpxStandard1000": "ami-79914800",
             "VpxPlatinum10": "ami-10904969",
             "VpxStandard200": "ami-65944d1c",
@@ -148,6 +161,7 @@
             "VpxPlatinum200": "ami-7791480e"
           },
           "eu-west-2": {
+            "VpxBYOL": "ami-543f2230",
             "VpxStandard1000": "ami-3f3e235b",
             "VpxPlatinum10": "ami-fc3f2298",
             "VpxStandard200": "ami-513f2235",
@@ -178,7 +192,8 @@
                 "VpxEnterprise1000",
                 "VpxPlatinum10",
                 "VpxPlatinum200",
-                "VpxPlatinum1000"
+                "VpxPlatinum1000",
+                "VpxBYOL"
              ],
             "Default": "VpxStandard10"
         },
