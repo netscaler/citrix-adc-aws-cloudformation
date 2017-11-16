@@ -9,7 +9,7 @@ The template creates a single NIC Citrix NetScaler VPX in the supplied subnet an
 The Cloudformation template takes the following parameters:
 * Subnet. This is the subnet id where you want the VPX to run in
 * VpcID. This is the VPC id of the VPC where you want the VPX to run in
-* AMI. This is the AMI id of the VPX
+* ImageName. This is the image name of the VPX. The image name is based on the licensed speed of the VPX. For example VpxStandard10 implies 10 Mbps
 * KeyName. A keyname of a keypair that you own and have registered with AWS
 
 ## Outputs
@@ -23,9 +23,56 @@ The Cloudformation template outputs the following:
 
 You can browse to http://PublicNSIp/ (or ssh to PublicNSIp) to continue configuring the appliance.
 
+## Launch using the AWS Console
+
+
+ - US-East-1 region  
+   <a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=NetScalerVPX-SingleNic&templateURL=https://s3-us-west-2.amazonaws.com/citrix-netscaler-cft/netscaler-1nic-lambda-init.template">
+    <img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/></a> 
+- US-East-2 region  
+   <a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/new?stackName=NetScalerVPX-SingleNic&templateURL=https://s3-us-west-2.amazonaws.com/citrix-netscaler-cft/netscaler-1nic-lambda-init.template">
+    <img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/></a> 
+- US-West-1 region  
+   <a href="https://console.aws.amazon.com/cloudformation/home?region=us-west-1#/stacks/new?stackName=NetScalerVPX-SingleNic&templateURL=https://s3-us-west-2.amazonaws.com/citrix-netscaler-cft/netscaler-1nic-lambda-init.template">
+    <img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/></a> 
+- US-West-2 region  
+   <a href="https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=NetScalerVPX-SingleNic&templateURL=https://s3-us-west-2.amazonaws.com/citrix-netscaler-cft/netscaler-1nic-lambda-init.template">
+    <img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/></a> 
+- CA-Central-1 region  
+   <a href="https://console.aws.amazon.com/cloudformation/home?region=ca-central-1#/stacks/new?stackName=NetScalerVPX-SingleNic&templateURL=https://s3-us-west-2.amazonaws.com/citrix-netscaler-cft/netscaler-1nic-lambda-init.template">
+    <img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/></a> 
+- EU-West-1 region  
+   <a href="https://console.aws.amazon.com/cloudformation/home?region=eu-west-1#/stacks/new?stackName=NetScalerVPX-SingleNic&templateURL=https://s3-us-west-2.amazonaws.com/citrix-netscaler-cft/netscaler-1nic-lambda-init.template">
+    <img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/></a> 
+- EU-West-2 region  
+   <a href="https://console.aws.amazon.com/cloudformation/home?region=eu-west-2#/stacks/new?stackName=NetScalerVPX-SingleNic&templateURL=https://s3-us-west-2.amazonaws.com/citrix-netscaler-cft/netscaler-1nic-lambda-init.template">
+    <img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/></a> 
+- EU-central-1 region  
+   <a href="https://console.aws.amazon.com/cloudformation/home?region=eu-central-1#/stacks/new?stackName=NetScalerVPX-SingleNic&templateURL=https://s3-us-west-2.amazonaws.com/citrix-netscaler-cft/netscaler-1nic-lambda-init.template">
+    <img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/></a> 
+- AP-South-1 region  
+   <a href="https://console.aws.amazon.com/cloudformation/home?region=ap-south-1#/stacks/new?stackName=NetScalerVPX-SingleNic&templateURL=https://s3-us-west-2.amazonaws.com/citrix-netscaler-cft/netscaler-1nic-lambda-init.template">
+    <img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/></a> 
+- AP-Northeast-1 region  
+   <a href="https://console.aws.amazon.com/cloudformation/home?region=ap-northeast-1#/stacks/new?stackName=NetScalerVPX-SingleNic&templateURL=https://s3-us-west-2.amazonaws.com/citrix-netscaler-cft/netscaler-1nic-lambda-init.template">
+    <img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/></a> 
+- AP-Northeast-2 region  
+   <a href="https://console.aws.amazon.com/cloudformation/home?region=ap-northeast-2#/stacks/new?stackName=NetScalerVPX-SingleNic&templateURL=https://s3-us-west-2.amazonaws.com/citrix-netscaler-cft/netscaler-1nic-lambda-init.template">
+    <img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/></a> 
+- AP-Southeast-1 region  
+   <a href="https://console.aws.amazon.com/cloudformation/home?region=ap-southeast-1#/stacks/new?stackName=NetScalerVPX-SingleNic&templateURL=https://s3-us-west-2.amazonaws.com/citrix-netscaler-cft/netscaler-1nic-lambda-init.template">
+    <img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/></a> 
+- AP-Southeast-2 region  
+   <a href="https://console.aws.amazon.com/cloudformation/home?region=ap-southeast-2#/stacks/new?stackName=NetScalerVPX-SingleNic&templateURL=https://s3-us-west-2.amazonaws.com/citrix-netscaler-cft/netscaler-1nic-lambda-init.template">
+    <img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/></a> 
+- SA-East-1 region  
+   <a href="https://console.aws.amazon.com/cloudformation/home?region=sa-east-1#/stacks/new?stackName=NetScalerVPX-SingleNic&templateURL=https://s3-us-west-2.amazonaws.com/citrix-netscaler-cft/netscaler-1nic-lambda-init.template">
+    <img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/></a> 
+
+<br>
 
 ## Lambda function
-The lambda function has been uploaded to a public S3 bucket called s3://vpx-bootstrap-functions. You can upload the function to a different S3 bucket and modify the CloudFormation template to point to the new bucket. The Makefile contain handy utilities to make the upload to S3 easy.
+The lambda function has been uploaded to a public S3 bucket called s3://netscaler-cft-fn-<i>regionname</i>. You can upload the function to a different S3 bucket and modify the CloudFormation template to point to the new bucket. The Makefile contain handy utilities to make the upload to S3 easy.
 
 ## Other utilities
 `create_stack.sh` shows you how to obtain the AMI id from the command line and also to launch the stack from the command line.
