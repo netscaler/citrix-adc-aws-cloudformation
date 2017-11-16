@@ -2,15 +2,185 @@
   "AWSTemplateFormatVersion" : "2010-09-09",
 
     "Description": "Netscaler AWS-VPX template creates a  instance of VPX with 1 ENIs ",
+    "Mappings": {
+        "VPXRegionMap": {
+          "ap-south-1": {
+            "VpxStandard1000": "ami-d21250bd",
+            "VpxPlatinum10": "ami-de1250b1",
+            "VpxStandard200": "ami-7d0c4e12",
+            "VpxPlatinum1000": "ami-3d0c4e52",
+            "VpxEnterprise10": "ami-9c1351f3",
+            "VpxEnterprise1000": "ami-9b1351f4",
+            "VpxStandard10": "ami-c41351ab",
+            "VpxEnterprise200": "ami-c11052ae",
+            "VpxPlatinum200": "ami-1b125074"
+          },
+          "us-east-1": {
+            "VpxStandard1000": "ami-bac419c0",
+            "VpxPlatinum10": "ami-d6ca17ac",
+            "VpxStandard200": "ami-87c71afd",
+            "VpxPlatinum1000": "ami-0ec71a74",
+            "VpxEnterprise10": "ami-daca17a0",
+            "VpxEnterprise1000": "ami-58c51822",
+            "VpxStandard10": "ami-e8c41992",
+            "VpxEnterprise200": "ami-d9c419a3",
+            "VpxPlatinum200": "ami-84c518fe"
+          },
+          "us-east-2": {
+            "VpxStandard1000": "ami-4ce5c929",
+            "VpxPlatinum10": "ami-75e5c910",
+            "VpxStandard200": "ami-b4e5c9d1",
+            "VpxPlatinum1000": "ami-abe6cace",
+            "VpxEnterprise10": "ami-b8e5c9dd",
+            "VpxEnterprise1000": "ami-c4e5c9a1",
+            "VpxStandard10": "ami-37e6ca52",
+            "VpxEnterprise200": "ami-eee7cb8b",
+            "VpxPlatinum200": "ami-1bebc77e"
+          },
+          "ap-southeast-2": {
+            "VpxStandard1000": "ami-2ba54949",
+            "VpxPlatinum10": "ami-1fa4487d",
+            "VpxStandard200": "ami-b6a549d4",
+            "VpxPlatinum1000": "ami-c3a549a1",
+            "VpxEnterprise10": "ami-1da4487f",
+            "VpxEnterprise1000": "ami-caa549a8",
+            "VpxStandard10": "ami-5da5493f",
+            "VpxEnterprise200": "ami-5ca64a3e",
+            "VpxPlatinum200": "ami-bda549df"
+          },
+          "ap-northeast-1": {
+            "VpxStandard1000": "ami-0223f964",
+            "VpxPlatinum10": "ami-852cf6e3",
+            "VpxStandard200": "ami-a72cf6c1",
+            "VpxPlatinum1000": "ami-0022f866",
+            "VpxEnterprise10": "ami-d72df7b1",
+            "VpxEnterprise1000": "ami-1323f975",
+            "VpxStandard10": "ami-4120fa27",
+            "VpxEnterprise200": "ami-682df70e",
+            "VpxPlatinum200": "ami-fc2df79a"
+          },
+          "sa-east-1": {
+            "VpxStandard1000": "ami-536d143f",
+            "VpxPlatinum10": "ami-886a13e4",
+            "VpxStandard200": "ami-456b1229",
+            "VpxPlatinum1000": "ami-776c151b",
+            "VpxEnterprise10": "ami-f86c1594",
+            "VpxEnterprise1000": "ami-896a13e5",
+            "VpxStandard10": "ami-bf6c15d3",
+            "VpxEnterprise200": "ami-8a6a13e6",
+            "VpxPlatinum200": "ami-d86d14b4"
+          },
+          "ap-southeast-1": {
+            "VpxStandard1000": "ami-61abef02",
+            "VpxPlatinum10": "ami-5dabef3e",
+            "VpxStandard200": "ami-55abef36",
+            "VpxPlatinum1000": "ami-2da9ed4e",
+            "VpxEnterprise10": "ami-22aaee41",
+            "VpxEnterprise1000": "ami-0eaaee6d",
+            "VpxStandard10": "ami-60b4f003",
+            "VpxEnterprise200": "ami-bca9eddf",
+            "VpxPlatinum200": "ami-e3aaee80"
+          },
+          "ca-central-1": {
+            "VpxStandard1000": "ami-94b30bf0",
+            "VpxPlatinum10": "ami-cbbc04af",
+            "VpxStandard200": "ami-95b30bf1",
+            "VpxPlatinum1000": "ami-cbbd05af",
+            "VpxEnterprise10": "ami-27b30b43",
+            "VpxEnterprise1000": "ami-afb50dcb",
+            "VpxStandard10": "ami-abbd05cf",
+            "VpxEnterprise200": "ami-feb40c9a",
+            "VpxPlatinum200": "ami-09b40c6d"
+          },
+          "ap-northeast-2": {
+            "VpxStandard1000": "ami-746cc91a",
+            "VpxPlatinum10": "ami-766cc918",
+            "VpxStandard200": "ami-dd63c6b3",
+            "VpxPlatinum1000": "ami-e863c686",
+            "VpxEnterprise10": "ami-f462c79a",
+            "VpxEnterprise1000": "ami-9b62c7f5",
+            "VpxStandard10": "ami-ef6cc981",
+            "VpxEnterprise200": "ami-f362c79d",
+            "VpxPlatinum200": "ami-5562c73b"
+          },
+          "us-west-2": {
+            "VpxStandard1000": "ami-1cd71564",
+            "VpxPlatinum10": "ami-46da183e",
+            "VpxStandard200": "ami-a0d614d8",
+            "VpxPlatinum1000": "ami-81d113f9",
+            "VpxEnterprise10": "ami-c3d416bb",
+            "VpxEnterprise1000": "ami-47da183f",
+            "VpxStandard10": "ami-1fda1867",
+            "VpxEnterprise200": "ami-7bd41603",
+            "VpxPlatinum200": "ami-e6d4169e"
+          },
+          "us-west-1": {
+            "VpxStandard1000": "ami-fc477a9c",
+            "VpxPlatinum10": "ami-69477a09",
+            "VpxStandard200": "ami-53467b33",
+            "VpxPlatinum1000": "ami-5d467b3d",
+            "VpxEnterprise10": "ami-c6467ba6",
+            "VpxEnterprise1000": "ami-af417ccf",
+            "VpxStandard10": "ami-29417c49",
+            "VpxEnterprise200": "ami-28417c48",
+            "VpxPlatinum200": "ami-3a467b5a"
+          },
+          "eu-central-1": {
+            "VpxStandard1000": "ami-465ee729",
+            "VpxPlatinum10": "ami-175ee778",
+            "VpxStandard200": "ami-1a5ee775",
+            "VpxPlatinum1000": "ami-7550e91a",
+            "VpxEnterprise10": "ami-7250e91d",
+            "VpxEnterprise1000": "ami-1f51e870",
+            "VpxStandard10": "ami-ff5fe690",
+            "VpxEnterprise200": "ami-7050e91f",
+            "VpxPlatinum200": "ami-155ee77a"
+          },
+          "eu-west-1": {
+            "VpxStandard1000": "ami-79914800",
+            "VpxPlatinum10": "ami-10904969",
+            "VpxStandard200": "ami-65944d1c",
+            "VpxPlatinum1000": "ami-f59e478c",
+            "VpxEnterprise10": "ami-969148ef",
+            "VpxEnterprise1000": "ami-d7934aae",
+            "VpxStandard10": "ami-d0924ba9",
+            "VpxEnterprise200": "ami-1e904967",
+            "VpxPlatinum200": "ami-7791480e"
+          },
+          "eu-west-2": {
+            "VpxStandard1000": "ami-3f3e235b",
+            "VpxPlatinum10": "ami-fc3f2298",
+            "VpxStandard200": "ami-513f2235",
+            "VpxPlatinum1000": "ami-fa3f229e",
+            "VpxEnterprise10": "ami-fd3f2299",
+            "VpxEnterprise1000": "ami-c33f22a7",
+            "VpxStandard10": "ami-32392456",
+            "VpxEnterprise200": "ami-b33e23d7",
+            "VpxPlatinum200": "ami-683f220c"
+          }
+        }
+    },
 
     "Parameters": {
         "VpcID": {
             "Type": "AWS::EC2::VPC::Id",
             "Description": "VpcId of your existing Virtual Private Cloud (VPC)"
         },
-        "AMI" : {
-            "Type": "AWS::EC2::Image::Id",
-            "Description": "VPX AMI to use"
+        "ImageName" : {
+            "Type": "String",
+            "Description": "License/Version of VPX AMI to use",
+            "AllowedValues": [
+                "VpxStandard10",
+                "VpxStandard200",
+                "VpxStandard1000",
+                "VpxEnterprise10",
+                "VpxEnterprise200",
+                "VpxEnterprise1000",
+                "VpxPlatinum10",
+                "VpxPlatinum200",
+                "VpxPlatinum1000"
+             ],
+            "Default": "VpxStandard10"
         },
         "VPX": {
             "ConstraintDescription": "Must be a valid EC2 instance type.",
@@ -175,7 +345,7 @@
                     }
                 ],
                 "ImageId": {
-                    "Ref": "AMI"
+                    "Fn::FindInMap": ["VPXRegionMap", { "Ref": "AWS::Region" }, { "Ref": "ImageName" } ]
                 },
                 "KeyName": {
                     "Ref": "KeyName"
@@ -281,8 +451,8 @@
             "Type": "AWS::Lambda::Function",
             "Properties": {
                 "Code": {
-                   "S3Bucket": "vpx-lambda-functions",
-                   "S3Key": "vpx-bootstrap.zip"
+                   "S3Bucket": {"Fn::Join": ["", ["netscaler-cft-fn-", {"Ref": "AWS::Region"}]]},
+                   "S3Key": "vpx-1nic-bootstrap.zip"
                 },
                 "Handler": "handler.lambda_handler",
                 "Runtime": "python2.7",
