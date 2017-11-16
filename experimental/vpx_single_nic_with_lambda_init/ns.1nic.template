@@ -174,6 +174,28 @@
           }
         }
     },
+    "Metadata" : {
+          "AWS::CloudFormation::Interface" : {
+          "ParameterGroups" : [
+            {
+              "Label" : { "default" : "Network Configuration" },
+              "Parameters" : [ "VpcId", "SubnetId"]
+            },
+            {
+              "Label" :      { "default":"Amazon EC2 Configuration" },
+              "Parameters" : [ "VPXInstanceType", "ImageName", "KeyName" ]
+            }
+          ],
+          "ParameterLabels" : {
+            "VpcId" : { "default" : "Which VPC should this be deployed to?" },
+            "SubnetId" : { "default" : "Subnet in the VPC (subnet should be able to accept public traffic)?" },
+            "VPXInstanceType" : { "default" : "Instance Type for the NetScaler VPX"},
+            "ImageName" : { "default" : "Select license and speed. Numbers indicate Mbps"},
+            "KeyName": { "default": "SSH Keypair"}
+
+          }
+        }
+     },
 
     "Parameters": {
         "VpcId": {
