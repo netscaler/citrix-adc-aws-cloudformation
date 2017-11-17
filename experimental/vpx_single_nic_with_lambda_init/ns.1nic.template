@@ -290,7 +290,6 @@
         "SecurityGroup" : {
            "Type" : "AWS::EC2::SecurityGroup",
            "Properties" : {
-              "GroupName": "NetScalerVPXSecurityGroup",
               "GroupDescription" : "Allow http/s and ssh to  ENI from Internet",
               "VpcId" : {"Ref" : "VpcId"},
               "SecurityGroupIngress" : [{
