@@ -17,10 +17,10 @@ Each template in this repository has colocated documentation describing the usag
 The CloudFormation templates contain AMI Ids that are specific to a particular release of the Citrix NetScaler VPX (e.g., release 12.0-56.20) and edition (e.g., Citrix NetScaler VPX Platinum Edition - 10 Mbps). To use a different version / edition of the Citrix NetScaler VPX with a CloudFormation template requires the user to edit the template and replace the AMI Ids.
 
 ## Versioning
-The master branch of the repository generally has the latest version of the template. Older versions can be found in the appropriately labeled branches.
+The master branch of the repository generally has the latest version of the template. Older released versions are tagged appropriately
 
 ## Support
-For production issues with the templates, please contact Citrix Support through your normal support channels. If you have fixes / suggestions for improvements or requests, please raise an issue in this repository.
+For production issues with the templates, please contact Citrix Support through your normal support channels. If you have fixes / suggestions for improvements or requests, please raise an issue in this repository. 
 
 ## Further reading
 - VPX installation in AWS : https://docs.citrix.com/en-us/netscaler/12/deploying-vpx/install-vpx-on-aws.html
