@@ -1,0 +1,168 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: >-
+  This CFT automates the steps required for the "Pre-requisites for AWS" for Autoscaling of Citrix ADC in AWS using Citrix ADM
+  Refer the documentation https://docs.citrix.com/en-us/citrix-application-delivery-management-service/hybrid-multi-cloud-deployments/autoscale-for-aws/autoscale-for-aws-configuration.html#pre-requisites-for-aws
+  
+  Use this CFT after using the first CFT.
+  This creates AZ specific NAT, Route Table and Subnets only.
+  
+Parameters:
+  VPCID:
+    Description: Select VPC ID of the Existing VPC
+    Type: AWS::EC2::VPC::Id
+  MgmtSubnetCIDR:
+    Description: Give Cidr for management subnet within the VPC-CIDR
+    Type: String
+  PublicClientSubnetCIDR:
+    Description: Give Cidr for Public-client subnet  within the VPC-CIDR
+    Type: String
+  ServerSubnetCIDR:
+    Description: Give Cidr for Server subnet within the VPC-CIDR
+    Type: String
+  Availabilityzone:
+    Description: Specify the availabilty zone for zone dependent resources
+    Type: AWS::EC2::AvailabilityZone::Name
+  StackName:
+    Description:
+      Name of the CloudFormation stack used earlier with first CFT. (This
+      stack has to import Internet Gateway ID from the first stack)
+    Type: String
+    MinLength: 1
+    MaxLength: 255
+    AllowedPattern: "^[a-zA-Z][-a-zA-Z0-9]*$"
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Stack Name of First CFT
+        Parameters:
+          - StackName
+      - Label:
+          default: Network
+        Parameters:
+          - VPCID
+          - Availabilityzone
+      - Label:
+          default: VPC Configuration
+        Parameters:
+          - MgmtSubnetCIDR
+          - PublicClientSubnetCIDR
+          - ServerSubnetCIDR
+    ParameterLabels:
+      VPCID:
+        default: VPC ID
+      MgmtSubnetCIDR:
+        default: Management Subnet CIDR
+      PublicClientSubnetCIDR:
+        default: Client Subnet CIDR
+      ServerSubnetCIDR:
+        default: Server Subnet CIDR
+      Availabilityzone:
+        default: Availability Zone
+      StackName:
+        default: Stack name used for first CFT
+
+Outputs:
+  NATGateway:
+    Description: NAT Gateway for the selected Availability Zone
+    Value: !Ref NAT
+  RouteTableManagement:
+    Description: Route Table associated with Management Subnet
+    Value: !Ref MgmtRouteTable
+  RouteTableClient:
+    Description: Route Table associated with Client Subnet
+    Value: !Ref PublicClientRouteTable
+
+
+
+Resources:
+  SubnetMgmt:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: !Ref MgmtSubnetCIDR
+      AvailabilityZone: !Ref Availabilityzone
+      VpcId: !Ref VPCID
+      Tags:
+        - Key: Name
+          Value: !Sub Mgmt-${AWS::StackName}
+  SubnetClient:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: !Ref PublicClientSubnetCIDR
+      AvailabilityZone: !Ref Availabilityzone
+      VpcId: !Ref VPCID
+      Tags:
+        - Key: Name
+          Value: !Sub Public_Client-${AWS::StackName}
+  SubnetServer:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: !Ref ServerSubnetCIDR
+      AvailabilityZone: !Ref Availabilityzone
+      VpcId: !Ref VPCID
+      Tags:
+        - Key: Name
+          Value: !Sub Server-${AWS::StackName}
+  MgmtEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+  NAT:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt MgmtEIP.AllocationId
+      SubnetId: !Ref SubnetClient
+      Tags:
+        - Key: Name
+          Value: !Sub nat-${AWS::StackName}
+  MgmtRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPCID
+      Tags:
+        - Key: Name
+          Value: !Sub rtbMgmt-${AWS::StackName}
+  PublicClientRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPCID
+      Tags:
+        - Key: Name
+          Value: !Sub rtbClient-${AWS::StackName}
+  MgmtRtbAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref MgmtRouteTable
+      SubnetId: !Ref SubnetMgmt
+    DependsOn:
+      - MgmtRouteTable
+      - SubnetMgmt
+  ClientRtbAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicClientRouteTable
+      SubnetId: !Ref SubnetClient
+    DependsOn:
+      - PublicClientRouteTable
+      - SubnetClient
+  MgmtRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      RouteTableId: !Ref MgmtRouteTable
+      NatGatewayId: !Ref NAT
+    DependsOn:
+      - MgmtRtbAssociation
+      - NAT
+  ClientRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      RouteTableId: !Ref PublicClientRouteTable
+      GatewayId:
+        Fn::ImportValue:
+          Fn::Sub: "${StackName}-InternetGatewayID"
+    DependsOn: PublicClientRouteTable
