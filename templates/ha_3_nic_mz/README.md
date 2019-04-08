@@ -20,7 +20,7 @@ This template creates a HA pair with two instance of Netscaler with 3 ENIs assoc
 
 
 ## Pre-requisites
-The CloudFormation template requires sufficient permissions to create IAM roles, beyond normal EC2 full privileges. The user of this template also needs to [accept the terms and subscribe to the AWS Marketplace product](https://aws.amazon.com/marketplace/pp/FIXME/) before using this CloudFormation template.
+The CloudFormation template requires sufficient permissions to create IAM roles, beyond normal EC2 full privileges. The user of this template also needs to [accept the terms and subscribe to the AWS Marketplace product](https://aws.amazon.com/marketplace/pp/B00AA01BOE) before using this CloudFormation template.
 <p>The following should be present</p>
 
 - VPC connected to Internet Gateway
