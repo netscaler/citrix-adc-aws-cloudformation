@@ -33,6 +33,8 @@ The CloudFormation template requires sufficient permissions to create IAM roles,
 		- Management side Subnet
 		- Client side Subnet
 		- Servers side Subnet
+- Citrix ADC AMI-ID (Optional)
+	- By default, BYOL ADC image is deployed. If any other image is required, the procedure is in `get-ami-id.pdf`
 
 
 ## Network architecture

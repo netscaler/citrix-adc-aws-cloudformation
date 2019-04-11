@@ -8,7 +8,7 @@ Parameters:
     Type: String
     Default: ''
     Description: >-
-      AMI ID of Citrix ADC to be provisioned. If left empty, "NetScaler ADC VPX - Customer Licensed Version 12.1-50.28 (https://aws.amazon.com/marketplace/pp/B00AA01BOE)" is provisioned by default
+      OPTIONAL -- AMI ID of Citrix ADC to be provisioned. If left empty, "NetScaler ADC VPX - Customer Licensed Version 12.1-50.28 (https://aws.amazon.com/marketplace/pp/B00AA01BOE)" is provisioned by default. Refer Pre-requisites section in README.md on procedure to get AMI-ID
   VpcId:
     Default: "example:vpc-aaaaaaaa"
     Type: "AWS::EC2::VPC::Id"
@@ -48,7 +48,7 @@ Parameters:
     Default: ""
     Type: String
     Description: >-
-      Private IP assigned to the Primary Management ENI (last octet has to be
+      OPTIONAL -- Private IP assigned to the Primary Management ENI (last octet has to be
       between 5 and 254). Leave empty for automatic assignment.
   PriManagementSubnet:
     Default: "example:subnet-bbbbbbbb"
@@ -61,7 +61,7 @@ Parameters:
     Default: ""
     Type: String
     Description: >-
-      Private IP assigned to the Primary Client ENI (last octet has to be between 5 and
+      OPTIONAL -- Private IP assigned to the Primary Client ENI (last octet has to be between 5 and
       254). Leave empty for automatic assignment.
   PriClientSubnet:
     Default: "example:subnet-cccccccc"
@@ -73,7 +73,7 @@ Parameters:
     Default: ""
     Type: String
     Description: >-
-      Private IP assigned to the Primary Server ENI (last octet has to be between 5 and
+      OPTIONAL -- Private IP assigned to the Primary Server ENI (last octet has to be between 5 and
       254). Leave empty for automatic assignment.
   PriServerSubnet:
     Default: "example:subnet-dddddddd"
@@ -85,7 +85,7 @@ Parameters:
     Default: ""
     Type: String
     Description: >-
-      Private IP assigned to the Secondary Management ENI (last octet has to be
+      OPTIONAL -- Private IP assigned to the Secondary Management ENI (last octet has to be
       between 5 and 254). Leave empty for automatic assignment.
   SecManagementSubnet:
     Default: "example:subnet-bbbbbbbb"
@@ -97,7 +97,7 @@ Parameters:
     Default: ""
     Type: String
     Description: >-
-      Private IP assigned to the Secondary Client ENI (last octet has to be between 5 and
+      OPTIONAL -- Private IP assigned to the Secondary Client ENI (last octet has to be between 5 and
       254). Leave empty for automatic assignment.
   SecClientSubnet:
     Default: "example:subnet-cccccccc"
@@ -109,7 +109,7 @@ Parameters:
     Default: ""
     Type: String
     Description: >-
-      Private IP assigned to the Secondary Server ENI (last octet has to be between 5 and
+      OPTIONAL -- Private IP assigned to the Secondary Server ENI (last octet has to be between 5 and
       254). Leave empty for automatic assignment.
   SecServerSubnet:
     Default: "example:subnet-dddddddd"
@@ -123,13 +123,19 @@ Parameters:
     Type: String
     Description: Type of Netscalar instance
     AllowedValues:
-      - m3.large
-      - m3.xlarge
-      - m3.2xlarge
+      - m4.large
       - m4.xlarge
       - m4.2xlarge
       - m4.4xlarge
       - m4.10xlarge
+      - m3.large
+      - m3.xlarge
+      - m3.2xlarge
+      - c4.large
+      - c4.xlarge
+      - c4.2xlarge
+      - c4.4xlarge
+      - c4.8xlarge
   TenancyType:
     Default: default
     Type: String
