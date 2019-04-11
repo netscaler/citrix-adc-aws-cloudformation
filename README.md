@@ -4,6 +4,8 @@ Citrix NetScaler AWS Cloudformation templates
 
 This is a repository for [Citrix NetScaler's](https://www.citrix.com/products/netscaler-adc/) CloudFormation templates for deploying Citrix NetScaler in AWS (Amazon Web Services). 
 
+>If you are looking for Ansible playbooks to deploy Citrix ADC services in AWS, click [here](https://github.com/citrix/citrix-ansible-aws)
+
 ## Citrix NetScaler VPX
 Citrix NetScaler VPX is a virtual application delivery controller that combines the latest cloud-native features with a simple user experience. The NetScaler optimizes the user experience ensuring that applications are always available by using advanced L4-7 load balancing, traffic management and proven application acceleration such as HTTP compression and caching.
 
