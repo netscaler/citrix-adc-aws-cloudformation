@@ -1,0 +1,519 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >-
+  Creates required number of Citrix BYOL ADC with 3 ENIs each, associated to 3 VPC subnets (Management, Client, Server) and Allocates user defined license to the above created ADCs
+Parameters:
+  pVpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: VpcId of your existing Virtual Private Cloud (VPC)
+  pSSHCidrIp:
+    Type: String
+    MinLength: 9
+    MaxLength: 18
+    Description: "The IP address range that can SSH to the EC2 instance (port: 22)."
+    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
+  pHTTPCidrIp:
+    Default: 0.0.0.0/0
+    Type: String
+    MinLength: 9
+    MaxLength: 18
+    Description: "The IP address range that can HTTP to the EC2 instance (port: 80)."
+    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
+  pHTTPSCidrIp:
+    Default: 0.0.0.0/0
+    Type: String
+    MinLength: 9
+    MaxLength: 18
+    Description: "The IP address range that can HTTPS to the EC2 instance (port: 443)."
+    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
+  pKeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    ConstraintDescription: "Can contain only alphanumeric characters, spaces, dashes and underscores."
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instances
+    Default: example testKey
+    MinLength: 1
+    AllowedPattern: "[-_ a-zA-Z0-9]*"
+    MaxLength: 64
+  pInstanceCount:
+    Description: Please ensure enough unallocated EIPs. Each ADC requires 2 EIPs
+    Type: Number
+    Default: 1
+    AllowedValues:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+      - 8
+      - 9
+      - 10
+  # pIsPublicIPRequired:
+  #   Type: String
+  #   Description: If Yes, please make sure enough EIPs to be free to allocate. One ADC will need 2 EIPs
+  #   Default: !!str No
+  #   AllowedValues:
+  #     - !!str Yes
+  #     - !!str No
+  pManagementSubnet:
+    Type: "AWS::EC2::Subnet::Id"
+    Description: >-
+      SubnetId of an existing subnet in your Virtual Private Cloud (VPC)
+      dedicated for Management IP.
+      NOTE - The CIDR should be different from that of VPC.
+  pClientSubnet:
+    Type: "AWS::EC2::Subnet::Id"
+    Description: >-
+      SubnetId of an existing subnet in your Virtual Private Cloud (VPC)
+      dedicated for Client side
+  pServerSubnet:
+    Type: "AWS::EC2::Subnet::Id"
+    Description: >-
+      SubnetId of an existing subnet in your Virtual Private Cloud (VPC)
+      dedicated for Server side.
+  pInstanceType:
+    Default: m4.xlarge
+    ConstraintDescription: Must be a valid EC2 instance type.
+    Type: String
+    Description: Type of Citrix ADC instance
+    AllowedValues:
+      - m4.xlarge
+      - m4.2xlarge
+      - m4.4xlarge
+      - m4.10xlarge
+      - m3.large
+      - m3.xlarge
+      - m3.2xlarge
+      - c4.large
+      - c4.xlarge
+      - c4.2xlarge
+      - c4.4xlarge
+      - c4.8xlarge
+  pTenancyType:
+    Default: default
+    Type: String
+    Description: Tenancy Model
+    AllowedValues:
+      - default
+      - dedicated
+  pADMIP:
+    Description: Reachable ADM / ADM Agent IP
+    Type: String
+  pLicensingMode:
+    Description: Select the Licensing Mode
+    Type: String
+    AllowedValues:
+      - "Pooled-Licensing"
+      - "CICO-Licensing"
+      - "CPU-Licensing"
+  pBandwidth:
+    Description: >-
+      Initial bandwidth of the license in Mbps to be allocated after BYOL ADCs are created. Should be multiple of 10 Mbps.
+       Default is 0 Mbps
+    Type: Number
+    Default: 0
+  pPooledEdition:
+    Description: License Edition for Pooled Capacity Licensing Mode
+    Type: String
+    Default: ''
+    AllowedValues:
+      - ''
+      - Standard
+      - Advanced
+      - Premium
+  pVCPUEdition:
+    Description: License Edition for vCPU Licensing Mode
+    Type: String
+    Default: ''
+    AllowedValues:
+      - ''
+      - Standard
+      - Advanced
+      - Premium
+  pPlatform:
+    Description: License Platform
+    Type: String
+    Default: ''
+    AllowedValues:
+      - ''
+      - VPX-10
+      - VPX-25
+      - VPX-200
+      - VPX-1000
+      - VPX-3000
+      - VPX-5000
+      - VPX-8000
+      - VPX-10G
+      - VPX-15G
+      - VPX-25G
+      - VPX-40G
+      - VPX-100G
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Virtual Private Network Configuration
+        Parameters:
+          - pVpcId
+          - pSSHCidrIp
+          - pHTTPCidrIp
+          - pHTTPSCidrIp
+
+      - Label:
+          default: Network Configuration
+        Parameters:
+          - pManagementSubnet
+          - pClientSubnet
+          - pServerSubnet
+          - pInstanceCount
+          # - pIsPublicIPRequired
+
+      - Label:
+          default: Instance Configuration
+        Parameters:
+          - pKeyName
+          - pInstanceType
+          - pTenancyType
+
+      - Label:
+          default: Licence Server Details
+        Parameters:
+          - pADMIP
+      - Label:
+          default: License Details
+        Parameters:
+          - pLicensingMode
+
+      - Label:
+          default: Pooled Licensing Details (Select only when the above Licensing Mode is "Pooled-Licensing")
+        Parameters:
+          - pBandwidth
+          - pPooledEdition
+
+      - Label:
+          default: CICO Licensing Details (Select only when the above Licensing Mode is "CICO-Licensing")
+        Parameters:
+          - pPlatform
+
+      - Label:
+          default: VCPU Licensing Details (Select only when the above Licensing Mode is "CPU-Licensing")
+        Parameters:
+          - pVCPUEdition
+
+    ParameterLabels:
+      pVpcId:
+        default: VPC ID*
+      pSSHCidrIp:
+        default: Remote SSH CIDR IP*
+      pHTTPCidrIp:
+        default: Remote HTTP CIDR IP*
+      pHTTPSCidrIp:
+        default: Remote HTTPS CIDR IP*
+      pKeyName:
+        default: Key Pair*
+      pInstanceCount:
+        default: Number of Citrix ADC Instances*
+      # pIsPublicIPRequired:
+      #   default: Do these ADCs be assigned Public IPs?
+
+      pManagementSubnet:
+        default: Management Subnet*
+      pClientSubnet:
+        default: Client Subnet*
+      pServerSubnet:
+        default: Server Subnet*
+
+      pADMIP:
+        default: Reachable ADM / ADM Agent IP*
+      pLicensingMode:
+        default: Licensing Mode*
+      pPlatform:
+        default: Appliance Platform Type
+      pBandwidth:
+        default: License Bandwidth in Mbps
+      pPooledEdition:
+        default: License Edition
+      pVCPUEdition:
+        default: License Edition
+
+      pInstanceType:
+        default: Instance Type*
+      pTenancyType:
+        default: Tenancy Model*
+
+Resources:
+  rSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Enable SSH access via port 22, HTTP with port 80 and HTTPS with port 443"
+      VpcId: !Ref pVpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref pSSHCidrIp
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: !Ref pHTTPCidrIp
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: !Ref pHTTPSCidrIp
+  rInboundRule:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: tcp
+      FromPort: 0
+      ToPort: 65535
+      SourceSecurityGroupId: !GetAtt rSecurityGroup.GroupId
+      GroupId: !GetAtt rSecurityGroup.GroupId
+
+  rCitrixNodesInstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      Policies:
+        - PolicyName: CitrixNode
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Action:
+                  - "ec2:DescribeAddresses"
+                  - "ec2:AssociateAddress"
+                  - "ec2:DisassociateAddress"
+                  - "ec2:DescribeInstances"
+                  - "ec2:DescribeNetworkInterfaces"
+                  - "ec2:DetachNetworkInterface"
+                  - "ec2:AttachNetworkInterface"
+                  - "ec2:StopInstances"
+                  - "ec2:StartInstances"
+                  - "ec2:RebootInstances"
+                  - "autoscaling:*"
+                  - "sns:*"
+                  - "sqs:*"
+                  - "iam:GetRole"
+                  - "iam:SimulatePrincipalPolicy"
+                Resource: "*"
+                Effect: Allow
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - "sts:AssumeRole"
+            Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+  rCitrixNodesProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: /
+      Roles:
+        - !Ref rCitrixNodesInstanceRole
+
+
+  rLambdaExecutionRole:
+    DependsOn:
+      - rCitrixNodesInstanceRole
+      - rCitrixNodesProfile
+      - rSecurityGroup
+      - rInboundRule
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaLog2CloudWatch
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                  - "logs:CreateExportTask"
+                  - "logs:DescribeExportTask"
+                Resource: "arn:aws:logs:*:*:*"
+        - PolicyName: LambdaAllowAllEC2
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Action:
+                  - "ec2:*"
+                Resource: "*"
+                Effect: Allow
+              - Action: "iam:PassRole"
+                Effect: "Allow"
+                Resource: "*"
+
+  rLambdaCreateMultipleBYOLFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: !Join
+          - ""
+          - - ns-vpx-cft-fn-
+            - !Ref AWS::Region
+        S3Key: lambda-create-multiple-byol-vpx.zip
+      Handler: lambda-create-multiple-byol-vpx.lambda_handler
+      Runtime: python3.6
+      Timeout: 900
+      Role: !GetAtt rLambdaExecutionRole.Arn
+      # VpcConfig:
+        # SecurityGroupIds:
+        #   - !Ref rSecurityGroup
+        # SubnetIds:
+        #   - !Ref pManagementSubnet
+        #   - !Ref pClientSubnet
+        #   - !Ref pServerSubnet
+  rLambdaCreateInstance:
+    Type: Custom::CreateBYOL
+    Properties:
+      ServiceToken: !GetAtt rLambdaCreateMultipleBYOLFunction.Arn
+      ImageID: !FindInMap
+          - AWSRegionArch2AMI
+          - !Ref AWS::Region
+          - !FindInMap
+            - AWSInstanceType2Arch
+            - !Ref pInstanceType
+            - Arch
+      SecurityGroup: !Ref rSecurityGroup
+      KeyName: !Ref pKeyName
+      TenancyType: !Ref pTenancyType
+      InstanceType: !Ref pInstanceType
+      IAMInstanceProfileARN: !GetAtt rCitrixNodesProfile.Arn
+      IAMInstanceProfile: !Ref rCitrixNodesProfile
+      MgmtSubnet: !Ref pManagementSubnet
+      ClientSubnet: !Ref pClientSubnet
+      ServerSubnet: !Ref pServerSubnet
+      InstanceCount: !Ref pInstanceCount
+      # IsPublicIpReqd: !Ref pIsPublicIPRequired
+      IsPublicIpReqd: !!str Yes
+      ADMIP: !Ref pADMIP
+      LicensingMode: !Ref pLicensingMode
+      Bandwidth: !Ref pBandwidth
+      PooledEdition: !Ref pPooledEdition
+      Platform: !Ref pPlatform
+      vCPUEdition: !Ref pVCPUEdition
+
+
+Outputs:
+  # InstancesIDsCreated:
+  #   Description: Instances Created
+  #   Value: !GetAtt rLambdaCreateInstance.IntanceIds
+  InstanceIDsWithIPs:
+    Description: Instances created with their IPs
+    Value: !GetAtt rLambdaCreateInstance.InstAndIP
+
+
+Mappings:
+  AWSRegionArch2AMI:
+    us-east-1:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-0fe34330ab860f7f6
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    us-east-2:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-0cbd0a3af75c2d849
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    us-west-1:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-0f7079dc26313c083
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    us-west-2:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-0330b7f1cd4367eb8
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    us-gov-west-1:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-7f58391e
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    ca-central-1:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-06f6d5000b2edc8c1
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    eu-central-1:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-0dbd87bc3f6b7ac0a
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    eu-west-1:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-0198651093460fef7
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    eu-west-2:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-087f98b111285ff8a
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    ap-southeast-1:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-0af3ea5ad3eefdbc3
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    ap-southeast-2:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-0e0ef92e0f3c299c9
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    ap-south-1:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-038c43b331d7e5c56
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    ap-northeast-1:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-0e2c84948e8c42db0
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    ap-northeast-2:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-009afa7d85d599854
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    sa-east-1:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-0ae382bdd08cbbb88
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+  AWSInstanceType2Arch:
+    m4.large:
+      Arch: "64"
+    m4.2xlarge:
+      Arch: "64"
+    m4.xlarge:
+      Arch: "64"
+    m4.4xlarge:
+      Arch: "64"
+    m4.10xlarge:
+      Arch: "64"
+    c4.large:
+      Arch: "64"
+    c4.xlarge:
+      Arch: "64"
+    c4.2xlarge:
+      Arch: "64"
+    c4.4xlarge:
+      Arch: "64"
+    c4.8xlarge:
+      Arch: "64"

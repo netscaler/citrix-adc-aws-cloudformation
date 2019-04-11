@@ -1,0 +1,747 @@
+---
+Description: Creates a HA pair with two instance of Citrix BYOL ADC with 3 ENIs associated to 3 VPC subnets (Management, Client, Server) on primary and 1 ENI for Management in secondary in the same availability zone. This also allocates initial license as per user input.
+Parameters:
+  pSSHCidrIp:
+    Type: String
+    MinLength: 9
+    MaxLength: 18
+    Description: "The IP address range that can SSH to the EC2 instance (port: 22)."
+    AllowedPattern: "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
+  pHTTPCidrIp:
+    Default: 0.0.0.0/0
+    Type: String
+    MinLength: 9
+    MaxLength: 18
+    Description: "The IP address range that can HTTP to the EC2 instance (port: 80)."
+    AllowedPattern: "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
+  pHTTPSCidrIp:
+    Default: 0.0.0.0/0
+    Type: String
+    MinLength: 9
+    MaxLength: 18
+    Description: "The IP address range that can HTTPS to the EC2 instance (port: 443)."
+    AllowedPattern: "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
+  pVpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: VPC ID of your existing Virtual Private Cloud (VPC)
+  pManagementIPSec:
+    Default: ""
+    Type: String
+    Description:
+      Private IP assigned to the Management ENI of Secondary, if HA pair
+      to be created (last octet has to be between 5 and 254). Leave empty for automatic
+      assignment or if no high availavbility.
+  pServerSubnet:
+    Type: AWS::EC2::Subnet::Id
+    Description:
+      SubnetId of an existing subnet in your Virtual Private Cloud (VPC)
+      dedicated for Server side.
+  pInstanceType:
+    Default: m4.xlarge
+    ConstraintDescription: Must be a valid EC2 instance type.
+    Type: String
+    Description: Type of Citrix ADC instance
+    AllowedValues:
+      - m4.xlarge
+      - m4.2xlarge
+      - m4.4xlarge
+      - m4.10xlarge
+      - m3.large
+      - m3.xlarge
+      - m3.2xlarge
+      - c4.large
+      - c4.xlarge
+      - c4.2xlarge
+      - c4.4xlarge
+      - c4.8xlarge
+  pClientSubnet:
+    Type: AWS::EC2::Subnet::Id
+    Description:
+      SubnetId of an existing subnet in your Virtual Private Cloud (VPC)
+      dedicated for Client side
+  pKeyName:
+    ConstraintDescription:
+      Can contain only alphanumeric characters, spaces, dashes
+      and underscores.
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instances
+    MinLength: 1
+    AllowedPattern: "[-_ a-zA-Z0-9]*"
+    MaxLength: 64
+    Type: AWS::EC2::KeyPair::KeyName
+  pManagementIP:
+    Default: ""
+    Type: String
+    Description:
+      Private IP assigned to the Management ENI of Primary (last octet
+      has to be between 5 and 254). Leave empty for automatic assignment.
+  pManagementSubnet:
+    Type: AWS::EC2::Subnet::Id
+    Description:
+      SubnetId of an existing subnet in your Virtual Private Cloud (VPC)
+      dedicated for management IP
+  pServerIP:
+    Default: ""
+    Type: String
+    Description:
+      Private IP assigned to the Server ENI (last octet has to be between
+      5 and 254). Leave empty for automatic assignment.
+  pTenancyType:
+    Default: default
+    Type: String
+    Description: Tenancy Model
+    AllowedValues:
+      - default
+      - dedicated
+  pClientIP:
+    Default: ""
+    Type: String
+    Description:
+      Private IP assigned to the Client ENI (last octet has to be between
+      5 and 254). Leave empty for automatic assignment.
+  pLicensingMode:
+    Description: Select the Licensing Mode
+    Type: String
+    AllowedValues:
+      - "Pooled-Licensing"
+      - "CICO-Licensing"
+      - "CPU-Licensing"
+  pADMIP:
+    Description: Reachable ADM / ADM Agent IP
+    Type: String
+  pBandwidth:
+    Description: >-
+      Initial bandwidth of the license in Mbps to be allocated after BYOL ADCs are created. Should be multiple of 10 Mbps.
+       Default is 0 Mbps
+    Type: Number
+    Default: 0
+  pPooledEdition:
+    Description: License Edition for Pooled Capacity Licensing Mode
+    Type: String
+    AllowedValues:
+      - ""
+      - Standard
+      - Advanced
+      - Premium
+  pVCPUEdition:
+    Description: License Edition for vCPU Licensing Mode
+    Type: String
+    Default: ''
+    AllowedValues:
+      - ''
+      - Standard
+      - Advanced
+      - Premium
+  pPlatform:
+    Description: License Platform
+    Type: String
+    Default: ""
+    AllowedValues:
+      - ""
+      - VPX-10
+      - VPX-25
+      - VPX-200
+      - VPX-1000
+      - VPX-3000
+      - VPX-5000
+      - VPX-8000
+      - VPX-10G
+      - VPX-15G
+      - VPX-25G
+      - VPX-40G
+      - VPX-100G
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Virtual Private Network Configuration
+        Parameters:
+          - pVpcId
+          - pSSHCidrIp
+          - pHTTPCidrIp
+          - pHTTPSCidrIp
+      - Label:
+          default: Network Interface Configuration
+        Parameters:
+          - pManagementIP
+          - pManagementIPSec
+          - pManagementSubnet
+          - pClientIP
+          - pClientSubnet
+          - pServerIP
+          - pServerSubnet
+
+      - Label:
+          default: Instance Configuration
+        Parameters:
+          - pKeyName
+          - pInstanceType
+          - pTenancyType
+
+      - Label:
+          default: Licence Server Details
+        Parameters:
+          - pADMIP
+      - Label:
+          default: License Details
+        Parameters:
+          - pLicensingMode
+
+      - Label:
+          default: Pooled Licensing Details (Select only when the above Licensing Mode is "Pooled-Licensing")
+        Parameters:
+          - pBandwidth
+          - pPooledEdition
+
+      - Label:
+          default: CICO Licensing Details (Select only when the above Licensing Mode is "CICO-Licensing")
+        Parameters:
+          - pPlatform
+
+      - Label:
+          default: VCPU Licensing Details (Select only when the above Licensing Mode is "CPU-Licensing")
+        Parameters:
+          - pVCPUEdition
+
+    ParameterLabels:
+      pVpcId:
+        default: VPC ID*
+      pSSHCidrIp:
+        default: Remote SSH CIDR IP*
+      pHTTPCidrIp:
+        default: Remote HTTP CIDR IP*
+      pHTTPSCidrIp:
+        default: Remote HTTPS CIDR IP*
+      pManagementIP:
+        default: Primary Management IP
+      pManagementIPSec:
+        default: Secondary Management IP
+      pManagementSubnet:
+        default: Management Subnetwork*
+      pClientIP:
+        default: Client IP
+      pClientSubnet:
+        default: Client Subnetwork*
+      pServerIP:
+        default: Server IP
+      pServerSubnet:
+        default: Server Subnetwork*
+      pKeyName:
+        default: Key Pair*
+      pInstanceType:
+        default: Instance Type*
+      pTenancyType:
+        default: Tenancy Model*
+      pADMIP:
+        default: Reachable ADM / ADM Agent IP*
+      pLicensingMode:
+        default: Licensing Mode*
+      pPlatform:
+        default: Appliance Platform Type
+      pBandwidth:
+        default: License Bandwidth in Mbps
+      pPooledEdition:
+        default: License Edition
+      pVCPUEdition:
+        default: License Edition
+
+
+AWSTemplateFormatVersion: "2010-09-09"
+Outputs:
+  ApplicationData:
+    Value:
+      Fn::GetAtt:
+        - myWaitCondition
+        - Data
+    Description: The data passed back as part of signalling the WaitCondition.
+  IPAddressNSSec:
+    Description:
+      Elastic IP address of the Citrix ADC Secondary instance associated
+      with Management
+    Value:
+      Ref: rEipNsipSec
+  IPAddressNS:
+    Description:
+      Elastic IP address of the Citrix ADC Primary instance associated with
+      Management
+    Value:
+      Ref: rEipNsip
+  InstanceIdNSSec:
+    Description: Instance Id of newly created Secondary Citrix ADC instance
+    Value:
+      Ref: rVPXInstanceSec
+  InstanceIdNS:
+    Description: Instance Id of newly created Primary Citrix ADC instance
+    Value:
+      Ref: rVPXInstance
+Conditions:
+  cManagementIP:
+    Fn::Not:
+      - Fn::Equals:
+          - Ref: pManagementIP
+          - ""
+  cClientIP:
+    Fn::Not:
+      - Fn::Equals:
+          - Ref: pClientIP
+          - ""
+  cManagementIPSec:
+    Fn::Not:
+      - Fn::Equals:
+          - Ref: pManagementIPSec
+          - ""
+  cServerIP:
+    Fn::Not:
+      - Fn::Equals:
+          - Ref: pServerIP
+          - ""
+Resources:
+  rSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription:
+        Enable SSH access via port 22, HTTP with port 80 and HTTPS
+        with port 443
+      VpcId:
+        Ref: pVpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp:
+            Ref: pSSHCidrIp
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp:
+            Ref: pHTTPCidrIp
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp:
+            Ref: pHTTPSCidrIp
+  rInboundRule:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: tcp
+      FromPort: 0
+      ToPort: 65535
+      SourceSecurityGroupId:
+        Fn::GetAtt:
+          - rSecurityGroup
+          - GroupId
+      GroupId:
+        Fn::GetAtt:
+          - rSecurityGroup
+          - GroupId
+  rClientENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId:
+        Ref: pClientSubnet
+      GroupSet:
+        - Ref: rSecurityGroup
+      Description: ENI connected to client subnet
+      PrivateIpAddress:
+        Fn::If:
+          - cClientIP
+          - Ref: pClientIP
+          - Ref: AWS::NoValue
+  rCitrixNodesInstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: "/"
+      Policies:
+        - PolicyName: Citrixnode
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Action:
+                  - ec2:DescribeInstances
+                  - ec2:DescribeNetworkInterfaces
+                  - ec2:DetachNetworkInterface
+                  - ec2:AttachNetworkInterface
+                  - ec2:StartInstances
+                  - ec2:StopInstances
+                  - ec2:RebootInstances
+                  - "autoscaling:*"
+                  - "sns:*"
+                  - "sqs:*"
+                  - "iam:SimulatePrincipalPolicy"
+                  - "iam:GetRole"
+                Resource: "*"
+                Effect: Allow
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+  rCitrixNodesProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+        - Ref: rCitrixNodesInstanceRole
+  rEipNsipSec:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+  rServerENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId:
+        Ref: pServerSubnet
+      GroupSet:
+        - Ref: rSecurityGroup
+      Description: ENI connected to client subnet
+      PrivateIpAddress:
+        Fn::If:
+          - cServerIP
+          - Ref: pServerIP
+          - Ref: AWS::NoValue
+  rEipNsip:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+  rNsipENISec:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId:
+        Ref: pManagementSubnet
+      GroupSet:
+        - Ref: rSecurityGroup
+      Description: ENI connected to Management subnet
+      PrivateIpAddress:
+        Fn::If:
+          - cManagementIPSec
+          - Ref: pManagementIPSec
+          - Ref: AWS::NoValue
+      SecondaryPrivateIpAddressCount: 1
+  rVPXInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      Tags:
+        - Value: NetscalerPrimary
+          Key: Name
+        - Value:
+            Fn::Join:
+              - ""
+              - - NS_SNS_
+                - Fn::Select:
+                    - 4
+                    - Fn::Split:
+                        - ":"
+                        - Fn::GetAtt:
+                            - rCitrixNodesProfile
+                            - Arn
+          Key: topic
+      UserData:
+        Fn::Base64:
+          Fn::Join:
+            - "\n"
+            - - Fn::Join:
+                  - ""
+                  - - HAPeerIP=
+                    - Fn::GetAtt:
+                        - rNsipENISec
+                        - PrimaryPrivateIpAddress
+              - Ref: rMyWaitHandle
+      ImageId: !FindInMap
+        - AWSRegionArch2AMI
+        - !Ref AWS::Region
+        - !FindInMap
+          - AWSInstanceType2Arch
+          - !Ref pInstanceType
+          - Arch
+      KeyName:
+        Ref: pKeyName
+      Tenancy:
+        Ref: pTenancyType
+      IamInstanceProfile:
+        Ref: rCitrixNodesProfile
+      InstanceType:
+        Ref: pInstanceType
+      NetworkInterfaces:
+        - DeviceIndex: 0
+          NetworkInterfaceId:
+            Ref: rNsipENI
+        - DeviceIndex: 1
+          NetworkInterfaceId:
+            Ref: rClientENI
+        - DeviceIndex: 2
+          NetworkInterfaceId:
+            Ref: rServerENI
+  rNsipENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId:
+        Ref: pManagementSubnet
+      GroupSet:
+        - Ref: rSecurityGroup
+      Description: ENI connected to Management subnet
+      PrivateIpAddress:
+        Fn::If:
+          - cManagementIP
+          - Ref: pManagementIP
+          - Ref: AWS::NoValue
+      SecondaryPrivateIpAddressCount: 1
+  rAssociateEipNsip:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      NetworkInterfaceId:
+        Ref: rNsipENI
+      AllocationId:
+        Fn::GetAtt:
+          - rEipNsip
+          - AllocationId
+  rMyWaitHandle:
+    Type: AWS::CloudFormation::WaitConditionHandle
+    Properties: {}
+  myWaitCondition:
+    Type: AWS::CloudFormation::WaitCondition
+    DependsOn: rVPXInstance
+    Properties:
+      Count: 0
+      Handle:
+        Ref: rMyWaitHandle
+      Timeout: 60
+  rVPXInstanceSec:
+    DependsOn: myWaitCondition
+    Type: AWS::EC2::Instance
+    Properties:
+      Tags:
+        - Value: NetscalerSecondary
+          Key: Name
+        - Value:
+            Fn::Join:
+              - ""
+              - - NS_SNS_
+                - Fn::Select:
+                    - 4
+                    - Fn::Split:
+                        - ":"
+                        - Fn::GetAtt:
+                            - rCitrixNodesProfile
+                            - Arn
+          Key: topic
+      UserData:
+        Fn::Base64:
+          Fn::Join:
+            - "\n"
+            - - Fn::Join:
+                  - ""
+                  - - HAPeerIP=
+                    - Fn::GetAtt:
+                        - rNsipENI
+                        - PrimaryPrivateIpAddress
+              - Fn::Join:
+                  - ""
+                  - - HAPeerInstanceId=
+                    - Ref: rVPXInstance
+              - Ref: rMyWaitHandle
+      ImageId: !FindInMap
+        - AWSRegionArch2AMI
+        - !Ref AWS::Region
+        - !FindInMap
+          - AWSInstanceType2Arch
+          - !Ref pInstanceType
+          - Arch
+      KeyName:
+        Ref: pKeyName
+      Tenancy:
+        Ref: pTenancyType
+      IamInstanceProfile:
+        Ref: rCitrixNodesProfile
+      InstanceType:
+        Ref: pInstanceType
+      NetworkInterfaces:
+        - DeviceIndex: 0
+          NetworkInterfaceId:
+            Ref: rNsipENISec
+  rAssociateEipNsipSec:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      NetworkInterfaceId:
+        Ref: rNsipENISec
+      AllocationId:
+        Fn::GetAtt:
+          - rEipNsipSec
+          - AllocationId
+
+  rLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaLog2CloudWatch
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                  - "logs:CreateExportTask"
+                  - "logs:DescribeExportTask"
+                Resource: "arn:aws:logs:*:*:*"
+        - PolicyName: LambdaAllowAllEC2
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Action:
+                  - "ec2:*"
+                Resource: "*"
+                Effect: Allow
+              # - Action: "iam:PassRole"
+              #   Effect: "Allow"
+              #   Resource: "*"
+
+  rLambdaHAAcrossAZLicenseFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: !Join
+          - ""
+          - - ns-vpx-cft-fn-
+            - !Ref AWS::Region
+        S3Key: license-lambda-HA-3nic-Same-AZ.zip
+      Handler: license-lambda-HA-3nic-Same-AZ.lambda_handler
+      Runtime: python3.6
+      Timeout: 900
+      Role: !GetAtt rLambdaExecutionRole.Arn
+  rConfigureLambda:
+    Type: Custom::LambdaHAAcrossAZLicense
+    DependsOn:
+      - rVPXInstanceSec
+      - myWaitCondition
+    Properties:
+      ServiceToken: !GetAtt rLambdaHAAcrossAZLicenseFunction.Arn
+      PriInstanceID: !Ref rVPXInstance
+      PriPubNSIP: !Ref rEipNsip
+      # PriNSIP: !GetAtt rPriNsipENI.PrimaryPrivateIpAddress
+      # PriVIP: !GetAtt rPriClientENI.PrimaryPrivateIpAddress
+      # PriVIPSubnet: !Ref pPriClientSubnet
+      SecInstanceID: !Ref rVPXInstanceSec
+      SecPubNSIP: !Ref rEipNsipSec
+      # SecNSIP: !GetAtt rSecNsipENI.PrimaryPrivateIpAddress
+      # SecVIP: !GetAtt rSecClientENI.PrimaryPrivateIpAddress
+      ADMIP: !Ref pADMIP
+      LicensingMode: !Ref pLicensingMode
+      Bandwidth: !Ref pBandwidth
+      PooledEdition: !Ref pPooledEdition
+      Platform: !Ref pPlatform
+      vCPUEdition: !Ref pVCPUEdition
+
+Mappings:
+  AWSRegionArch2AMI:
+    us-east-1:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-0fe34330ab860f7f6
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    us-east-2:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-0cbd0a3af75c2d849
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    us-west-1:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-0f7079dc26313c083
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    us-west-2:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-0330b7f1cd4367eb8
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    us-gov-west-1:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-7f58391e
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    ca-central-1:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-06f6d5000b2edc8c1
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    eu-central-1:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-0dbd87bc3f6b7ac0a
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    eu-west-1:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-0198651093460fef7
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    eu-west-2:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-087f98b111285ff8a
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    ap-southeast-1:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-0af3ea5ad3eefdbc3
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    ap-southeast-2:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-0e0ef92e0f3c299c9
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    ap-south-1:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-038c43b331d7e5c56
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    ap-northeast-1:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-0e2c84948e8c42db0
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    ap-northeast-2:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-009afa7d85d599854
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    sa-east-1:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-0ae382bdd08cbbb88
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+  AWSInstanceType2Arch:
+    m4.large:
+      Arch: "64"
+    m4.2xlarge:
+      Arch: "64"
+    m4.xlarge:
+      Arch: "64"
+    m4.4xlarge:
+      Arch: "64"
+    m4.10xlarge:
+      Arch: "64"
+    c4.large:
+      Arch: "64"
+    c4.xlarge:
+      Arch: "64"
+    c4.2xlarge:
+      Arch: "64"
+    c4.4xlarge:
+      Arch: "64"
+    c4.8xlarge:
+      Arch: "64"
