@@ -27,15 +27,17 @@ The CloudFormation template requires sufficient permissions to create IAM roles,
 <p>The following should be present</p>
 
 - VPC connected to Internet Gateway
-- 6 Subnetworks ( 3 each in every availability zone)
+- 6 Subnetworks (3 each in every availability zone)
 	- Primary VPX Subnets
 		- Management side Subnet
+		  > NOTE: The Management Subnet CIDR should be different from that of VPC.
 		- Client side Subnet
 		- Servers side Subnet
 	- Secondary VPX Subnets
 		- Management side Subnet
 		- Client side Subnet
 		- Servers side Subnet
+- 4 unallocated EIPs to attach to Management and Client interfaces of Primary and Secondary ADCs
 
 
 ## Network architecture
