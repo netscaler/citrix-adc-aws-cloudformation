@@ -570,7 +570,7 @@ Resources:
         S3Key: lambda-ha-3-nic-mz.zip
       Handler: lambda-ha-3-nic-mz.lambda_handler
       Runtime: python3.6
-      Timeout: 280
+      Timeout: 900
       Role: !GetAtt
         - LambdaExecutionRole
         - Arn
