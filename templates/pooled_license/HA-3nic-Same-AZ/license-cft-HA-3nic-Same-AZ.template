@@ -1,6 +1,11 @@
 ---
 Description: Creates a HA pair with two instance of Citrix BYOL ADC with 3 ENIs associated to 3 VPC subnets (Management, Client, Server) on primary and 1 ENI for Management in secondary in the same availability zone. This also allocates initial license as per user input.
 Parameters:
+  pCitrixADCImageID:
+    Type: String
+    Default: ''
+    Description: >-
+      AMI ID of Citrix ADC to be provisioned. If left empty, "Citrix ADC VPX - Customer Licensed Version 12.1-50.28 (https://aws.amazon.com/marketplace/pp/B00AA01BOE)" is provisioned by default
   pSSHCidrIp:
     Type: String
     MinLength: 9
@@ -156,6 +161,10 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
+          default: Citrix ADC Image
+        Parameters:
+          - pCitrixADCImageID
+      - Label:
           default: Virtual Private Network Configuration
         Parameters:
           - pVpcId
@@ -206,6 +215,9 @@ Metadata:
           - pVCPUEdition
 
     ParameterLabels:
+      pCitrixADCImageID:
+        default: Citrix ADC AMI ID
+
       pVpcId:
         default: VPC ID*
       pSSHCidrIp:
@@ -277,6 +289,10 @@ Outputs:
     Value:
       Ref: rVPXInstance
 Conditions:
+  cUseCitrixADCImageID: !Not
+    - !Equals
+      - !Ref pCitrixADCImageID
+      - ""
   cManagementIP:
     Fn::Not:
       - Fn::Equals:
@@ -452,13 +468,16 @@ Resources:
                         - rNsipENISec
                         - PrimaryPrivateIpAddress
               - Ref: rMyWaitHandle
-      ImageId: !FindInMap
-        - AWSRegionArch2AMI
-        - !Ref AWS::Region
+      ImageId: !If
+        - cUseCitrixADCImageID
+        - !Ref pCitrixADCImageID
         - !FindInMap
-          - AWSInstanceType2Arch
-          - !Ref pInstanceType
-          - Arch
+          - AWSRegionArch2AMI
+          - !Ref AWS::Region
+          - !FindInMap
+            - AWSInstanceType2Arch
+            - !Ref pInstanceType
+            - Arch
       KeyName:
         Ref: pKeyName
       Tenancy:
@@ -545,13 +564,16 @@ Resources:
                   - - HAPeerInstanceId=
                     - Ref: rVPXInstance
               - Ref: rMyWaitHandle
-      ImageId: !FindInMap
-        - AWSRegionArch2AMI
-        - !Ref AWS::Region
+      ImageId: !If
+        - cUseCitrixADCImageID
+        - !Ref pCitrixADCImageID
         - !FindInMap
-          - AWSInstanceType2Arch
-          - !Ref pInstanceType
-          - Arch
+          - AWSRegionArch2AMI
+          - !Ref AWS::Region
+          - !FindInMap
+            - AWSInstanceType2Arch
+            - !Ref pInstanceType
+            - Arch
       KeyName:
         Ref: pKeyName
       Tenancy:

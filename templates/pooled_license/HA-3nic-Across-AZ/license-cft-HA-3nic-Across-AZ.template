@@ -4,6 +4,11 @@ Description: >-
   "This template creates a HA pair across Availability Zones with two instance of Netscaler: 3 ENIs associated to 3 VPC subnets (Management, Client, Server) on primary and 3 ENIs associated to 3 VPC subnets (Management, Client, Server) on secondary. Also allocates user defined license"
 
 Parameters:
+  pCitrixADCImageID:
+    Type: String
+    Default: ''
+    Description: >-
+      AMI ID of Citrix ADC to be provisioned. If left empty, "Citrix ADC VPX - Customer Licensed Version 12.1-50.28 (https://aws.amazon.com/marketplace/pp/B00AA01BOE)" is provisioned by default
   pVpcId:
     Type: AWS::EC2::VPC::Id
     Description: VPC ID of your existing Virtual Private Cloud (VPC)
@@ -186,6 +191,10 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
+          default: Citrix ADC Image
+        Parameters:
+          - pCitrixADCImageID
+      - Label:
           default: Virtual Private Network Configuration
         Parameters:
           - pVpcId
@@ -241,6 +250,9 @@ Metadata:
           - pVCPUEdition
 
     ParameterLabels:
+      pCitrixADCImageID:
+        default: Citrix ADC AMI ID
+
       pVpcId:
         default: VPC ID*
       pSSHCidrIp:
@@ -296,6 +308,10 @@ Metadata:
         default: Tenancy Model*
 
 Conditions:
+  cUseCitrixADCImageID: !Not
+    - !Equals
+      - !Ref pCitrixADCImageID
+      - ""
   cPriManagementIP: !Not
     - !Equals
       - !Ref pPriManagementIP
@@ -470,7 +486,10 @@ Resources:
                   - !GetAtt
                     - rCitrixNodesProfile
                     - Arn
-      ImageId: !FindInMap
+      ImageId: !If
+        - cUseCitrixADCImageID
+        - !Ref pCitrixADCImageID
+        - !FindInMap
           - AWSRegionArch2AMI
           - !Ref AWS::Region
           - !FindInMap
@@ -562,7 +581,10 @@ Resources:
                   - !GetAtt
                     - rCitrixNodesProfile
                     - Arn
-      ImageId: !FindInMap
+      ImageId: !If
+        - cUseCitrixADCImageID
+        - !Ref pCitrixADCImageID
+        - !FindInMap
           - AWSRegionArch2AMI
           - !Ref AWS::Region
           - !FindInMap

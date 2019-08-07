@@ -3,6 +3,11 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: >-
   Creates required number of Citrix BYOL ADC with 3 ENIs each, associated to 3 VPC subnets (Management, Client, Server) and Allocates user defined license to the above created ADCs
 Parameters:
+  pCitrixADCImageID:
+    Type: String
+    Default: ''
+    Description: >-
+      AMI ID of Citrix ADC to be provisioned. If left empty, "Citrix ADC VPX - Customer Licensed Version 12.1-50.28 (https://aws.amazon.com/marketplace/pp/B00AA01BOE)" is provisioned by default
   pVpcId:
     Type: AWS::EC2::VPC::Id
     Description: VpcId of your existing Virtual Private Cloud (VPC)
@@ -156,6 +161,10 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
+          default: Citrix ADC Image
+        Parameters:
+          - pCitrixADCImageID
+      - Label:
           default: Virtual Private Network Configuration
         Parameters:
           - pVpcId
@@ -205,6 +214,9 @@ Metadata:
           - pVCPUEdition
 
     ParameterLabels:
+      pCitrixADCImageID:
+        default: Citrix ADC AMI ID
+
       pVpcId:
         default: VPC ID*
       pSSHCidrIp:
@@ -244,6 +256,13 @@ Metadata:
         default: Instance Type*
       pTenancyType:
         default: Tenancy Model*
+
+Conditions:
+  cUseCitrixADCImageID: !Not
+    - !Equals
+      - !Ref pCitrixADCImageID
+      - ""
+
 
 Resources:
   rSecurityGroup:
@@ -383,9 +402,12 @@ Resources:
     Type: Custom::CreateBYOL
     Properties:
       ServiceToken: !GetAtt rLambdaCreateMultipleBYOLFunction.Arn
-      ImageID: !FindInMap
+      ImageID: !If
+        - cUseCitrixADCImageID
+        - !Ref pCitrixADCImageID
+        - !FindInMap
           - AWSRegionArch2AMI
-          - !Ref AWS::Region
+          - !Ref "AWS::Region"
           - !FindInMap
             - AWSInstanceType2Arch
             - !Ref pInstanceType
