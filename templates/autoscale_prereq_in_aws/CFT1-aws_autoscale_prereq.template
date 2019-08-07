@@ -398,7 +398,7 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              AWS: arn:aws:iam::417067727217:root
+              AWS: arn:aws:iam::835822366011:root
             Action: sts:AssumeRole
             Condition:
               StringEquals:
