@@ -108,6 +108,14 @@ Parameters:
     Description:
       Private IP assigned to the Client ENI (last octet has to be between
       5 and 254). Leave empty for automatic assignment.
+  PublishCloudwatchMetrics:
+    Default: 'Yes'
+    Type: String
+    AllowedValues:
+    - 'Yes'
+    - 'No'
+    Description: Enter "Yes" to enable publishing of VPX metrics to Cloudwatch, or
+      "No" to disable publishing.
 
 
 Metadata:
@@ -141,6 +149,7 @@ Metadata:
           - pKeyName
           - pInstanceType
           - pTenancyType
+          - PublishCloudwatchMetrics
 
     ParameterLabels:
       pCitrixADCImageID:
@@ -174,6 +183,8 @@ Metadata:
         default: Instance Type*
       pTenancyType:
         default: Tenancy Model*
+      PublishCloudwatchMetrics:
+        default: Enable publishing custom metrics to cloudwatch?
 
 
 AWSTemplateFormatVersion: "2010-09-09"
@@ -365,18 +376,22 @@ Resources:
     Type: AWS::EC2::Instance
     Properties:
       Tags:
-        - Value: NetscalerPrimary
-          Key: Name
+        - Key: Name
+          Value: NetscalerPrimary
       UserData:
         Fn::Base64:
           Fn::Join:
             - "\n"
             - - Fn::Join:
-                  - ""
-                  - - HAPeerIP=
-                    - Fn::GetAtt:
-                        - rNsipENISec
-                        - PrimaryPrivateIpAddress
+                - ""
+                - - HAPeerIP=
+                  - Fn::GetAtt:
+                    - rNsipENISec
+                    - PrimaryPrivateIpAddress
+              - Fn::Join:
+                - ''
+                - - PublishCloudwatchMetrics=
+                  - Ref: PublishCloudwatchMetrics
               - Ref: rMyWaitHandle
       ImageId: !If
         - cUseCitrixADCImageID
@@ -445,8 +460,8 @@ Resources:
     Type: AWS::EC2::Instance
     Properties:
       Tags:
-        - Value: NetscalerSecondary
-          Key: Name
+        - Key: Name
+          Value: NetscalerSecondary
       UserData:
         Fn::Base64:
           Fn::Join:
@@ -461,6 +476,10 @@ Resources:
                   - ""
                   - - HAPeerInstanceId=
                     - Ref: rVPXInstance
+              - Fn::Join:
+                  - ''
+                  - - PublishCloudwatchMetrics=
+                    - Ref: PublishCloudwatchMetrics
               - Ref: rMyWaitHandle
       ImageId: !If
         - cUseCitrixADCImageID
