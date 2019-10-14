@@ -1,4 +1,6 @@
 ## CloudFormation Template description
+> If VPC, subnets, iGateway already exists and ADCs are to be provisioned on these resources, refer [ha_3nic_mz on fresh-vpc](https://github.com/citrix/citrix-adc-aws-cloudformation/tree/master/templates/ha_3_nic_mz/fresh-vpc)
+
 This template creates a HA pair with two instance of Netscaler with 3 ENIs associated to 3 VPC subnets (Management, Client, Server) on primary and 3 ENIs associated to 3 VPC subnets (Management, Client, Server) on secondary.The output of the CloudFormation template includes:
 
 - `PrimaryVPXManagementURL`: HTTPS URL to the Management GUI of Primary VPX (uses self-signed cert)
