@@ -1,5 +1,5 @@
 ## CloudFormation Template description
-> If VPC, subnets, iGateway already exists and ADCs are to be provisioned on these resources, refer [ha_3nic_mz on existing-vpc](https://github.com/citrix/citrix-adc-aws-cloudformation/tree/master/templates/ha_3_nic_mz/existing-vpc)
+> If VPC, subnets, iGateway already exists and ADCs are to be provisioned on these resources, refer [ha_3nic_mz on existing-vpc](../existing-vpc)
 
 This template deploys a VPC, with 3 subnets (Management, client, server) for 2 Availability Zones.
   It deploys an Internet Gateway, with a default  route on the public subnets.
