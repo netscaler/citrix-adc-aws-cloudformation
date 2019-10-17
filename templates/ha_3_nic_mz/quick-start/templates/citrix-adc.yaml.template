@@ -35,6 +35,24 @@ Parameters:
     Type: AWS::EC2::Subnet::Id
     Description: >-
       Private Subnet ID of an existing subnet dedicated for Server ENI.
+  ManagementPrivateIP:
+    Default: ""
+    Type: String
+    Description: >-
+      [OPTIONAL] Leave empty for automatic assignment.
+	  Private IP assigned to the Management ENI (last octet has to be between 5 and 254).
+  ClientPrivateIP:
+    Default: ""
+    Type: String
+    Description: >-
+      [OPTIONAL] Leave empty for automatic assignment.
+	  Private IP assigned to the Client ENI (last octet has to be between 5 and 254).
+  ServerPrivateIP:
+    Default: ""
+    Type: String
+    Description: >-
+      [OPTIONAL] Leave empty for automatic assignment.
+	  Private IP assigned to the Server ENI (last octet has to be between 5 and 254).
   ClientENIEIP:
     Description: Choose 'Yes' to assign EIP for Client ENI
     Type: String
@@ -87,6 +105,18 @@ Conditions:
     - !Equals
       - !Ref CitrixADCImageID
       - ""
+  UseManagementPrivateIP: !Not
+    - !Equals
+      - !Ref ManagementPrivateIP
+      - ""
+  UseClientPrivateIP: !Not
+    - !Equals
+      - !Ref ClientPrivateIP
+      - ""
+  UseServerPrivateIP: !Not
+    - !Equals
+      - !Ref ServerPrivateIP
+      - ""
 
 Resources:
   ManagementENI:
@@ -99,7 +129,10 @@ Resources:
       GroupSet:
         - !Ref ManagementSecurityGroup
       Description: ENI connected to Primary Management Subnet
-      PrivateIpAddress: !Ref AWS::NoValue
+      PrivateIpAddress: !If
+        - UseManagementPrivateIP
+        - !Ref ManagementPrivateIP
+        - !Ref AWS::NoValue
   ClientENI:
     Type: AWS::EC2::NetworkInterface
     Properties:
@@ -110,7 +143,10 @@ Resources:
       GroupSet:
         - !Ref ClientSecurityGroup
       Description: ENI connected to Primary Client Subnet
-      PrivateIpAddress: !Ref AWS::NoValue
+      PrivateIpAddress: !If
+        - UseClientPrivateIP
+        - !Ref ClientPrivateIP
+        - !Ref AWS::NoValue
   ServerENI:
     Type: AWS::EC2::NetworkInterface
     Properties:
@@ -121,7 +157,10 @@ Resources:
       GroupSet:
         - !Ref ServerSecurityGroup
       Description: ENI connected to Primary Server Subnet
-      PrivateIpAddress: !Ref AWS::NoValue
+      PrivateIpAddress: !If
+        - UseServerPrivateIP
+        - !Ref ServerPrivateIP
+        - !Ref AWS::NoValue
   ManagementEIP:
     Type: AWS::EC2::EIP
     Properties:

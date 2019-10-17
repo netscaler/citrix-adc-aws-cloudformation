@@ -21,6 +21,12 @@ Metadata:
           - SecondaryManagementPublicSubnetID
           - SecondaryClientPublicSubnetID
           - SecondaryServerPrivateSubnetID
+          - PrimaryManagementPrivateIP
+          - PrimaryClientPrivateIP
+          - PrimaryServerPrivateIP
+          - SecondaryManagementPrivateIP
+          - SecondaryClientPrivateIP
+          - SecondaryServerPrivateIP
           - RemoteSSHCIDR
           - RemoteHTTPCIDR
           - RemoteHTTPSCIDR
@@ -53,6 +59,19 @@ Metadata:
         default: Secondary Client Public Subnet ID
       SecondaryServerPrivateSubnetID:
         default: Secondary Server Private Subnet ID
+
+      PrimaryManagementPrivateIP:
+        default: Primary Management Private IP
+      PrimaryClientPrivateIP:
+        default: Primary Client Private IP
+      PrimaryServerPrivateIP:
+        default: Primary Server Private IP
+      SecondaryManagementPrivateIP:
+        default: Secondary Management Private IP
+      SecondaryClientPrivateIP:
+        default: Secondary Client Private IP
+      SecondaryServerPrivateIP:
+        default: Secondary Server Private IP
 
       VPCTenancy:
         default: VPC tenancy attribute
@@ -109,6 +128,42 @@ Parameters:
     Type: AWS::EC2::Subnet::Id
     Description: >-
       Private Subnet ID of an existing subnet dedicated for Secondary Server ENI.
+  PrimaryManagementPrivateIP:
+    Default: ""
+    Type: String
+    Description: >-
+      [OPTIONAL] Leave empty for automatic assignment. 
+	  Private IP assigned to the Primary Management ENI (last octet has to be between 5 and 254). 
+  PrimaryClientPrivateIP:
+    Default: ""
+    Type: String
+    Description: >-
+      [OPTIONAL] Leave empty for automatic assignment. 
+	  Private IP assigned to the Primary Client ENI (last octet has to be between 5 and 254). 
+  PrimaryServerPrivateIP:
+    Default: ""
+    Type: String
+    Description: >-
+      [OPTIONAL] Leave empty for automatic assignment. 
+	  Private IP assigned to the Primary Server ENI (last octet has to be between 5 and 254). 
+  SecondaryManagementPrivateIP:
+    Default: ""
+    Type: String
+    Description: >-
+      [OPTIONAL] Leave empty for automatic assignment. 
+	  Private IP assigned to the Secondary Management ENI (last octet has to be between 5 and 254). 
+  SecondaryClientPrivateIP:
+    Default: ""
+    Type: String
+    Description: >-
+      [OPTIONAL] Leave empty for automatic assignment. 
+	  Private IP assigned to the Secondary Client ENI (last octet has to be between 5 and 254). 
+  SecondaryServerPrivateIP:
+    Default: ""
+    Type: String
+    Description: >-
+      [OPTIONAL] Leave empty for automatic assignment. 
+	  Private IP assigned to the Secondary Server ENI (last octet has to be between 5 and 254). 
   QSS3BucketName:
     AllowedPattern: "^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$"
     ConstraintDescription: >-
@@ -244,6 +299,9 @@ Resources:
         ManagementPublicSubnetID: !Ref PrimaryManagementPublicSubnetID
         ClientPublicSubnetID: !Ref PrimaryClientPublicSubnetID
         ServerPrivateSubnetID: !Ref PrimaryServerPrivateSubnetID
+        ManagementPrivateIP: !Ref PrimaryManagementPrivateIP
+        ClientPrivateIP: !Ref PrimaryClientPrivateIP
+        ServerPrivateIP: !Ref PrimaryServerPrivateIP
         ClientENIEIP: 'Yes'
         ADCInstanceTagName: Primary
         KeyPairName: !Ref KeyPairName
@@ -264,6 +322,9 @@ Resources:
         ManagementPublicSubnetID: !Ref SecondaryManagementPublicSubnetID
         ClientPublicSubnetID: !Ref SecondaryClientPublicSubnetID
         ServerPrivateSubnetID: !Ref SecondaryServerPrivateSubnetID
+        ManagementPrivateIP: !Ref SecondaryManagementPrivateIP
+        ClientPrivateIP: !Ref SecondaryClientPrivateIP
+        ServerPrivateIP: !Ref SecondaryServerPrivateIP
         ClientENIEIP: 'No'
         ADCInstanceTagName: Secondary
         KeyPairName: !Ref KeyPairName
