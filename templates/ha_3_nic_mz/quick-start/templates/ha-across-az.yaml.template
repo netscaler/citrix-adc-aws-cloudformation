@@ -132,38 +132,32 @@ Parameters:
     Default: ""
     Type: String
     Description: >-
-      [OPTIONAL] Leave empty for automatic assignment. 
-	  Private IP assigned to the Primary Management ENI (last octet has to be between 5 and 254). 
+      [OPTIONAL] Leave empty for automatic assignment. Private IP assigned to the Primary Management ENI (last octet has to be between 5 and 254).
   PrimaryClientPrivateIP:
     Default: ""
     Type: String
     Description: >-
-      [OPTIONAL] Leave empty for automatic assignment. 
-	  Private IP assigned to the Primary Client ENI (last octet has to be between 5 and 254). 
+      [OPTIONAL] Leave empty for automatic assignment. Private IP assigned to the Primary Client ENI (last octet has to be between 5 and 254).
   PrimaryServerPrivateIP:
     Default: ""
     Type: String
     Description: >-
-      [OPTIONAL] Leave empty for automatic assignment. 
-	  Private IP assigned to the Primary Server ENI (last octet has to be between 5 and 254). 
+      [OPTIONAL] Leave empty for automatic assignment. Private IP assigned to the Primary Server ENI (last octet has to be between 5 and 254).
   SecondaryManagementPrivateIP:
     Default: ""
     Type: String
     Description: >-
-      [OPTIONAL] Leave empty for automatic assignment. 
-	  Private IP assigned to the Secondary Management ENI (last octet has to be between 5 and 254). 
+      [OPTIONAL] Leave empty for automatic assignment. Private IP assigned to the Secondary Management ENI (last octet has to be between 5 and 254).
   SecondaryClientPrivateIP:
     Default: ""
     Type: String
     Description: >-
-      [OPTIONAL] Leave empty for automatic assignment. 
-	  Private IP assigned to the Secondary Client ENI (last octet has to be between 5 and 254). 
+      [OPTIONAL] Leave empty for automatic assignment. Private IP assigned to the Secondary Client ENI (last octet has to be between 5 and 254).
   SecondaryServerPrivateIP:
     Default: ""
     Type: String
     Description: >-
-      [OPTIONAL] Leave empty for automatic assignment. 
-	  Private IP assigned to the Secondary Server ENI (last octet has to be between 5 and 254). 
+      [OPTIONAL] Leave empty for automatic assignment. Private IP assigned to the Secondary Server ENI (last octet has to be between 5 and 254).
   QSS3BucketName:
     AllowedPattern: "^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$"
     ConstraintDescription: >-
