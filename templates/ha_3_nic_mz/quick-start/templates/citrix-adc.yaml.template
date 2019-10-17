@@ -192,7 +192,7 @@ Resources:
           - !Ref AWS::Region
           - !FindInMap
             - AWSInstanceType2Arch
-            - !Ref InstanceType
+            - !Ref CitrixADCInstanceType
             - Arch
       KeyName: !Ref KeyPairName
       Tenancy: !Ref VPCTenancy

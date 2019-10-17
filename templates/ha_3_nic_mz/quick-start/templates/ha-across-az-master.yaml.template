@@ -102,7 +102,7 @@ Parameters:
     Type: String
     Default: ""
     Description: >-
-      AMI ID of Citrix ADC to be provisioned. If left empty, "Citrix ADC VPX - Customer Licensed Version 13.0-41.20
+      [OPTIONAL] AMI ID of Citrix ADC to be provisioned. If left empty, "Citrix ADC VPX - Customer Licensed Version 13.0-41.20
       (https://aws.amazon.com/marketplace/pp/B00AA01BOE)" is provisioned by default
   VPCCIDR:
     Description: CIDR Block for VPC
