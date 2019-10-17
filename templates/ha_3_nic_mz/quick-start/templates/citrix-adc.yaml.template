@@ -1,0 +1,285 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description:
+  "This template creates the Citrix ADC with 3 ENIs (management, client, server)
+  and assoicates an EIP on management ENI and an optional EIP on client ENI
+  **WARNING** This template creates AWS resources.
+  You will be billed for the AWS resources used if you create a stack from this template."
+Parameters:
+  ManagementSecurityGroup:
+    Description: Security Group ID for Citrix ADC Management ENI
+    Type: String
+  ClientSecurityGroup:
+    Description: Security Group ID for Citrix ADC Client ENI
+    Type: String
+  ServerSecurityGroup:
+    Description: Security Group ID for Citrix ADC Server ENI
+    Type: String
+  ManagementPublicSubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: >-
+      Public Subnet ID of an existing subnet dedicated for Management ENI.
+      Note - The CIDR should be different from that of VPC.
+  ClientPublicSubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: >-
+      Public Subnet ID of an existing subnet dedicated for Client ENI.
+  ServerPrivateSubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: >-
+      Private Subnet ID of an existing subnet dedicated for Server ENI.
+  ClientENIEIP:
+    Description: Choose 'Yes' to assign EIP for Client ENI
+    Type: String
+    Default: 'No'
+    AllowedValues:
+      - 'No'
+      - 'Yes'
+  ADCInstanceTagName:
+    Description: Tag Name for Citrix ADC
+    Type: String
+  KeyPairName:
+    ConstraintDescription: "Can contain only alphanumeric characters, spaces, dashes and underscores."
+    Description: EC2 key pair name to remotely access ADCs on port 22 (SSH)
+    MinLength: 1
+    AllowedPattern: "[-_ a-zA-Z0-9]*"
+    MaxLength: 64
+    Type: AWS::EC2::KeyPair::KeyName
+  VPCTenancy:
+    Description: The allowed tenancy of instances launched into the VPC
+    Type: String
+    Default: default
+    AllowedValues:
+      - default
+      - dedicated
+  CitrixNodesProfile:
+    Description: Instance Profile for Citrix ADC
+    Type: String
+  CitrixADCInstanceType:
+    Default: m4.xlarge
+    ConstraintDescription: Must be a valid EC2 instance type.
+    Type: String
+    Description: Citrix ADC instance type
+    AllowedValues:
+      - m4.xlarge
+      - m4.2xlarge
+      - m4.4xlarge
+      - m4.10xlarge
+      - m3.large
+      - m3.xlarge
+      - m3.2xlarge
+      - c4.large
+      - c4.xlarge
+      - c4.2xlarge
+      - c4.4xlarge
+      - c4.8xlarge
+
+Conditions:
+  UseClientEIP: !Equals [!Ref ClientENIEIP, 'Yes']
+
+Resources:
+  ManagementENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName} PrimaryManagement
+      SubnetId: !Ref ManagementPublicSubnetID
+      GroupSet:
+        - !Ref ManagementSecurityGroup
+      Description: ENI connected to Primary Management Subnet
+      PrivateIpAddress: !Ref AWS::NoValue
+  ClientENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName} PrimaryClient
+      SubnetId: !Ref ClientPublicSubnetID
+      GroupSet:
+        - !Ref ClientSecurityGroup
+      Description: ENI connected to Primary Client Subnet
+      PrivateIpAddress: !Ref AWS::NoValue
+  ServerENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName} PrimaryServer
+      SubnetId: !Ref ServerPrivateSubnetID
+      GroupSet:
+        - !Ref ServerSecurityGroup
+      Description: ENI connected to Primary Server Subnet
+      PrivateIpAddress: !Ref AWS::NoValue
+  ManagementEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+  ManagementEIPAssociation:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      NetworkInterfaceId: !Ref ManagementENI
+      AllocationId: !GetAtt ManagementEIP.AllocationId
+  ClientEIP:
+    Condition: UseClientEIP
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+  ClientEIPAssociation:
+    Condition: UseClientEIP
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      NetworkInterfaceId: !Ref ClientENI
+      AllocationId: !GetAtt ClientEIP.AllocationId
+  CitrixADCInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName} ${ADCInstanceTagName}
+      ImageId: !FindInMap
+          - AWSRegionArch2AMI
+          - !Ref AWS::Region
+          - !FindInMap
+            - AWSInstanceType2Arch
+            - !Ref CitrixADCInstanceType
+            - Arch
+      KeyName: !Ref KeyPairName
+      Tenancy: !Ref VPCTenancy
+      IamInstanceProfile: !Ref CitrixNodesProfile
+      InstanceType: !Ref CitrixADCInstanceType
+      NetworkInterfaces:
+        - DeviceIndex: 0
+          NetworkInterfaceId: !Ref ManagementENI
+        - DeviceIndex: 1
+          NetworkInterfaceId: !Ref ClientENI
+        - DeviceIndex: 2
+          NetworkInterfaceId: !Ref ServerENI
+
+Outputs:
+  CitrixADCInstanceID:
+    Description: Citrix InstanceID
+    Value: !Ref CitrixADCInstance
+    # Export:
+    #   Name:
+  ManagementPublicEIP:
+    Description: Management Public EIP
+    Value: !Ref ManagementEIP
+    # Export:
+    #   Name:
+  ManagementPrivateNSIP:
+    Description: Management Private IP
+    Value: !GetAtt ManagementENI.PrimaryPrivateIpAddress
+    # Export:
+    #   Name:
+  ClientPublicEIP:
+    Condition: UseClientEIP
+    Description: Client Public EIP
+    Value: !Ref ClientEIP
+    # Export:
+    #   Name:
+  ClientPrivateVIP:
+    Description: Client Private IP
+    Value: !GetAtt ClientENI.PrimaryPrivateIpAddress
+    # Export:
+    #   Name:
+
+Mappings:
+  AWSRegionArch2AMI:
+    us-east-1:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-0f38778279d15e095
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    us-east-2:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-08e851d5af412cb1a
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    us-west-1:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-031421c73dff0724c
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    us-west-2:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-0b4676c09e7994cf3
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    us-gov-west-1:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-77beeb16
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    ca-central-1:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-03975d4e197a28cec
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    eu-central-1:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-097304b6b661019e8
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    eu-west-1:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-07ea2ac00d82b1f3d
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    eu-west-2:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-049deb2b212e81285
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    ap-southeast-1:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-05b6b9a7bbd2f4643
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    ap-southeast-2:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-00d96537071f8f219
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    ap-south-1:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-05bda76bec67ae3e1
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    ap-northeast-1:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-03b3dcc43a36bf388
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    ap-northeast-2:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-067a7d4b44ea1f8c8
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+    sa-east-1:
+      "32": NOT_YET_SUPPORTED
+      "64": ami-0220bf855f9c4b3e2
+      64Cluster: NOT_YET_SUPPORTED
+      64GPU: NOT_YET_SUPPORTED
+  AWSInstanceType2Arch:
+    m4.large:
+      Arch: "64"
+    m4.2xlarge:
+      Arch: "64"
+    m4.xlarge:
+      Arch: "64"
+    m4.4xlarge:
+      Arch: "64"
+    m4.10xlarge:
+      Arch: "64"
+    c4.large:
+      Arch: "64"
+    c4.xlarge:
+      Arch: "64"
+    c4.2xlarge:
+      Arch: "64"
+    c4.4xlarge:
+      Arch: "64"
+    c4.8xlarge:
+      Arch: "64"

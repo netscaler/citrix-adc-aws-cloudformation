@@ -1,0 +1,108 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: "This template creates lambda function required to configure 2 ADCs in HA pair across Availability Zones"
+
+Parameters:
+  PrimaryInstanceID:
+    Description: Primary ADC Instance ID
+    Type: String
+  PrimaryManagementPublicIP:
+    Description: Primary ADC Management Public IP
+    Type: String
+  PrimaryManagementPrivateIP:
+    Description: Primary Management Private IP
+    Type: String
+  PrimaryClientPrivateIP:
+    Description: Primary Client Private IP
+    Type: String
+  PrimaryClientPublicSubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: >-
+      Public Subnet ID of an existing subnet dedicated for Primary Client ENI.
+  SecondaryInstanceID:
+    Description: Secondary InstanceID
+    Type: String
+  SecondaryManagementPublicIP:
+    Description: Secondary Management Public IP
+    Type: String
+  SecondaryManagementPrivateIP:
+    Description: Secondary Management Private IP
+    Type: String
+  SecondaryClientPrivateIP:
+    Description: Secondary Client Private IP
+    Type: String
+
+Resources:
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName} LambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: lambdalogtocloudwatch
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                  - "logs:CreateExportTask"
+                  - "logs:DescribeExportTask"
+                Resource: "arn:aws:logs:*:*:*"
+        - PolicyName: lambdaallowreadec2
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Action:
+                  - "ec2:DescribeInstances"
+                  - "ec2:DescribeNetworkInterfaces"
+                  - "ec2:DescribeSubnets"
+                  - "ec2:DescribeVpcs"
+                  - "ec2:DescribeAvailabilityZones"
+                  - "ec2:DescribeInstanceStatus"
+                Resource: "*"
+                Effect: Allow
+  ConfigureHAFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName} LambdaFunction
+      Code:
+        S3Bucket: !Join
+          - ""
+          - - ns-vpx-cft-fn-
+            - !Ref AWS::Region
+        S3Key: lambda-ha-3-nic-mz.zip
+      Handler: lambda-ha-3-nic-mz.lambda_handler
+      Runtime: python3.6
+      Timeout: 900
+      Role: !GetAtt LambdaExecutionRole.Arn
+  ConfigureLambda:
+    Type: Custom::LambdaHAAZ
+    Properties:
+      ServiceToken: !GetAtt ConfigureHAFunction.Arn
+      PriInstanceID: !Ref PrimaryInstanceID
+      PriPubNSIP: !Ref PrimaryManagementPublicIP
+      PriNSIP: !Ref PrimaryManagementPrivateIP
+      PriVIP: !Ref PrimaryClientPrivateIP
+      PriVIPSubnet: !Ref PrimaryClientPublicSubnetID
+      SecInstanceID: !Ref SecondaryInstanceID
+      SecPubNSIP: !Ref SecondaryManagementPublicIP
+      SecNSIP: !Ref SecondaryManagementPrivateIP
+      SecVIP: !Ref SecondaryClientPrivateIP
+# Outputs:
+#   set of outputs
