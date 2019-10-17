@@ -29,10 +29,14 @@ Metadata:
       - Label:
           default: Citrix ADC configuration
         Parameters:
+          - CitrixADCImageID
           - KeyPairName
           - CitrixADCInstanceType
 
     ParameterLabels:
+      CitrixADCImageID:
+        default: Citrix ADC AMI ID
+
       VPCID:
         default: VPC ID
 
@@ -64,6 +68,12 @@ Metadata:
         default: Citrix ADC instance type
 
 Parameters:
+  CitrixADCImageID:
+    Type: String
+    Default: ""
+    Description: >-
+      AMI ID of Citrix ADC to be provisioned. If left empty, "Citrix ADC VPX - Customer Licensed Version 13.0-41.20
+      (https://aws.amazon.com/marketplace/pp/B00AA01BOE)" is provisioned by default
   VPCID:
     Type: AWS::EC2::VPC::Id
     Description: VPC ID of existing Virtual Private Cloud (VPC)
@@ -215,7 +225,6 @@ Resources:
         RemoteHTTPCIDR: !Ref RemoteHTTPCIDR
         RemoteHTTPSCIDR: !Ref RemoteHTTPSCIDR
 
-
   IAMRoleStack:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -228,6 +237,7 @@ Resources:
       TemplateURL: !Sub >-
         https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/citrix-adc.yaml.template
       Parameters:
+        CitrixADCImageID: !Ref CitrixADCImageID
         ManagementSecurityGroup: !GetAtt ManagementSecurityGroupStack.Outputs.SecurityGroupID
         ClientSecurityGroup: !GetAtt ClientSecurityGroupStack.Outputs.SecurityGroupID
         ServerSecurityGroup: !GetAtt ServerSecurityGroupStack.Outputs.SecurityGroupID
@@ -247,6 +257,7 @@ Resources:
       TemplateURL: !Sub >-
         https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/citrix-adc.yaml.template
       Parameters:
+        CitrixADCImageID: !Ref CitrixADCImageID
         ManagementSecurityGroup: !GetAtt ManagementSecurityGroupStack.Outputs.SecurityGroupID
         ClientSecurityGroup: !GetAtt ClientSecurityGroupStack.Outputs.SecurityGroupID
         ServerSecurityGroup: !GetAtt ServerSecurityGroupStack.Outputs.SecurityGroupID

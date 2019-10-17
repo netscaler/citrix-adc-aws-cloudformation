@@ -7,6 +7,12 @@ Description:
   **WARNING** This template creates AWS resources.
   You will be billed for the AWS resources used if you create a stack from this template."
 Parameters:
+  CitrixADCImageID:
+    Type: String
+    Default: ""
+    Description: >-
+      AMI ID of Citrix ADC to be provisioned. If left empty, "Citrix ADC VPX - Customer Licensed Version 13.0-41.20
+      (https://aws.amazon.com/marketplace/pp/B00AA01BOE)" is provisioned by default
   ManagementSecurityGroup:
     Description: Security Group ID for Citrix ADC Management ENI
     Type: String
@@ -77,6 +83,10 @@ Parameters:
 
 Conditions:
   UseClientEIP: !Equals [!Ref ClientENIEIP, 'Yes']
+  UseCitrixADCImageID: !Not
+    - !Equals
+      - !Ref CitrixADCImageID
+      - ""
 
 Resources:
   ManagementENI:
@@ -138,12 +148,15 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub ${AWS::StackName} ${ADCInstanceTagName}
-      ImageId: !FindInMap
+      ImageId: !If
+        - UseCitrixADCImageID
+        - !Ref CitrixADCImageID
+        - !FindInMap
           - AWSRegionArch2AMI
           - !Ref AWS::Region
           - !FindInMap
             - AWSInstanceType2Arch
-            - !Ref CitrixADCInstanceType
+            - !Ref InstanceType
             - Arch
       KeyName: !Ref KeyPairName
       Tenancy: !Ref VPCTenancy
