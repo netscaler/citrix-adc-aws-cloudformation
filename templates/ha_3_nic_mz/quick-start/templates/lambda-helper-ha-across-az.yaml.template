@@ -32,6 +32,30 @@ Parameters:
   SecondaryClientPrivateIP:
     Description: Secondary Client Private IP
     Type: String
+  QSS3BucketName:
+    AllowedPattern: "^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$"
+    ConstraintDescription: >-
+      Quick Start bucket name can include numbers, lowercase letters, uppercase
+      letters, and hyphens (-). It cannot start or end with a hyphen (-).
+    Default: aws-quickstart
+    Description: >-
+      S3 bucket name for the Quick Start assets. This bucket name can include
+      numbers, lowercase letters, uppercase letters, and hyphens (-), but should
+      not start or end with a hyphen. You can specify your own bucket if you
+      copy all of the assets and submodules into it, if you want to override the
+      Quick Start behavior for your specific implementation.
+    Type: String
+  QSS3KeyPrefix:
+    AllowedPattern: "^[0-9a-zA-Z-/]*$"
+    ConstraintDescription: >-
+      Quick Start key prefix can include numbers, lowercase letters, uppercase
+      letters, hyphens (-), and forward slash (/).
+    Default: quickstart-citrix-adc-ha-across-az/
+    Description: >-
+      S3 key prefix for the Quick Start assets. Quick Start key prefix can
+      include numbers, lowercase letters, uppercase letters, hyphens (-), and
+      forward slash (/).
+    Type: String
 
 Resources:
   LambdaExecutionRole:
@@ -82,11 +106,8 @@ Resources:
         - Key: Name
           Value: !Sub ${AWS::StackName} LambdaFunction
       Code:
-        S3Bucket: !Join
-          - ""
-          - - ns-vpx-cft-fn-
-            - !Ref AWS::Region
-        S3Key: lambda-ha-3-nic-mz.zip
+        S3Bucket: !Sub ${QSS3BucketName}
+        S3Key: !Sub ${QSS3KeyPrefix}functions/lambda-ha-3-nic-mz.zip
       Handler: lambda-ha-3-nic-mz.lambda_handler
       Runtime: python3.6
       Timeout: 900
