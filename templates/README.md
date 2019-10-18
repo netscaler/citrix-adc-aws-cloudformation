@@ -1,328 +1,328 @@
 > This file contains the latest AMIs for the given major releases for the specific product and region in the AWS Marketplace.
 
 ## Citrix Products on AWS Marketplace
-- [Citrix ADC (formerly NetScaler) VPX - Customer Licensed](#citrix-adc-formerly-netscaler-vpx---customer-licensed)
-- [Citrix ADC (formerly NetScaler) VPX Enterprise Edition - 10 Mbps](#citrix-adc-formerly-netscaler-vpx-enterprise-edition---10-mbps)
-- [Citrix ADC (formerly NetScaler) VPX Enterprise Edition - 1000 Mbps](#citrix-adc-formerly-netscaler-vpx-enterprise-edition---1000-mbps)
-- [Citrix ADC (formerly NetScaler) VPX Enterprise Edition - 200 Mbps](#citrix-adc-formerly-netscaler-vpx-enterprise-edition---200-mbps)
-- [Citrix ADC (formerly NetScaler) VPX Enterprise Edition - 3Gbps](#citrix-adc-formerly-netscaler-vpx-enterprise-edition---3gbps)
-- [Citrix ADC (formerly NetScaler) VPX Enterprise Edition - 5Gbps](#citrix-adc-formerly-netscaler-vpx-enterprise-edition---5gbps)
-- [Citrix ADC (formerly NetScaler) VPX Express - 20 Mbps](#citrix-adc-formerly-netscaler-vpx-express---20-mbps)
-- [Citrix ADC (formerly NetScaler) VPX Platinum Edition - 10 Mbps](#citrix-adc-formerly-netscaler-vpx-platinum-edition---10-mbps)
-- [Citrix ADC (formerly NetScaler) VPX Platinum Edition - 1000 Mbps](#citrix-adc-formerly-netscaler-vpx-platinum-edition---1000-mbps)
-- [Citrix ADC (formerly NetScaler) VPX Platinum Edition - 200 Mbps](#citrix-adc-formerly-netscaler-vpx-platinum-edition---200-mbps)
-- [Citrix ADC (formerly NetScaler) VPX Platinum Edition - 3Gbps](#citrix-adc-formerly-netscaler-vpx-platinum-edition---3gbps)
-- [Citrix ADC (formerly NetScaler) VPX Platinum Edition - 5Gbps](#citrix-adc-formerly-netscaler-vpx-platinum-edition---5gbps)
-- [Citrix ADC (formerly NetScaler) VPX Standard Edition - 10 Mbps](#citrix-adc-formerly-netscaler-vpx-standard-edition---10-mbps)
-- [Citrix ADC (formerly NetScaler) VPX Standard Edition - 1000 Mbps](#citrix-adc-formerly-netscaler-vpx-standard-edition---1000-mbps)
-- [Citrix ADC (formerly NetScaler) VPX Standard Edition - 200 Mbps](#citrix-adc-formerly-netscaler-vpx-standard-edition---200-mbps)
-- [Citrix ADC (formerly NetScaler) VPX Standard Edition - 3Gbps](#citrix-adc-formerly-netscaler-vpx-standard-edition---3gbps)
-- [Citrix ADC (formerly NetScaler) VPX Standard Edition - 5Gbps](#citrix-adc-formerly-netscaler-vpx-standard-edition---5gbps)
+  * [Citrix ADC (formerly NetScaler) VPX - Customer Licensed](#citrix-adc-formerly-netscaler-vpx---customer-licensed)
+  * [Citrix ADC (formerly NetScaler) VPX Advanced Edition - 10 Mbps](#citrix-adc-formerly-netscaler-vpx-advanced-edition---10-mbps)
+  * [Citrix ADC (formerly NetScaler) VPX Advanced Edition - 1000 Mbps](#citrix-adc-formerly-netscaler-vpx-advanced-edition---1000-mbps)
+  * [Citrix ADC (formerly NetScaler) VPX Advanced Edition - 200 Mbps](#citrix-adc-formerly-netscaler-vpx-advanced-edition---200-mbps)
+  * [Citrix ADC (formerly NetScaler) VPX Advanced Edition - 3Gbps](#citrix-adc-formerly-netscaler-vpx-advanced-edition---3gbps)
+  * [Citrix ADC (formerly NetScaler) VPX Advanced Edition - 5Gbps](#citrix-adc-formerly-netscaler-vpx-advanced-edition---5gbps)
+  * [Citrix ADC (formerly NetScaler) VPX Express - 20 Mbps](#citrix-adc-formerly-netscaler-vpx-express---20-mbps)
+  * [Citrix ADC (formerly NetScaler) VPX Premium Edition - 10 Mbps](#citrix-adc-formerly-netscaler-vpx-premium-edition---10-mbps)
+  * [Citrix ADC (formerly NetScaler) VPX Premium Edition - 1000 Mbps](#citrix-adc-formerly-netscaler-vpx-premium-edition---1000-mbps)
+  * [Citrix ADC (formerly NetScaler) VPX Premium Edition - 200 Mbps](#citrix-adc-formerly-netscaler-vpx-premium-edition---200-mbps)
+  * [Citrix ADC (formerly NetScaler) VPX Premium Edition - 3Gbps](#citrix-adc-formerly-netscaler-vpx-premium-edition---3gbps)
+  * [Citrix ADC (formerly NetScaler) VPX Premium Edition - 5Gbps](#citrix-adc-formerly-netscaler-vpx-premium-edition---5gbps)
+  * [Citrix ADC (formerly NetScaler) VPX Standard Edition - 10 Mbps](#citrix-adc-formerly-netscaler-vpx-standard-edition---10-mbps)
+  * [Citrix ADC (formerly NetScaler) VPX Standard Edition - 1000 Mbps](#citrix-adc-formerly-netscaler-vpx-standard-edition---1000-mbps)
+  * [Citrix ADC (formerly NetScaler) VPX Standard Edition - 200 Mbps](#citrix-adc-formerly-netscaler-vpx-standard-edition---200-mbps)
+  * [Citrix ADC (formerly NetScaler) VPX Standard Edition - 3Gbps](#citrix-adc-formerly-netscaler-vpx-standard-edition---3gbps)
+  * [Citrix ADC (formerly NetScaler) VPX Standard Edition - 5Gbps](#citrix-adc-formerly-netscaler-vpx-standard-edition---5gbps)
 
 
 ## Citrix ADC (formerly NetScaler) VPX - Customer Licensed
 ||**13.0**|**12.1**|**12.0**|**11.1**|**11.0**|
 |--|--|--|--|--|--|
-|**us-west-2**|ami-097a42cbe2c51ee9c|ami-082944c4829fb24e1|ami-0e8ef81df3afd1119|ami-00687246d41c660e2|ami-421b553a|
-|**us-west-1**|ami-0fdf25b3ec701f767|ami-04853c85f52bb3da2|ami-0890b62960b01c705|ami-05ae28bc7999f46db|ami-796b8c1a|
-|**us-east-2**|ami-0c76ac659297e87e8|ami-04cdd278955711f1a|ami-0e6357a97b47d6535|ami-0ea64c06b26bed886|ami-c6340da3|
-|**us-east-1**|ami-062ca82db2db37e3d|ami-0defa68f530b338b3|ami-06ae528dc35730099|ami-0b8d248bad05dcd4e|ami-548eda2b|
-|**sa-east-1**|ami-07a49398bc3fee35d|ami-0b8bd8cd405ba93dc|ami-02757e73fba2f591f|ami-024d10a4d1666d9da|ami-ed8bd181|
-|**eu-west-2**|ami-02ef2b21d68b5e6c3|ami-082b98d024c255e0a|ami-05d03a4093580d72d|ami-0af6c3fdfc7c87985|ami-785db31f|
-|**eu-west-1**|ami-0e270b0ea4e257df8|ami-0f9d06b0bcb8298bf|ami-016dac1bbd985c35c|ami-0f984cf0d9787514e|ami-3c666ad6|
-|**eu-central-1**|ami-082abe61634156d8f|ami-088456d47268912bf|ami-07ec9791a0f8f23bf|ami-0233bc1cfa78848de|ami-29f6cac2|
-|**ca-central-1**|ami-0920d1f11054935bd|ami-03d5e224c79dcde3e|ami-07dd3cd7a61e8c892|ami-05d2373123e57e814|ami-e5d95b81|
-|**ap-southeast-2**|ami-07c9dc12fa5ca0897|ami-0d6596203e8fdcdb4|ami-0587ce8ecc5772e6d|ami-0b7e3e2e21f681a43|ami-b5954cd7|
-|**ap-southeast-1**|ami-0ffc9b125c4eb671b|ami-0474c63f932a1d9d3|ami-0508ff683ec3c0e16|ami-01c2e8a7e2d894c69|ami-1e434062|
-|**ap-south-1**|ami-057bdb58dc6f40d20|ami-0eda86fbd99f4f35b|ami-08f99afd54a6f4c1b|ami-0c83796786103c047|ami-7ff9d310|
-|**ap-northeast-2**|ami-0f20291e2e5d8955a|ami-023818aed20a736e6|ami-04c3c64c184576134|ami-0b28e83fb8bb81318|ami-84f045ea|
-|**ap-northeast-1**|ami-0ddc83dde7fcfeb2e|ami-04cd778479ad61265|ami-096c378bd674db20d|ami-0aab942c2c8d7936c|ami-8812c7f7|
+|**us-west-2**|ami-0b4676c09e7994cf3|ami-0352e8fc4052fa561|ami-034cfea4519747e4c|ami-00687246d41c660e2|ami-421b553a|
+|**us-west-1**|ami-031421c73dff0724c|ami-08c616a48a7351ca6|ami-0a3565b31c14465a8|ami-05ae28bc7999f46db|ami-796b8c1a|
+|**us-east-2**|ami-08e851d5af412cb1a|ami-0bd5f2fc24a39c7ce|ami-0a71126d086e08402|ami-0ea64c06b26bed886|ami-c6340da3|
+|**us-east-1**|ami-0f38778279d15e095|ami-08a8613553fb95542|ami-0f426171d52efa87b|ami-0b8d248bad05dcd4e|ami-548eda2b|
+|**sa-east-1**|ami-0220bf855f9c4b3e2|ami-0ab708410ac3e45b1|ami-04f342ef69a51ee38|ami-024d10a4d1666d9da|ami-ed8bd181|
+|**eu-west-2**|ami-049deb2b212e81285|ami-02c44322b1865f961|ami-0e177ed29ab181ffc|ami-0af6c3fdfc7c87985|ami-785db31f|
+|**eu-west-1**|ami-07ea2ac00d82b1f3d|ami-0c06f157e0c69a027|ami-0c2858e892794b0a9|ami-0f984cf0d9787514e|ami-3c666ad6|
+|**eu-central-1**|ami-097304b6b661019e8|ami-0a0285a181f56abbf|ami-015f50a9d64fa9005|ami-0233bc1cfa78848de|ami-29f6cac2|
+|**ca-central-1**|ami-03975d4e197a28cec|ami-08ebdcbc4fa42e55d|ami-03bcb7ff52dd92585|ami-05d2373123e57e814|ami-e5d95b81|
+|**ap-southeast-2**|ami-00d96537071f8f219|ami-0418767b9f056de65|ami-0a6050ddc228fe00b|ami-0b7e3e2e21f681a43|ami-b5954cd7|
+|**ap-southeast-1**|ami-05b6b9a7bbd2f4643|ami-0d8e54a58a39b324b|ami-05d65c623362a6859|ami-01c2e8a7e2d894c69|ami-1e434062|
+|**ap-south-1**|ami-05bda76bec67ae3e1|ami-0d685db0875c12915|ami-01ac3bac807a96914|ami-0c83796786103c047|ami-7ff9d310|
+|**ap-northeast-2**|ami-067a7d4b44ea1f8c8|ami-0d4a7d11a9e5d07d8|ami-008033a014392ba5b|ami-0b28e83fb8bb81318|ami-84f045ea|
+|**ap-northeast-1**|ami-03b3dcc43a36bf388|ami-0ab47fb67f6b10e39|ami-07350887e6f5c62fd|ami-0aab942c2c8d7936c|ami-8812c7f7|
 ---
-## Citrix ADC (formerly NetScaler) VPX Enterprise Edition - 10 Mbps
+## Citrix ADC (formerly NetScaler) VPX Advanced Edition - 10 Mbps
 ||**13.0**|**12.1**|**12.0**|**11.1**|**11.0**|
 |--|--|--|--|--|--|
-|**us-west-2**|ami-01ecda55889776544|ami-0e13341b4429d194d|ami-0732f40bbe7c6f552|ami-0c3f8ada18e969a55|ami-3618564e|
-|**us-west-1**|ami-05bed46003921992f|ami-00f5691e00a6ed473|ami-02859057ab1d0e255|ami-0b984767511f0b8bc|ami-786b8c1b|
-|**us-east-2**|ami-0424313a4cb7b69b3|ami-0d96d0ee375a4f67d|ami-0184084b95ffc102d|ami-08db7623635c8087c|ami-7f370e1a|
-|**us-east-1**|ami-0cc6809a579b0f2d2|ami-063372277849821de|ami-058270c88330d4c08|ami-032ccb28fb6eefaf9|ami-ee8cd891|
-|**sa-east-1**|ami-0a1b49dbcd3956c0a|ami-039fbed8bf68e2484|ami-0ccb9877b4d2ffce6|ami-0fb840527e84d6792|ami-ec8bd180|
-|**eu-west-2**|ami-0b2269078c34ae88b|ami-094c76046ad29b019|ami-03dd8423de2e0bb2a|ami-063717e014bc9af26|ami-475bb520|
-|**eu-west-1**|ami-0fac9a1036c868ccd|ami-083f2483b0acf1d82|ami-00ac6858f43605714|ami-0d32eb89a8d05ca36|ami-13676bf9|
-|**eu-central-1**|ami-00de1008a8ece54e2|ami-04fb138d3a4abfd2d|ami-028d924535b4ffe4d|ami-0f406380eabfd929a|ami-2ff6cac4|
-|**ca-central-1**|ami-0c22e1241e186a390|ami-0c1661bd186c1292d|ami-0d3cb1e8ed3bce815|ami-0c692c9bd20cd0fd4|ami-5dd85a39|
-|**ap-southeast-2**|ami-087ed796f506760d6|ami-0efeb12e3dc31fa90|ami-00b8f49ff8146ef07|ami-02c7ff85279ca78d1|ami-fa914898|
-|**ap-southeast-1**|ami-042c6c553c501213d|ami-0dfaf4c90fd099f6a|ami-0868b916562673236|ami-0c0eb18b27a0a8b1a|ami-13bebe6f|
-|**ap-south-1**|ami-0cfa9bfa3e50ffa86|ami-0fdb3b635c451e7e3|ami-0327f10ef5882bcba|ami-0fe7e7a1e62f17d98|ami-b7e0cad8|
-|**ap-northeast-2**|ami-062ebf76766e00493|ami-0a64d64b0134d2cfc|ami-007b269bdc29933f9|ami-0931062f669f6c183|ami-eafd4884|
-|**ap-northeast-1**|ami-0e9696fd50b0facf9|ami-0c3230f67531be982|ami-06a3ad08b2efdad73|ami-07926a148a8732491|ami-851fcafa|
+|**us-west-2**|ami-0859ef1e9f5880a61|ami-0405f5cbd4a16050a|ami-028795c1786df621d|ami-0c3f8ada18e969a55|ami-3618564e|
+|**us-west-1**|ami-06a87f70c35b8bb5f|ami-0308f060c687b3282|ami-04f7ac1d22b2efd9d|ami-0b984767511f0b8bc|ami-786b8c1b|
+|**us-east-2**|ami-0618e465fbfce9409|ami-025228af6fef7691e|ami-0f2a9edf008bd50a4|ami-08db7623635c8087c|ami-7f370e1a|
+|**us-east-1**|ami-076e0e33905f6cfa4|ami-0c071f817736c8298|ami-0847e70aa35795a83|ami-032ccb28fb6eefaf9|ami-ee8cd891|
+|**sa-east-1**|ami-05388e3499378111d|ami-00b33e8846637d69b|ami-06c8b2ddcdae7895d|ami-0fb840527e84d6792|ami-ec8bd180|
+|**eu-west-2**|ami-04c0e526a1980d6cb|ami-0ee07c9650c624564|ami-0ace78b32c3d1d952|ami-063717e014bc9af26|ami-475bb520|
+|**eu-west-1**|ami-004a6f65bbe901296|ami-0127af824bf8ee7a8|ami-0bda6677570f447b1|ami-0d32eb89a8d05ca36|ami-13676bf9|
+|**eu-central-1**|ami-078765ff04e8ab958|ami-0ef0cd243bad40dfa|ami-0fdac4bcd4f786a11|ami-0f406380eabfd929a|ami-2ff6cac4|
+|**ca-central-1**|ami-04e7ac999555b4a6f|ami-00575bf16b6aeccf1|ami-071788d99c501229f|ami-0c692c9bd20cd0fd4|ami-5dd85a39|
+|**ap-southeast-2**|ami-090b4ba40c7cd5ec1|ami-0c686a3e496c4d223|ami-04af2a60291afdfec|ami-02c7ff85279ca78d1|ami-fa914898|
+|**ap-southeast-1**|ami-045a4a67c960de86e|ami-0823b1731a0b24e4d|ami-06e499b6dd10f96b6|ami-0c0eb18b27a0a8b1a|ami-13bebe6f|
+|**ap-south-1**|ami-00f797362bcf6c9f9|ami-06047ede8d2e5ce1f|ami-06ba86360188387a0|ami-0fe7e7a1e62f17d98|ami-b7e0cad8|
+|**ap-northeast-2**|ami-0719af1ed22aa43a7|ami-05652a84c2265fc2e|ami-09b522206959aa333|ami-0931062f669f6c183|ami-eafd4884|
+|**ap-northeast-1**|ami-04625c4a716657c9f|ami-052d452e0c7c19b49|ami-0789c12765c88e694|ami-07926a148a8732491|ami-851fcafa|
 ---
-## Citrix ADC (formerly NetScaler) VPX Enterprise Edition - 1000 Mbps
+## Citrix ADC (formerly NetScaler) VPX Advanced Edition - 1000 Mbps
 ||**13.0**|**12.1**|**12.0**|**11.1**|**11.0**|
 |--|--|--|--|--|--|
-|**us-west-2**|ami-0f9591363c1da9fbd|ami-09c610545dbcbe982|ami-06fe52091f0cafd6c|ami-0d1d00500d0975265|ami-971957ef|
-|**us-west-1**|ami-00c61cd630dc8c9fa|ami-0f703d04ecc36f5c2|ami-0e5bc47b46762d8d9|ami-057ea7744a72facd1|ami-dc44a3bf|
-|**us-east-2**|ami-07a5d415bda602b0d|ami-0bd1889ffdf64170e|ami-00200690e37fc82c0|ami-08e1bb96cc155f273|ami-c2340da7|
-|**us-east-1**|ami-0c2e2d0f6a8b36dda|ami-01af2a9fa259fbee9|ami-03a57557342b86960|ami-0a7d81d6016df2829|ami-b08dd9cf|
-|**sa-east-1**|ami-01ca81bddecd159a8|ami-0fb040ec737a8ded7|ami-03eeff264598cf9a3|ami-09a7ccb553066216f|ami-138bd17f|
-|**eu-west-2**|ami-02b1f2bd7900e8d37|ami-040db018c08f2f6c5|ami-0fed0e65dada79c76|ami-0df8ee87b9e792882|ami-795db31e|
-|**eu-west-1**|ami-0cad2c457134f65ce|ami-02ff7d4d85a5bb067|ami-070d9b09b67567820|ami-02f6732a80952df92|ami-3c575bd6|
-|**eu-central-1**|ami-03667480e5f1a29c7|ami-08cd36f689c26c65e|ami-0cd3cfaa7651d6338|ami-0dc4592978ae0c5c7|ami-2df6cac6|
-|**ca-central-1**|ami-0bafe4bb324c9009f|ami-0089a4800da5dc88f|ami-047d05da4eb55a4c8|ami-0562225193dbd8601|ami-d6d85ab2|
-|**ap-southeast-2**|ami-0ce6c6503e1620ac1|ami-0f6dbbd831bc81a60|ami-056f020f3104b56f6|ami-07e57c3964fa158bc|ami-cd9049af|
-|**ap-southeast-1**|ami-022da5fc5f1041d1d|ami-00a434419266f0aba|ami-00f6a07ea7595460d|ami-0a602af5ae888298a|ami-57b1b12b|
-|**ap-south-1**|ami-0f718bf5abcb7d9d8|ami-09de8ef4b6bfca46d|ami-0761c1e8974b80566|ami-022e0e8d67c004a0e|ami-1be7cd74|
-|**ap-northeast-2**|ami-001507572aa69644e|ami-0b8653db5c7021108|ami-06873f6e9e1eada06|ami-01b607e5fbeb9ba5e|ami-85f045eb|
-|**ap-northeast-1**|ami-015c4f49960a76d92|ami-0d6b444329963e74b|ami-0f6f37f9ce9aea3d2|ami-041b91d3450bfec4a|ami-8612c7f9|
+|**us-west-2**|ami-095ffbf382f2d338f|ami-00d8b964724641898|ami-0bf89e75e9ce16128|ami-0d1d00500d0975265|ami-971957ef|
+|**us-west-1**|ami-0e5e8423b768d9e1c|ami-0f30d7c13d65aecf6|ami-0077db8e631eb9153|ami-057ea7744a72facd1|ami-dc44a3bf|
+|**us-east-2**|ami-09b0e0b1104a0a4a4|ami-0edb19a22e7dd3e2f|ami-024bbd9dbf3a89b11|ami-08e1bb96cc155f273|ami-c2340da7|
+|**us-east-1**|ami-08ed2526ca0fcf78e|ami-090294b6f72ab5979|ami-00ca1e5dc488da09b|ami-0a7d81d6016df2829|ami-b08dd9cf|
+|**sa-east-1**|ami-00fefebedcec17bab|ami-0e09b63f2c40178d5|ami-06993871747c85033|ami-09a7ccb553066216f|ami-138bd17f|
+|**eu-west-2**|ami-00e3694b848eadaf0|ami-0150f951cd5a2c03c|ami-0d0d6a88851e17730|ami-0df8ee87b9e792882|ami-795db31e|
+|**eu-west-1**|ami-03db68dac4647f7ad|ami-09fb20cc61aaf50b9|ami-05f7d1b6885f28a53|ami-02f6732a80952df92|ami-3c575bd6|
+|**eu-central-1**|ami-0a97d766dc5383b3b|ami-01b2c5299618ab7f3|ami-039bb1e690ceda7ae|ami-0dc4592978ae0c5c7|ami-2df6cac6|
+|**ca-central-1**|ami-07353002b5411e97b|ami-0ff33a4644bf3cc96|ami-0af2a1d40b73afdef|ami-0562225193dbd8601|ami-d6d85ab2|
+|**ap-southeast-2**|ami-039a1a26b71a629d2|ami-0b5ff55ef58a3ef52|ami-037a864d9fbec42b2|ami-07e57c3964fa158bc|ami-cd9049af|
+|**ap-southeast-1**|ami-0ecbd7a8f36420e88|ami-0e1e3573be4183dcc|ami-048d8d166dee9fcc3|ami-0a602af5ae888298a|ami-57b1b12b|
+|**ap-south-1**|ami-039b66501bfd0ee15|ami-03d06ad7978d355bf|ami-00d5b505f14f4b9d2|ami-022e0e8d67c004a0e|ami-1be7cd74|
+|**ap-northeast-2**|ami-07e3e63aef598d14b|ami-0c6e12aa64c8a5033|ami-0dec628b52efc884a|ami-01b607e5fbeb9ba5e|ami-85f045eb|
+|**ap-northeast-1**|ami-00584afd524a0fdb1|ami-03a1ff66eec4a67d2|ami-02d3b52635ca46f24|ami-041b91d3450bfec4a|ami-8612c7f9|
 ---
-## Citrix ADC (formerly NetScaler) VPX Enterprise Edition - 200 Mbps
+## Citrix ADC (formerly NetScaler) VPX Advanced Edition - 200 Mbps
 ||**13.0**|**12.1**|**12.0**|**11.1**|**11.0**|
 |--|--|--|--|--|--|
-|**us-west-2**|ami-089d0a18f6f36f353|ami-0ad29f7e52645ac3f|ami-05afcacb8db263f23|ami-0ceddc16327368178|ami-6b165813|
-|**us-west-1**|ami-019fa2c5d0eb86286|ami-080071933756a436b|ami-0b4de92bb29d14988|ami-02def9eac876fdf50|ami-db44a3b8|
-|**us-east-2**|ami-079d66eb14b4d6d5f|ami-01ea0c46f4e3d61e9|ami-08c1eefb471a41bf7|ami-0520e40124897d4ef|ami-9b320bfe|
-|**us-east-1**|ami-0f8c2d034cb1f38d5|ami-07f1d3eb6ba42e089|ami-02d854b050d6fa5f3|ami-0cb068cf9585b1ae4|ami-d08cd8af|
-|**sa-east-1**|ami-0871ee7132e05d28d|ami-011839bd8b15968f2|ami-0e9c103f5688dbf10|ami-097f0895052e269f2|ami-ef8bd183|
-|**eu-west-2**|ami-035293f8f066f73e6|ami-02026b95510f05351|ami-087bd27a32341222a|ami-00e879eeee14a4950|ami-c95bb5ae|
-|**eu-west-1**|ami-02b713496fc76f4c7|ami-04009689ce2d6ab14|ami-02f4ab78cc8eab3ba|ami-074fbb85dd8a8908d|ami-3e575bd4|
-|**eu-central-1**|ami-0a7b53e8e4c167f77|ami-0156303deec2ac4dd|ami-028a1f363741e17fd|ami-009477c2c3ed08a9e|ami-25f6cace|
-|**ca-central-1**|ami-0b2a8ff3adda8b1d9|ami-0a1f7a6947c04fde5|ami-07c45d458b6656dec|ami-00a370682c9e7fd74|ami-2adf5d4e|
-|**ap-southeast-2**|ami-0efdb4a0fbb0ce162|ami-0945e613601d1cfef|ami-0cf15a9522e941d09|ami-02578891c00a64218|ami-4b9e4729|
-|**ap-southeast-1**|ami-06fe6320ac92414c6|ami-03c6805614ed37960|ami-0d92013d3d0e1835a|ami-06dea94233a870937|ami-18434064|
-|**ap-south-1**|ami-0a0f7b136c95ed3ab|ami-040b3ded273400c93|ami-0bf40382f0094ab69|ami-081f0e2ea9304d116|ami-06e5cf69|
-|**ap-northeast-2**|ami-0fbe80674771770bb|ami-0e06161776924b764|ami-07ac8d91ad303469f|ami-0426570bdb91d55e4|ami-27e15449|
-|**ap-northeast-1**|ami-0fcc7305b65836f12|ami-0811c6c4003fd2ba8|ami-0413fe5826b7fde57|ami-045cc0f7bd54b1db9|ami-8a1fcaf5|
+|**us-west-2**|ami-009492c2286022359|ami-008e2ee7044858e99|ami-0d32459944113ef0f|ami-0ceddc16327368178|ami-6b165813|
+|**us-west-1**|ami-037660faeaa6c88e1|ami-0c1bb3636cde11ef9|ami-094e638822394522b|ami-02def9eac876fdf50|ami-db44a3b8|
+|**us-east-2**|ami-07514787f75fa344b|ami-0d7b3f95a0811f0a4|ami-05eed45fabf145cbb|ami-0520e40124897d4ef|ami-9b320bfe|
+|**us-east-1**|ami-0dd48ce736f6cb313|ami-080dc3b080b53e1f4|ami-039ddea5735417292|ami-0cb068cf9585b1ae4|ami-d08cd8af|
+|**sa-east-1**|ami-06c73218b3034951c|ami-06b70ffcafb0d1754|ami-09702abcf3720da3c|ami-097f0895052e269f2|ami-ef8bd183|
+|**eu-west-2**|ami-0ea06e9823d4f4415|ami-08592ba2d6030c628|ami-0de8c16dd64ec5dca|ami-00e879eeee14a4950|ami-c95bb5ae|
+|**eu-west-1**|ami-0ad72737a8080d974|ami-0d2ca1dd0ddb930ea|ami-0d479d116fda35873|ami-074fbb85dd8a8908d|ami-3e575bd4|
+|**eu-central-1**|ami-06c2736e8cca63f31|ami-0ac4866df32f7c0d9|ami-08f3f66326ee8eab0|ami-009477c2c3ed08a9e|ami-25f6cace|
+|**ca-central-1**|ami-098551a2a9d34dd8a|ami-0d5d719d0192e47a2|ami-0538e0c5aec07473c|ami-00a370682c9e7fd74|ami-2adf5d4e|
+|**ap-southeast-2**|ami-03d470a76a058ca00|ami-0a7a42d9f6ca7ab0d|ami-05521267abbed2371|ami-02578891c00a64218|ami-4b9e4729|
+|**ap-southeast-1**|ami-0a13fc1fc3e3a57c3|ami-05608d4e78165778b|ami-04bbdfbfda29fdfb2|ami-06dea94233a870937|ami-18434064|
+|**ap-south-1**|ami-0ac531fc06c80820d|ami-024e30bf6063daf0b|ami-07246c71c8cd6380e|ami-081f0e2ea9304d116|ami-06e5cf69|
+|**ap-northeast-2**|ami-04d2c4ffc50b3f025|ami-0b69b5a1cc7f3bf8a|ami-0d3dda6abf6fb7b24|ami-0426570bdb91d55e4|ami-27e15449|
+|**ap-northeast-1**|ami-030de38c410a9eb39|ami-07c2ea0aeb88a5e6c|ami-03047a1b0fb968ba1|ami-045cc0f7bd54b1db9|ami-8a1fcaf5|
 ---
-## Citrix ADC (formerly NetScaler) VPX Enterprise Edition - 3Gbps
+## Citrix ADC (formerly NetScaler) VPX Advanced Edition - 3Gbps
 ||**13.0**|**12.1**|**12.0**|
 |--|--|--|--|
-|**us-west-2**|ami-01098023e196ee460|ami-0d766470dad61aa4e|ami-0074aedf25d899bca|
-|**us-west-1**|ami-06ed56dcb28acb36d|ami-0352f08c956a72cb3|ami-001258d6745402077|
-|**us-east-2**|ami-0f6e393882c1dc027|ami-0dc76006ff8ba024b|ami-06a5f2867826adb8c|
-|**us-east-1**|ami-090af54c8a4db5d65|ami-026b3cf9122272a35|ami-09d766381d487b0e4|
-|**sa-east-1**|ami-02a7fdba885162ccb|ami-0fd92168491b2e33e|ami-0c3bbe5e89bb8f965|
-|**eu-west-2**|ami-0531e6d4a3eae47d9|ami-023b73087581390cb|ami-0659617e701180d08|
-|**eu-west-1**|ami-048589f6562d44fb5|ami-0e6655c8d240bdb8d|ami-0e29d794ba9b5dd75|
-|**eu-central-1**|ami-043d972c07a3f0241|ami-0186d77266617554e|ami-056f5794d9b8c85b5|
-|**ca-central-1**|ami-0c052111ae4a3423f|ami-069c31dc21f032c69|ami-094056cc183d7797a|
-|**ap-southeast-2**|ami-0717fea407c814925|ami-0370aedb9b9557703|ami-05fe9012f47d9c926|
-|**ap-southeast-1**|ami-03f943e943b5de151|ami-00928f82e2449e2f1|ami-010d24299b7abb68d|
-|**ap-south-1**|ami-01f0b6d16217540b2|ami-043bb0412f00c3b79|ami-0bb9ea2c5b8173e7f|
-|**ap-northeast-2**|ami-075c26a1742d9d0b8|ami-0846099406756e84d|ami-00922aabf63064f03|
-|**ap-northeast-1**|ami-06c190d69276fa904|ami-0e851e8b916993279|ami-0732265d7404c29e3|
+|**us-west-2**|ami-0aaae7911880c6ce4|ami-013c3136f0616c54a|ami-0b32872411077d107|
+|**us-west-1**|ami-039912f42479466f1|ami-00c996bc6244c7690|ami-0b41ac5866e00cd72|
+|**us-east-2**|ami-022d4f0e949fcb81c|ami-0d520e6cb46a1202d|ami-01251f305c6fe7149|
+|**us-east-1**|ami-0892073b688e8eeaa|ami-01f8f4566ac8aff56|ami-053b3c2496498cf89|
+|**sa-east-1**|ami-0188191340cdd47a1|ami-04c7db53bd5d0ea53|ami-07e91c55ba6e4679b|
+|**eu-west-2**|ami-0de8ca745498ab8b2|ami-054c7e6e3dc9c1023|ami-009ad7db12cc38355|
+|**eu-west-1**|ami-027953f974f1dd1e6|ami-0c0bc23f5f2226fb5|ami-03d69c2f665b6e764|
+|**eu-central-1**|ami-031bac38a4b9c15c2|ami-06faeb462b97ba029|ami-0b53e9bec9dfb97a3|
+|**ca-central-1**|ami-0dc889b98aef79068|ami-01bc953dc3918e4af|ami-0923338766f4796c9|
+|**ap-southeast-2**|ami-0a41c2a9126d09d27|ami-0b359e6d37c6ac70b|ami-0fc49e87600d9869c|
+|**ap-southeast-1**|ami-03b57a3e163721355|ami-0b5eeb2f0d331e192|ami-08ef01a52b4cb50dc|
+|**ap-south-1**|ami-0605330f3f1e1c2ec|ami-0b77b23554c57c6f8|ami-0b11234e9b7f027db|
+|**ap-northeast-2**|ami-026c5fe6e4fa8c8be|ami-04bde103e67c5e656|ami-06cb447ff6e4b2bf1|
+|**ap-northeast-1**|ami-0626e14ee048e50ba|ami-0e82954bfa5d8d79b|ami-0d3dc1c9e7255baa2|
 ---
-## Citrix ADC (formerly NetScaler) VPX Enterprise Edition - 5Gbps
+## Citrix ADC (formerly NetScaler) VPX Advanced Edition - 5Gbps
 ||**13.0**|**12.1**|**12.0**|
 |--|--|--|--|
-|**us-west-2**|ami-048223f37a41eabcc|ami-0ad830969ea0b8b35|ami-0e6b45684e96b8526|
-|**us-west-1**|ami-07a84b1afce255189|ami-03d7baf19736aca36|ami-091d52708d1870875|
-|**us-east-2**|ami-0a1603941cbcc05b7|ami-05f42cca5d838fa98|ami-03cc9aa1003b98a78|
-|**us-east-1**|ami-04eca04e0ee796ff0|ami-068a1df78fdedf5dc|ami-0cb457bc20529db4d|
-|**sa-east-1**|ami-01633b4c8a413902a|ami-03bf6eaaea5daef8d|ami-0b746350f5c3028cf|
-|**eu-west-2**|ami-00f43b7b39d993e06|ami-0230d57403f607eb5|ami-0e567824619743811|
-|**eu-west-1**|ami-02c75ff7e63226676|ami-0ea750d726abbbb28|ami-03fd30c9cf2dce302|
-|**eu-central-1**|ami-0890c4159b3790757|ami-076c62d27ed6ac246|ami-01d03dc8a64427104|
-|**ca-central-1**|ami-0cdb489da91978d32|ami-01210e19ec1a7b10e|ami-0186a0796d9466853|
-|**ap-southeast-2**|ami-084f6fc9eb6b66f05|ami-087157c79756c28da|ami-0dbb80845067f4ac4|
-|**ap-southeast-1**|ami-0cbde3d26ca0ad0ed|ami-0e5fddf119b618e31|ami-08af354b2641dd61c|
-|**ap-south-1**|ami-05a3a49a700890dff|ami-07759179fd365b728|ami-0d25a2e67bcae33f8|
-|**ap-northeast-2**|ami-0f8801b2d8c8b99a6|ami-0385ac47724d0e663|ami-041191cddd70618ee|
-|**ap-northeast-1**|ami-02da173ee1a3434e7|ami-095078e3ffb69b031|ami-0eb2974051edc9140|
+|**us-west-2**|ami-0b1231fcbd4ffa2d3|ami-037b84c5903507a46|ami-0053c80133b0cb857|
+|**us-west-1**|ami-080a30a0210a13e13|ami-0453314a5c35ee4b4|ami-0a609d19c1159973b|
+|**us-east-2**|ami-0161db7c3b757e115|ami-0d34213082737a329|ami-0196ddd4d43bd43e5|
+|**us-east-1**|ami-0fcc156711a0b6f06|ami-00c60414033c95036|ami-0ab598ad6a0f36529|
+|**sa-east-1**|ami-01c1d3a1385e2c02a|ami-01b971617e88bf024|ami-0faa2643366985aaf|
+|**eu-west-2**|ami-0b366db4e9a1136fd|ami-0ff3408cceb136bae|ami-00ebfe857dee767b4|
+|**eu-west-1**|ami-071c8e624a8156e95|ami-0b661af22c4d2b523|ami-0d12b089578beba46|
+|**eu-central-1**|ami-06453eb697f00b850|ami-00482d9a4636cd61c|ami-0f5e1557ce91f0bce|
+|**ca-central-1**|ami-06c22b6ef59d536af|ami-0b4e99aba04c81d04|ami-0e3e3321b846ca94c|
+|**ap-southeast-2**|ami-06c4b4926e1c5e812|ami-002360b1945ea7c59|ami-0575730e299225401|
+|**ap-southeast-1**|ami-0000471edff55a168|ami-07cb5c81faa71ffb6|ami-0f26172bfee6392ae|
+|**ap-south-1**|ami-0263a8fa3c65a8231|ami-013ac0f7732cb0b99|ami-03ab6ce55ef5a25d1|
+|**ap-northeast-2**|ami-0f82ffa2a7a66b94b|ami-0feb29e8042de3120|ami-04a45e1f2178870e6|
+|**ap-northeast-1**|ami-03f382f27727601b5|ami-011aee5fe5a6a7de6|ami-019948e0d8e0c13b6|
 ---
 ## Citrix ADC (formerly NetScaler) VPX Express - 20 Mbps
 ||**13.0**|**12.1**|**12.0**|**11.1**|
 |--|--|--|--|--|
-|**us-west-2**|ami-0d9300e73413d9e60|ami-030ee14f46125d765|ami-0c9658b029c1f56af|ami-0a31754caf1a9b7c5|
-|**us-west-1**|ami-07a573d6bfc612a97|ami-05cf9fe73293c43fa|ami-0e8e2651d5aaf045f|ami-0e076f0bc7c1b5b4f|
-|**us-east-2**|ami-014e9586a1561ef07|ami-0f51b00272d039615|ami-0f79c77e4f07cf3df|ami-029871b86748667e1|
-|**us-east-1**|ami-0daa9d470ffeaaf12|ami-050b9b41e8569884c|ami-0b482f2fbe9556e78|ami-0176a5ebf07d046f4|
-|**sa-east-1**|ami-0cb6f9b6f4c22f7b2|ami-0b0bbd04b4606e9da|ami-0439eec864caf29f1|ami-09e0da324c68ca3d7|
-|**eu-west-2**|ami-034aff0bef933a116|ami-01971d236bbf0fc28|ami-0d1c22effdf71d745|ami-0b51830fb7a1d99be|
-|**eu-west-1**|ami-0328a4c6e4e6bfff6|ami-0eb97893c5f83d05e|ami-013f66b3988f9b721|ami-033e70ed4aa5fea5e|
-|**eu-central-1**|ami-0039c379a1bfe6e22|ami-069dcb4d6dd142211|ami-030c60d943d7d6b24|ami-0326071e5cf230abd|
-|**ca-central-1**|ami-099e49c4a75c3d0c4|ami-0a84b9c1617a078d5|ami-0295bbd9c405009d8|ami-076dabee4e5d2d795|
-|**ap-southeast-2**|ami-09beedd8c9abd5ac3|ami-07c68c685b23a3680|ami-0fc8b436dcab1f1ae|ami-08822f8d4cdb1ce1b|
-|**ap-southeast-1**|ami-0cfe7fd811efa8382|ami-0c077ffabb375bc0b|ami-09b3c0b22f1d5f628|ami-01d72703e4156b509|
-|**ap-south-1**|ami-022e8bd50e21ab862|ami-04ec825af44adfabc|ami-09bd8de21a1618af3|ami-0e9e619c15e2fc4d6|
-|**ap-northeast-2**|ami-0ef03e8fc07654487|ami-01a5636937a179033|ami-04dd9faa9c2a37db5|ami-0ada64838218aa23e|
-|**ap-northeast-1**|ami-0c8c63e0a1a29e081|ami-012b7bbc54947b8ef|ami-0662f1c074ec0c5ec|ami-0cd79ad86f24347fa|
+|**us-west-2**|ami-0e5f8d4baba4e7a9a|ami-05ec538deb5827bb4|ami-0813c6becd754e8bc|ami-0a31754caf1a9b7c5|
+|**us-west-1**|ami-08cca427ed113d9e2|ami-01fe909708b7d9de6|ami-0faa469b75cd70e07|ami-0e076f0bc7c1b5b4f|
+|**us-east-2**|ami-0006897913d3d2b05|ami-06428c388329f876b|ami-0307fcd80cf27841e|ami-029871b86748667e1|
+|**us-east-1**|ami-09a14da1cae46e274|ami-0eab22959082203c9|ami-04b37bb4ffddef27b|ami-0176a5ebf07d046f4|
+|**sa-east-1**|ami-0a2bab0b63bc9dd6b|ami-0ccd09111e54fd8b8|ami-08c48ec3784668fcf|ami-09e0da324c68ca3d7|
+|**eu-west-2**|ami-09c87d212e16a5b50|ami-0a0867873aed97c2a|ami-09ea83fae1ab680ee|ami-0b51830fb7a1d99be|
+|**eu-west-1**|ami-0b0c5856d49775ff6|ami-08536fedd0bc7af0a|ami-06893d98369d1a252|ami-033e70ed4aa5fea5e|
+|**eu-central-1**|ami-06ec5e19075d0db85|ami-0a2cf48295e544dec|ami-00019faadbe5c5f0e|ami-0326071e5cf230abd|
+|**ca-central-1**|ami-0eb9d48604152fe78|ami-0b0544d3c4f405265|ami-01e57ba241b9e1061|ami-076dabee4e5d2d795|
+|**ap-southeast-2**|ami-00b03af7c59a6f1e0|ami-0a2c708421ddd275c|ami-0aa64f17d4cad0b63|ami-08822f8d4cdb1ce1b|
+|**ap-southeast-1**|ami-061fd46fccaf7912e|ami-04be9104994e4c741|ami-0784ae8bb72ff63e2|ami-01d72703e4156b509|
+|**ap-south-1**|ami-0d8f04d8d33d7413a|ami-08a49044cd57ef193|ami-0b7666edfb2e5a84f|ami-0e9e619c15e2fc4d6|
+|**ap-northeast-2**|ami-0c25bca853afd4460|ami-0d2f42c98fa07b310|ami-098cc82edb9152ddb|ami-0ada64838218aa23e|
+|**ap-northeast-1**|ami-0b65864f238f1c995|ami-07abbbc122828c23b|ami-0718ba02f6e9d9554|ami-0cd79ad86f24347fa|
 ---
-## Citrix ADC (formerly NetScaler) VPX Platinum Edition - 10 Mbps
+## Citrix ADC (formerly NetScaler) VPX Premium Edition - 10 Mbps
 ||**13.0**|**12.1**|**12.0**|**11.1**|**11.0**|
 |--|--|--|--|--|--|
-|**us-west-2**|ami-02e48bbff0ae18db9|ami-0dcc717588c183990|ami-0a367219b185de180|ami-00bf1fb2fc5e1ea96|ami-73145a0b|
-|**us-west-1**|ami-0f47bc059c7c7ff8d|ami-0dc0f839fc2723527|ami-0237b2a4b8f287382|ami-05cabbce91c70a951|ami-7b6b8c18|
-|**us-east-2**|ami-0e44b450b64b757a9|ami-039c462e8f39cb8c2|ami-094207778e18a6881|ami-0cef85a5cce8414d7|ami-df3108ba|
-|**us-east-1**|ami-084683c1b867420b5|ami-06ebd904ee12b8232|ami-001bb9492e090208f|ami-0bae52177ae10c162|ami-629bcf1d|
-|**sa-east-1**|ami-04bc98d2729762c70|ami-0ec3e12254d34a0f4|ami-0d2cc7caac288f272|ami-0c8a7c111bc635907|ami-ee8bd182|
-|**eu-west-2**|ami-0f3090ac7cacf716e|ami-0271616941e53cd82|ami-01ea18d0417554dd2|ami-0bfc27eef689e84e4|ami-7f5db318|
-|**eu-west-1**|ami-0ec76cdbdfa655c4a|ami-076ba739496fcb301|ami-0b183d1b844f1a0ce|ami-0cb00516f56c0099d|ami-d9686433|
-|**eu-central-1**|ami-0cec917d2087572a6|ami-0bdd4f9830dda9afc|ami-0920bf27c5da0a62a|ami-0f063bed86e0df2b0|ami-d8f6ca33|
-|**ca-central-1**|ami-05aee6fa4981aaf75|ami-0b6ceedac4e497956|ami-02c5ae5dcda8a67fa|ami-03496a2e3e7502515|ami-eedb598a|
-|**ap-southeast-2**|ami-0d6fbdce7ad6c580a|ami-09fcd8b783f686ee5|ami-0ef3d366a248fccad|ami-0530138e55cdb49e4|ami-48924b2a|
-|**ap-southeast-1**|ami-0999901730ecb50ee|ami-021eb7882fda0241a|ami-06884c1a87552d22e|ami-06d2356628fc80d04|ami-54b1b128|
-|**ap-south-1**|ami-0dc70de12936b9135|ami-06edc156b366e4e62|ami-09085a129f6bf9a3c|ami-05ab7c9d42341fc5b|ami-00fbd16f|
-|**ap-northeast-2**|ami-0302d53b3cc9bb3bc|ami-015b54a65b87154d4|ami-07fc896715f4abafe|ami-0229465484ae820ce|ami-2de05543|
-|**ap-northeast-1**|ami-0a2333f5be947dfdf|ami-08f61c8f3873935d8|ami-0d3c4d7472740c774|ami-0d5d2be1d9018ca36|ami-8c12c7f3|
+|**us-west-2**|ami-03b433e4c770a8793|ami-0aabd7ee7f758b20e|ami-0a5c73817cbe05c4f|ami-00bf1fb2fc5e1ea96|ami-73145a0b|
+|**us-west-1**|ami-0997aca22218ce411|ami-06a2f5447a8ef7a85|ami-0e0ea22f6012fcdb4|ami-05cabbce91c70a951|ami-7b6b8c18|
+|**us-east-2**|ami-0907572036be38dcf|ami-0c8905815b16eaa5c|ami-02d005591612a42c2|ami-0cef85a5cce8414d7|ami-df3108ba|
+|**us-east-1**|ami-0309167983c060764|ami-0c84f3d6e34c3e140|ami-008adbd0658301cc4|ami-0bae52177ae10c162|ami-629bcf1d|
+|**sa-east-1**|ami-04b438fe61e3448f4|ami-0d199916d27d7b606|ami-08c8954f1a4731cfd|ami-0c8a7c111bc635907|ami-ee8bd182|
+|**eu-west-2**|ami-066c5767e4f1487e8|ami-0a01d60d99fddb534|ami-0bf1b79333bc944b8|ami-0bfc27eef689e84e4|ami-7f5db318|
+|**eu-west-1**|ami-0728d1cde31f757b1|ami-0c8e5a40b4e370a3a|ami-09b66203881c463f5|ami-0cb00516f56c0099d|ami-d9686433|
+|**eu-central-1**|ami-0e29e680363babd4f|ami-02c53d5b07ca44f44|ami-05da553b9a86dea69|ami-0f063bed86e0df2b0|ami-d8f6ca33|
+|**ca-central-1**|ami-08199f1f7612011c4|ami-077fe7a442acc5302|ami-0b21d65e3454202da|ami-03496a2e3e7502515|ami-eedb598a|
+|**ap-southeast-2**|ami-0d81a252b71cb07fa|ami-0df346f7334a1f18c|ami-0f826210b41498cad|ami-0530138e55cdb49e4|ami-48924b2a|
+|**ap-southeast-1**|ami-02b4de88248dcc3b1|ami-0ba9e0238292a0a9b|ami-0b8cdfa4705d438b3|ami-06d2356628fc80d04|ami-54b1b128|
+|**ap-south-1**|ami-03bfcbe978ae4de56|ami-0f08b89dee9fcf2a4|ami-0be4a3b8e1dcdf6c5|ami-05ab7c9d42341fc5b|ami-00fbd16f|
+|**ap-northeast-2**|ami-0d87377aaaa65c5a1|ami-0f6cfd3a8e16944f9|ami-052c8b14f33f6113c|ami-0229465484ae820ce|ami-2de05543|
+|**ap-northeast-1**|ami-02014690cedc6ccbc|ami-0bba9503faa00868c|ami-05f1c32eb3f1becbf|ami-0d5d2be1d9018ca36|ami-8c12c7f3|
 ---
-## Citrix ADC (formerly NetScaler) VPX Platinum Edition - 1000 Mbps
+## Citrix ADC (formerly NetScaler) VPX Premium Edition - 1000 Mbps
 ||**13.0**|**12.1**|**12.0**|**11.1**|**11.0**|
 |--|--|--|--|--|--|
-|**us-west-2**|ami-0be3ec34d3095519f|ami-07b425a465bfbf940|ami-076591b39d3a0d8a6|ami-0448aa6671ca8a65f|ami-f216588a|
-|**us-west-1**|ami-0caec2af48cdecbcc|ami-0831ea7fef952c212|ami-08d3186dc02ce4513|ami-09c6163aa0b646b29|ami-7d6b8c1e|
-|**us-east-2**|ami-099c3a61a59a67752|ami-0d968f336a84ec236|ami-0b60d1939ebd77d68|ami-0d1ac4811c78b0410|ami-ff30099a|
-|**us-east-1**|ami-093ae9a12a40fff76|ami-0184ba84896290626|ami-08f38c95bdc7f1d5e|ami-0d2279e7d8eea61f4|ami-b186d2ce|
-|**sa-east-1**|ami-033052d23f7020fa7|ami-0d413e2dd838adec0|ami-068fe4775d9af116e|ami-089bc54178755092c|ami-7f8ad013|
-|**eu-west-2**|ami-040a4c34b2212671e|ami-0c4597cbcf6c9bed1|ami-00554ca81f66e60be|ami-0bd1140dd2175db9c|ami-3a5eb05d|
-|**eu-west-1**|ami-0e9d1a04df663914a|ami-0f12694ec777d6609|ami-0c7affb2acb60aa1b|ami-0d23e5feb61cadbea|ami-c28b8628|
-|**eu-central-1**|ami-04a0825e7802b5e87|ami-01399b33107e0ee92|ami-03600730c1b437598|ami-03eba5869f921d46d|ami-75f6ca9e|
-|**ca-central-1**|ami-0056bfa2e4819e59d|ami-0cdcb42930c3293dc|ami-0621dc38b89d12512|ami-0eab7b2fd8c24f9aa|ami-5cd85a38|
-|**ap-southeast-2**|ami-0a2f8205d10a94b8e|ami-0cd2b35e1ba0f47b5|ami-0b44b40980f5e7553|ami-0a50b91c9d9e01a8d|ami-339c4551|
-|**ap-southeast-1**|ami-0314bdaf9b54b6eba|ami-01e87d7ec28a72ea0|ami-07302012ce02befbd|ami-009bbd37e088755c9|ami-7ab1b106|
-|**ap-south-1**|ami-0356b4016c4904967|ami-013800f81f541461d|ami-07cb0aaf99cb311d6|ami-024d30bb1f9bc49ba|ami-1ee7cd71|
-|**ap-northeast-2**|ami-0d3e9cfb04298a763|ami-0672d215c19e4f942|ami-0689ae9cf3590c512|ami-08442c4644946053a|ami-8ffa4fe1|
-|**ap-northeast-1**|ami-0f5bec52d3e76a076|ami-079128c105940f686|ami-0ab262e8339150469|ami-0f5e2e571bcbe259d|ami-3314c14c|
+|**us-west-2**|ami-0d76e24c04a3a152d|ami-04b2bc49962afe470|ami-08b6a2da91e328d9c|ami-0448aa6671ca8a65f|ami-f216588a|
+|**us-west-1**|ami-02ad8d76552df0c21|ami-0fbec1f2b4e4c69f5|ami-0dacb72dc471c6bd5|ami-09c6163aa0b646b29|ami-7d6b8c1e|
+|**us-east-2**|ami-099c0f217104e87fb|ami-0c5708a22c29ab22f|ami-0872993e349a25c79|ami-0d1ac4811c78b0410|ami-ff30099a|
+|**us-east-1**|ami-00faecea8fa81000e|ami-07ab64df62e50374c|ami-00262b636e8e3fdc7|ami-0d2279e7d8eea61f4|ami-b186d2ce|
+|**sa-east-1**|ami-08c3678245dfa289a|ami-0ef0913af4a08a2de|ami-0650bc46e8923a423|ami-089bc54178755092c|ami-7f8ad013|
+|**eu-west-2**|ami-0f2e6e32b46e2f906|ami-006a7cb7ad68c6b99|ami-0efe043202f93c9eb|ami-0bd1140dd2175db9c|ami-3a5eb05d|
+|**eu-west-1**|ami-03be363692a41f716|ami-00752eeab85f1a939|ami-0c3fa6ed9bb4ed1c1|ami-0d23e5feb61cadbea|ami-c28b8628|
+|**eu-central-1**|ami-082c3c94b106aac89|ami-0d37902ed30942838|ami-0d584a6aea60f8cd2|ami-03eba5869f921d46d|ami-75f6ca9e|
+|**ca-central-1**|ami-0c21e020b66830e93|ami-02062f3b8dc5cd68c|ami-01555e79c1e55d829|ami-0eab7b2fd8c24f9aa|ami-5cd85a38|
+|**ap-southeast-2**|ami-0df478d331440d1ba|ami-0591f732ab46fdeaf|ami-0ab46905e2b0210b2|ami-0a50b91c9d9e01a8d|ami-339c4551|
+|**ap-southeast-1**|ami-09a99a7dc8b384e31|ami-0825eb2540ebe8792|ami-088672b7703e9fd57|ami-009bbd37e088755c9|ami-7ab1b106|
+|**ap-south-1**|ami-06de16f4a06e93ea9|ami-04e1023e62bf90d03|ami-0251007d17d7ba499|ami-024d30bb1f9bc49ba|ami-1ee7cd71|
+|**ap-northeast-2**|ami-09ceaee1b778f5f6e|ami-04fb745879a855a8a|ami-0afb35c56b0f00f55|ami-08442c4644946053a|ami-8ffa4fe1|
+|**ap-northeast-1**|ami-0540e04e4137399fd|ami-099d6a37f8ef29aa5|ami-03dad272dcbd20a51|ami-0f5e2e571bcbe259d|ami-3314c14c|
 ---
-## Citrix ADC (formerly NetScaler) VPX Platinum Edition - 200 Mbps
+## Citrix ADC (formerly NetScaler) VPX Premium Edition - 200 Mbps
 ||**13.0**|**12.1**|**12.0**|**11.1**|**11.0**|
 |--|--|--|--|--|--|
-|**us-west-2**|ami-0f6fd5ffbf2fdb608|ami-0ae251253d69241d1|ami-03c94f40dc9ede115|ami-0f1ed39cd5aa10aef|ami-f6155b8e|
-|**us-west-1**|ami-0f37c34453519a83f|ami-07ecedf358aa198ac|ami-0f09d6053c6955a4c|ami-03384b0b62e1136b7|ami-406b8c23|
-|**us-east-2**|ami-00d4a64b7a6aba8df|ami-01f94f65a9e1fc4a7|ami-0f88520e2c8dfb35b|ami-0a04938069ae200d9|ami-1e340d7b|
-|**us-east-1**|ami-06bf1b38da2663705|ami-097ceb0871914c6af|ami-066e10f436a021af9|ami-039384074339d8714|ami-228cd85d|
-|**sa-east-1**|ami-0ffc64b4077aa5994|ami-04ea163d5acc26f4d|ami-043b7ea68c57d6c75|ami-09e2b156f198da038|ami-668ad00a|
-|**eu-west-2**|ami-0c511a2e4575b0604|ami-0ba62d618f1e53d6b|ami-07cb34d8782ce9f05|ami-09e6971bfea2beb5d|ami-cc5ab4ab|
-|**eu-west-1**|ami-0948231eb9e8f22fb|ami-038b1c241aa0f497a|ami-0d787e3e931bef3de|ami-0706865a783104757|ami-60626e8a|
-|**eu-central-1**|ami-09e8484cc27e4200d|ami-084c34d3a3234ee7b|ami-013c80c6e612777b9|ami-0c47870759bd67a7c|ami-44f7cbaf|
-|**ca-central-1**|ami-076198948fcf115b5|ami-04728b0abae52aa4a|ami-01f635bbedd8a582e|ami-0dd7891969b315b3c|ami-ead95b8e|
-|**ap-southeast-2**|ami-0e0e0ae6454d3da2d|ami-0544639c380d27b2a|ami-0ce772e920c85ef39|ami-077f2a89c86a5dfc6|ami-0965bb6b|
-|**ap-southeast-1**|ami-0962dc80855de3e9a|ami-0063ac36de735f8dd|ami-04c6a2983503f7e91|ami-09f00fca0111d943f|ami-32bebe4e|
-|**ap-south-1**|ami-01d10cc7ea074316e|ami-02422ea49c39f4bfe|ami-09333e8c128de577b|ami-0d4fc6057684ddd95|ami-82e0caed|
-|**ap-northeast-2**|ami-01168db492d91e800|ami-02f20e25def16a8ba|ami-0619c91db75ca818f|ami-06417efd2a34c3541|ami-82f045ec|
-|**ap-northeast-1**|ami-0069930ba850c0e9a|ami-02718691570641a8b|ami-0578b0bce49918e25|ami-0bee6703cfb291eb8|ami-c118cdbe|
+|**us-west-2**|ami-043b28fc800981032|ami-0ce5e745c447e2b34|ami-07eca2650afed9900|ami-0f1ed39cd5aa10aef|ami-f6155b8e|
+|**us-west-1**|ami-02dd0ae546217a9ea|ami-0c80fc8b93dcb0939|ami-0f8d3eff5313d416a|ami-03384b0b62e1136b7|ami-406b8c23|
+|**us-east-2**|ami-0e9458faffa5e922f|ami-09628173d57e154a4|ami-047c3ebc87fe9af71|ami-0a04938069ae200d9|ami-1e340d7b|
+|**us-east-1**|ami-095273ad865a67c7e|ami-007003e9076978811|ami-0cc2a4c51f16295d4|ami-039384074339d8714|ami-228cd85d|
+|**sa-east-1**|ami-0f149a2c00de50a2a|ami-00511a4c35fe774d0|ami-030a2afdc701b39dc|ami-09e2b156f198da038|ami-668ad00a|
+|**eu-west-2**|ami-00fcafe15eb7f0fa8|ami-0b4b474079b166fcb|ami-0b0a7b8b4b1ff29ac|ami-09e6971bfea2beb5d|ami-cc5ab4ab|
+|**eu-west-1**|ami-081f2dd4dedbc2860|ami-06b3037e861466857|ami-0b5db69509f6a76cc|ami-0706865a783104757|ami-60626e8a|
+|**eu-central-1**|ami-026109b2ae746cd02|ami-091d57d7261360b7c|ami-06a677915ab23c4a0|ami-0c47870759bd67a7c|ami-44f7cbaf|
+|**ca-central-1**|ami-0d14638ca502f1771|ami-077aa1196e4946c8c|ami-008a86c9697ceccef|ami-0dd7891969b315b3c|ami-ead95b8e|
+|**ap-southeast-2**|ami-0384e5f8be8d7afdf|ami-03145982ae16a9dbe|ami-02fa809616ce0ae9c|ami-077f2a89c86a5dfc6|ami-0965bb6b|
+|**ap-southeast-1**|ami-07e567bbf3fb7a0e1|ami-09f4c335de988b933|ami-03a6ace632f1c02ae|ami-09f00fca0111d943f|ami-32bebe4e|
+|**ap-south-1**|ami-0dbe8bd6b46f4b53a|ami-0767bdc67f740b959|ami-0923e9be1d4dc8a20|ami-0d4fc6057684ddd95|ami-82e0caed|
+|**ap-northeast-2**|ami-03b2a6e035f4f8af1|ami-020abc296b3ce76cb|ami-0b072c9e75c9c49bc|ami-06417efd2a34c3541|ami-82f045ec|
+|**ap-northeast-1**|ami-001b452d9a27d1248|ami-0ffb34758253e6d24|ami-00e415c873a7a2ec4|ami-0bee6703cfb291eb8|ami-c118cdbe|
 ---
-## Citrix ADC (formerly NetScaler) VPX Platinum Edition - 3Gbps
+## Citrix ADC (formerly NetScaler) VPX Premium Edition - 3Gbps
 ||**13.0**|**12.1**|**12.0**|
 |--|--|--|--|
-|**us-west-2**|ami-0fef864e0788f2585|ami-0fe48ef9e1225df28|ami-029646b4d00b9625d|
-|**us-west-1**|ami-0cb5feb851bcdc9ed|ami-06558b204ab805c1e|ami-04cc7938918ab8470|
-|**us-east-2**|ami-02b99e4c0a6924c1a|ami-012c16ce6632e5d44|ami-07030be709596c1fd|
-|**us-east-1**|ami-08a805023af7a17cb|ami-021afb7494c10595a|ami-0f34eb17303f74e39|
-|**sa-east-1**|ami-01f8910113ad43ab2|ami-09217cabb017bbbfa|ami-03f7f9f9f291d7aba|
-|**eu-west-2**|ami-033ef8d6ba16d7e6b|ami-081fa277ff6de8457|ami-038c83427d0c65b23|
-|**eu-west-1**|ami-0609c2759b98175b9|ami-0fef37699d750ae08|ami-061c102ef02147664|
-|**eu-central-1**|ami-015b01c5819f10989|ami-012ce47928953f64f|ami-09a4318146513628d|
-|**ca-central-1**|ami-0bd03b4da9d9f474b|ami-06884cc90f5c9ae66|ami-0eb2b8f5063aa1e74|
-|**ap-southeast-2**|ami-02ae64935806187e6|ami-079d5c71b8135da5e|ami-090648846dee5bc6c|
-|**ap-southeast-1**|ami-0c8b286573fc0cb8d|ami-0c5f12d1d5265cf5d|ami-091d79e71506a1ac0|
-|**ap-south-1**|ami-09b06577b03bf8f95|ami-0b2dbd37bd8924285|ami-0e8547b56616cc0df|
-|**ap-northeast-2**|ami-07a4fec58de28d182|ami-004d4a08ccab61fff|ami-035f1f89284356d46|
-|**ap-northeast-1**|ami-076927d663437c453|ami-03e3a553c505d7791|ami-022b5f70c5dba1182|
+|**us-west-2**|ami-04d777ebb07ab0309|ami-024113b3d725d8361|ami-00235a610bea0312d|
+|**us-west-1**|ami-044df75dfcccd7454|ami-0ba8e519997608954|ami-0b2bd79d15f5c48ac|
+|**us-east-2**|ami-0b4e535b77c197d77|ami-0b53d201c3c3376dc|ami-0ba4cdc4946571bf8|
+|**us-east-1**|ami-02162a6541ebe9b08|ami-0f0d585b1bd261be1|ami-0f94c90742f2243c6|
+|**sa-east-1**|ami-0e909af964f770b56|ami-0f48696b549fc6d70|ami-0a662e39722687b94|
+|**eu-west-2**|ami-092a47671f98fc158|ami-0fb62c51dff2e4a4a|ami-00e7c94ecf47e6b0f|
+|**eu-west-1**|ami-0446b6f7d0bbe9700|ami-08debdc258aaf52ee|ami-07cd68471ebefd413|
+|**eu-central-1**|ami-0f9d6879e599f328a|ami-091cd0b14b831428e|ami-019beae6aa50ba934|
+|**ca-central-1**|ami-0427140c71ae193a8|ami-094e4b4e3c7816078|ami-0768fd83e3c55b120|
+|**ap-southeast-2**|ami-0ea64ab837ab2d2c3|ami-05f01943f199cb157|ami-019a6fccfa36fb2eb|
+|**ap-southeast-1**|ami-0d5d1db96dbc425ce|ami-0457e1c4496cfb0b7|ami-08a14e0b16dc095a7|
+|**ap-south-1**|ami-02766f1200918fe57|ami-07d603f6cb021fb9a|ami-06f3be0ce16dfeb34|
+|**ap-northeast-2**|ami-035aca72fba881a2f|ami-09ac24323cb004617|ami-0fce76eb04daaa9a4|
+|**ap-northeast-1**|ami-0d5face8c2e79c317|ami-06d9b354c6b24f6c7|ami-0e746089b98fb6fa0|
 ---
-## Citrix ADC (formerly NetScaler) VPX Platinum Edition - 5Gbps
+## Citrix ADC (formerly NetScaler) VPX Premium Edition - 5Gbps
 ||**13.0**|**12.1**|**12.0**|
 |--|--|--|--|
-|**us-west-2**|ami-0f9fc149487e6e60c|ami-0eacd1e390f802caf|ami-002c1a00236a30a74|
-|**us-west-1**|ami-0501c4516d6029817|ami-0db6159e6d52e4924|ami-07aadb99b5b96a940|
-|**us-east-2**|ami-097178a1f10dbb6af|ami-059b10ef02439c868|ami-0dab05a10a1fbfd3d|
-|**us-east-1**|ami-005950426e276f355|ami-0a8a6f40be4a16dc8|ami-0754ce1d4387d521e|
-|**sa-east-1**|ami-0eb743b8b0664148c|ami-0d2987023b55406fd|ami-01ab3c0c796e0718d|
-|**eu-west-2**|ami-02dafae4a5ef02ccc|ami-0f55bcc6cdf95daae|ami-076464b3a7ab7f4e8|
-|**eu-west-1**|ami-03a88e2e604dfa3a7|ami-05763b8a859b6a85e|ami-0c6293399066d735c|
-|**eu-central-1**|ami-0daf6ac237e28afa7|ami-081ffb4073246b7c8|ami-0f5be89fa388484c8|
-|**ca-central-1**|ami-0ff20620842a90ab8|ami-017b733e73a603e20|ami-056faac53d2413859|
-|**ap-southeast-2**|ami-0481b95d7456cd243|ami-01f8bc56dbf9687dc|ami-0ee68804fe44acade|
-|**ap-southeast-1**|ami-02c7e602286a848c3|ami-04b9e0c3f84f89959|ami-0cc59a62a4db9bbaa|
-|**ap-south-1**|ami-0a517f35b551c369e|ami-00f6d992130665720|ami-0617e7e1501f81203|
-|**ap-northeast-2**|ami-078be9c1f146b37d6|ami-0b94175c6fdd5c308|ami-02d35cf4cd6a8f0a8|
-|**ap-northeast-1**|ami-0f5192277b6271068|ami-0f9f836b669fbeb97|ami-0b37b8e7c06bab7ea|
+|**us-west-2**|ami-00862eebfdc738e9d|ami-015a84211d9edfefe|ami-00cfc47207bd34096|
+|**us-west-1**|ami-01554ea5980053b55|ami-08fc9d3af392729d8|ami-0dcbd2d2fcff4dcf7|
+|**us-east-2**|ami-06fb7238ebce55f37|ami-09ad4294b72cd346e|ami-0105e42427187ca33|
+|**us-east-1**|ami-0a7bf37d5f1a9e236|ami-0a2534249f69f4088|ami-04fc0272caafa0aa2|
+|**sa-east-1**|ami-0d08ee62c81aa85a9|ami-04d6dde39da5d1978|ami-09a2df45af527bde6|
+|**eu-west-2**|ami-02f76a011a70f75f1|ami-0bda477b4002b90ab|ami-0ceb34e8993a61931|
+|**eu-west-1**|ami-05599ac4c1ca17d85|ami-0e9f657ffcb756e8e|ami-02cf12afca79c176e|
+|**eu-central-1**|ami-06876d782b4760bff|ami-058e14bbc1886747f|ami-09379ce9845533287|
+|**ca-central-1**|ami-05800c8e6753706f7|ami-09c24d285896913cb|ami-06ed7afe9ded437e6|
+|**ap-southeast-2**|ami-0a6b08c406064fe06|ami-03fd6b8d0664a6a1f|ami-0ed32e0c6dbd4ad36|
+|**ap-southeast-1**|ami-0830b4cf8344e8289|ami-063bf8472df05b032|ami-0937863f9d6d4b55b|
+|**ap-south-1**|ami-05bd590aa9c0bbc6d|ami-011e0d84e477e1bf2|ami-05210609dbcfe8772|
+|**ap-northeast-2**|ami-04168b4248d00648e|ami-0acb24d579a43a0bc|ami-0a433e516600e5145|
+|**ap-northeast-1**|ami-0292c3e88e02f38da|ami-0ec4604000de39344|ami-001dc589a73c89fd9|
 ---
 ## Citrix ADC (formerly NetScaler) VPX Standard Edition - 10 Mbps
 ||**13.0**|**12.1**|**12.0**|**11.1**|**11.0**|
 |--|--|--|--|--|--|
-|**us-west-2**|ami-05f4c996dc7ebc49c|ami-0b3de85ff53d689d5|ami-05548369e5e0d7dae|ami-09a4f9c3de435e8a9|ami-18175960|
-|**us-west-1**|ami-0825305adc2efec67|ami-0b1e2b155e65d03cb|ami-0984faab500dfd567|ami-024af83af2d6adcbd|ami-426b8c21|
-|**us-east-2**|ami-0f72e589ecbeb41be|ami-0107039accd69a7a5|ami-0515edabf5acc6be0|ami-0bd3051dcecafdb69|ami-f0360f95|
-|**us-east-1**|ami-029cccbac78adad1d|ami-0f5e57ea548fc47c5|ami-06274c40f24113232|ami-055541098907a0336|ami-858adefa|
-|**sa-east-1**|ami-0160fde7142ee68c4|ami-02905cafef85c7722|ami-0bea7d12a16b2c8f8|ami-091585ce8d1b79b15|ami-648ad008|
-|**eu-west-2**|ami-009f87e767e07ed59|ami-0ae3440e499105fdd|ami-02dfc011ea0f9c0fc|ami-0b6a4b388891d62c3|ami-4c5db32b|
-|**eu-west-1**|ami-0b2c508429fefab51|ami-0b838884cec0b9dfe|ami-0ecd6dd1ac0e2e3e0|ami-0a77d60af09bdf156|ami-46575bac|
-|**eu-central-1**|ami-05bcfa10a0005865f|ami-0e818957d66db2b5c|ami-016e96d6b8a1deb1b|ami-0699ab2ec649ee205|ami-d2f0cc39|
-|**ca-central-1**|ami-0fd39f84af152b564|ami-0fbcb53cd453a9cf2|ami-065ddbc4e69073d7d|ami-0c980d064e1d515bb|ami-f2db5996|
-|**ap-southeast-2**|ami-089850f8b40f99dee|ami-06bba98a7852e7f02|ami-01f97b7917006c790|ami-0ddba63146c8a937e|ami-859148e7|
-|**ap-southeast-1**|ami-0be493753bfe072ed|ami-0498d63d9a1cab151|ami-0afacafd1a0acd2a7|ami-04bd3f92f281dd2ce|ami-efb8b893|
-|**ap-south-1**|ami-0fb6ba6521388d534|ami-0be40027e20ac708a|ami-0325bd5e65aec2724|ami-0e1e7321d2cd247d0|ami-91fed4fe|
-|**ap-northeast-2**|ami-01c2d10d06c8ccc84|ami-05b39b604664fb3ae|ami-0316e08f73a83cee8|ami-03ebddab412bf7561|ami-16fb4e78|
-|**ap-northeast-1**|ami-0f552279c633fb9a7|ami-0e8c1772af682ee99|ami-0c4db91fbd67ae855|ami-0567f45e56406daea|ami-6319cc1c|
+|**us-west-2**|ami-0ad4cf19b1897d958|ami-0b3d9c543015baa40|ami-0076a3743e5235716|ami-09a4f9c3de435e8a9|ami-18175960|
+|**us-west-1**|ami-026ffecbfa23a7afa|ami-0e24d58ad4671bb37|ami-0b73c6c344fd812a2|ami-024af83af2d6adcbd|ami-426b8c21|
+|**us-east-2**|ami-06ebeeaa258096d86|ami-05cc4e76949e9842a|ami-0d0c37b2b7701304d|ami-0bd3051dcecafdb69|ami-f0360f95|
+|**us-east-1**|ami-0906a12590f04216e|ami-0780cdc7b7503019e|ami-09a7e869542b7d5ed|ami-055541098907a0336|ami-858adefa|
+|**sa-east-1**|ami-06e3e1791c74da392|ami-0648da69dc226c0b1|ami-0f98a87510d19b571|ami-091585ce8d1b79b15|ami-648ad008|
+|**eu-west-2**|ami-0a2f40ac7f036b5c7|ami-03ccdb58051491946|ami-0be1cde5bb2ec1067|ami-0b6a4b388891d62c3|ami-4c5db32b|
+|**eu-west-1**|ami-0aece87c7cb54ef09|ami-0703443c11e30c163|ami-0400589db51c10c6b|ami-0a77d60af09bdf156|ami-46575bac|
+|**eu-central-1**|ami-03f5b980df507d8b6|ami-064760d56cfb4e363|ami-088360ddd31c841a1|ami-0699ab2ec649ee205|ami-d2f0cc39|
+|**ca-central-1**|ami-01e0d5990557a8a6e|ami-09a74117d40743054|ami-0748702799d608057|ami-0c980d064e1d515bb|ami-f2db5996|
+|**ap-southeast-2**|ami-08e3fa2f2c9135dc6|ami-05f813a51bd4d9f0d|ami-059c9056b1d1f3d04|ami-0ddba63146c8a937e|ami-859148e7|
+|**ap-southeast-1**|ami-015510568068ff341|ami-06e161d816ea78ebe|ami-038d34130c46e0e73|ami-04bd3f92f281dd2ce|ami-efb8b893|
+|**ap-south-1**|ami-02c6302a7170fd7f4|ami-0bfc4a20fbd0442d8|ami-0fdfe4bd56e96eeb2|ami-0e1e7321d2cd247d0|ami-91fed4fe|
+|**ap-northeast-2**|ami-06b48144db3431875|ami-0e67d60d3d1c57969|ami-033b75ec949c3ab26|ami-03ebddab412bf7561|ami-16fb4e78|
+|**ap-northeast-1**|ami-07b181a3b15f47e5f|ami-012df570bfe8f96e4|ami-093e04d81df62273e|ami-0567f45e56406daea|ami-6319cc1c|
 ---
 ## Citrix ADC (formerly NetScaler) VPX Standard Edition - 1000 Mbps
 ||**13.0**|**12.1**|**12.0**|**11.1**|**11.0**|
 |--|--|--|--|--|--|
-|**us-west-2**|ami-08130cdb4031532b5|ami-04718296955288bcb|ami-03c5bed3ac017756f|ami-0989300ee46699a05|ami-da145aa2|
-|**us-west-1**|ami-0d4e8ff805adb76af|ami-0fdd84881d5a6a0da|ami-0afc98493f8bd600d|ami-066949f121d7e991d|ami-2b46a148|
-|**us-east-2**|ami-04fecd03e904fd8c3|ami-04c366b13a47efe8e|ami-020092c4d6ca2f61a|ami-038c0707197f02e24|ami-e8350c8d|
-|**us-east-1**|ami-0b9c1ee0c2ff38175|ami-0595aba24e2ebfb67|ami-0287248bc343b049a|ami-0304632bffc07d2df|ami-5c8bdf23|
-|**sa-east-1**|ami-08a05a6d9099d5229|ami-054830dcc6c51df3a|ami-0f6f3d9ffa6718c7d|ami-0726a411339004013|ami-1f8bd173|
-|**eu-west-2**|ami-0ad6d5876850b9180|ami-002fcac84726ff25e|ami-09cb04d027c96904c|ami-0bb00debf1cc7cd90|ami-0c5eb06b|
-|**eu-west-1**|ami-0a528166cb25763f5|ami-0588a31143523b04a|ami-0d2c2693f758e96b4|ami-087df71ccba79e3aa|ami-87636f6d|
-|**eu-central-1**|ami-0ee52e867a0843966|ami-069941cd809d5816c|ami-02e4644ff5367cbe7|ami-0c255c63c4d456618|ami-3ef0ccd5|
-|**ca-central-1**|ami-0d372b4d9e808badd|ami-02271ed717be6368d|ami-0d2a78162d2022197|ami-0c96720884349a098|ami-65dc5e01|
-|**ap-southeast-2**|ami-031f5bc73f673c04e|ami-0ae07e28d2061259d|ami-0b574b2ea85e41528|ami-01b4eef3e37d714ef|ami-24964f46|
-|**ap-southeast-1**|ami-01a330d63718dc884|ami-054ed41402ecbe3e8|ami-0d066987331f210f9|ami-04fcff77aebf8ad88|ami-75b1b109|
-|**ap-south-1**|ami-0ef61510215de76c8|ami-0fad11ba32faa9afe|ami-00721d5e0d16ac080|ami-06608c5a0e99f9082|ami-2ef8d241|
-|**ap-northeast-2**|ami-0dbf152f3fdb6afec|ami-0c89b64d3d21b6c91|ami-0d67d13650d798ea0|ami-093e13cfeaa7b23ad|ami-83f045ed|
-|**ap-northeast-1**|ami-047b9f49c206c1a8a|ami-03af1f801f7ee9da9|ami-060e6ba34a9146f6b|ami-0217c81513447c61e|ami-451dc83a|
+|**us-west-2**|ami-0b7f4afee2d66e0b9|ami-06a7f0bb9f88d4738|ami-0597cf5f8c5908b8e|ami-0989300ee46699a05|ami-da145aa2|
+|**us-west-1**|ami-077c2be426ef2ee6c|ami-096aac9fedaee8a4d|ami-0ff3f1d5deb1b9756|ami-066949f121d7e991d|ami-2b46a148|
+|**us-east-2**|ami-03f142fddd89002c3|ami-086bcd5dfe173f7bf|ami-0ed80867ab01b00cb|ami-038c0707197f02e24|ami-e8350c8d|
+|**us-east-1**|ami-08fa74635d8d83049|ami-0daa3518f304882b4|ami-07275d5e89cc3e346|ami-0304632bffc07d2df|ami-5c8bdf23|
+|**sa-east-1**|ami-066f1c15bcc946255|ami-0019e2dff2c87683c|ami-0cec5070252fc2640|ami-0726a411339004013|ami-1f8bd173|
+|**eu-west-2**|ami-07eaa281d0a6ba92b|ami-098a28c6038c91396|ami-0ef380b460f2b8b14|ami-0bb00debf1cc7cd90|ami-0c5eb06b|
+|**eu-west-1**|ami-0c4135b6d1c7b9e5c|ami-0ffed22eccb411dbd|ami-04c4dfd346a956b23|ami-087df71ccba79e3aa|ami-87636f6d|
+|**eu-central-1**|ami-075e67ad9fadf076b|ami-00ebe72c4fd816f39|ami-0cbcff260cc4e9d85|ami-0c255c63c4d456618|ami-3ef0ccd5|
+|**ca-central-1**|ami-0ec357e92842987cc|ami-05c19283489f6efc5|ami-0ff78a49aa7f953e8|ami-0c96720884349a098|ami-65dc5e01|
+|**ap-southeast-2**|ami-0e026d19fdee07b0c|ami-0c8f9d42bb7a44211|ami-0d7cdcf936faf9d95|ami-01b4eef3e37d714ef|ami-24964f46|
+|**ap-southeast-1**|ami-09620c513351a2c51|ami-0832a72d375436811|ami-0a4abd7ce815f3377|ami-04fcff77aebf8ad88|ami-75b1b109|
+|**ap-south-1**|ami-04a57579d2693fdad|ami-0222b10b74310a316|ami-0347dd38091634f64|ami-06608c5a0e99f9082|ami-2ef8d241|
+|**ap-northeast-2**|ami-0c861ea6403983ae1|ami-0fa20ec6f9688fecc|ami-09d7dd2ae5ce7674a|ami-093e13cfeaa7b23ad|ami-83f045ed|
+|**ap-northeast-1**|ami-0b51622a30b74e5a6|ami-0f035eb73d3fd30dc|ami-0ea4410778fdfdac9|ami-0217c81513447c61e|ami-451dc83a|
 ---
 ## Citrix ADC (formerly NetScaler) VPX Standard Edition - 200 Mbps
 ||**13.0**|**12.1**|**12.0**|**11.1**|**11.0**|
 |--|--|--|--|--|--|
-|**us-west-2**|ami-0fd36f83363ecea99|ami-0670cc799270f9772|ami-0d6f74b7515a0c2af|ami-010fcd89ef990ab9a|ami-d9145aa1|
-|**us-west-1**|ami-09a733d977dd36de6|ami-07cfcee8d301c0146|ami-088152661d11fe9a5|ami-0314534c787c6881f|ami-0d7a9d6e|
-|**us-east-2**|ami-080786fc43cd084d0|ami-07e1ae9db0acff7cd|ami-06ff6bbe7246f6543|ami-04796695a06dbb9f7|ami-5a340d3f|
-|**us-east-1**|ami-07983ef94bd90f06f|ami-086922042e53798f1|ami-009025b3b4b66b6f6|ami-0f0137f2a1cb9b943|ami-4089dd3f|
-|**sa-east-1**|ami-0f60fad5a78ce266a|ami-03591ab7206bb3bcb|ami-043e2dd59cc25f5d5|ami-070c792d497f5d515|ami-6a8ad006|
-|**eu-west-2**|ami-0577a7578ec4e3106|ami-09010ae255a651969|ami-0a320988cf882f40a|ami-020c73bd9d2047751|ami-4e5db329|
-|**eu-west-1**|ami-0405b4a0dcb8dbed0|ami-030db3d279a7d652c|ami-037a921dae0f4d147|ami-001535b5b97906ccd|ami-99636f73|
-|**eu-central-1**|ami-0134198f6dca8a8ab|ami-01b6bd3b72de2b7c6|ami-0670b02d8580e383e|ami-0fde4545f37e6c01e|ami-77f0cc9c|
-|**ca-central-1**|ami-046da52a8234e4f3b|ami-0a9c9d450e8deecb3|ami-0f040b67ae8598298|ami-09e537c134fc6715b|ami-f7db5993|
-|**ap-southeast-2**|ami-0523d33be38e84dd9|ami-0349b592f47873304|ami-062c6875381766543|ami-0fb4b83b5f90183de|ami-ef934a8d|
-|**ap-southeast-1**|ami-077a84b6c059950d1|ami-030b66a326adc452d|ami-0892c8beef20de6fe|ami-0a772ff1900bf0ae2|ami-2bbebe57|
-|**ap-south-1**|ami-008d28f77ed5e3641|ami-0b6101fcdfc771845|ami-073cff9f5a27e1f94|ami-0303c89350e1a7acb|ami-b6fed4d9|
-|**ap-northeast-2**|ami-0ba322ee399075616|ami-0c5af7a36c0ffe3ec|ami-03fa78a72c1ccc431|ami-0c55f504d9bd8945c|ami-19e15477|
-|**ap-northeast-1**|ami-06201250019ee9ae9|ami-083c862761d275a05|ami-04e8f920971486999|ami-08c1d527e180187d5|ami-d718cda8|
+|**us-west-2**|ami-08a7653c0c0a02355|ami-0eff10df84a69b2df|ami-0e38aa653c6ecf402|ami-010fcd89ef990ab9a|ami-d9145aa1|
+|**us-west-1**|ami-0c04cdca9c269d26c|ami-05f3bae4944e37684|ami-04bf912151dd3ce70|ami-0314534c787c6881f|ami-0d7a9d6e|
+|**us-east-2**|ami-04506225a7dbb6bb1|ami-067edb0a24ec097a8|ami-0642f72d4f11e27cb|ami-04796695a06dbb9f7|ami-5a340d3f|
+|**us-east-1**|ami-0245b4c60c26827e9|ami-041034c4bcea6d6b6|ami-0040de8079f823e0a|ami-0f0137f2a1cb9b943|ami-4089dd3f|
+|**sa-east-1**|ami-07864c2f4b479488a|ami-06af7dc8f9516f188|ami-0a07bd2b271a5c863|ami-070c792d497f5d515|ami-6a8ad006|
+|**eu-west-2**|ami-09b0cfe07d4161ec7|ami-0c23313c2e230aea6|ami-0222903a0a5bf8da3|ami-020c73bd9d2047751|ami-4e5db329|
+|**eu-west-1**|ami-078c508b817710e3a|ami-055b44f618eae9488|ami-0aaba752f10e79e45|ami-001535b5b97906ccd|ami-99636f73|
+|**eu-central-1**|ami-043bd6f5d4936ac6c|ami-0166167cbe58c9e95|ami-0c0405419abc26e43|ami-0fde4545f37e6c01e|ami-77f0cc9c|
+|**ca-central-1**|ami-0bd7cabe491572f3b|ami-0f6417120389fa34b|ami-00a2c3db7d3f431ba|ami-09e537c134fc6715b|ami-f7db5993|
+|**ap-southeast-2**|ami-04db54ab40a0bddf0|ami-0b198c23b7e9589ef|ami-0b2cc93f9f8b10044|ami-0fb4b83b5f90183de|ami-ef934a8d|
+|**ap-southeast-1**|ami-0c7797896ca67d250|ami-0bc20d3ad19869264|ami-0564dccbaee10ddde|ami-0a772ff1900bf0ae2|ami-2bbebe57|
+|**ap-south-1**|ami-0114ac8d2cc258cd0|ami-0577953b61715ee7a|ami-0ebb152d31b685847|ami-0303c89350e1a7acb|ami-b6fed4d9|
+|**ap-northeast-2**|ami-0d3548184e249d920|ami-009dc9e3a9c42fb37|ami-0f63c0441718698ca|ami-0c55f504d9bd8945c|ami-19e15477|
+|**ap-northeast-1**|ami-0a281a95c564e4e2e|ami-0e59d53cddbf430d0|ami-0c91e725cd56b515a|ami-08c1d527e180187d5|ami-d718cda8|
 ---
 ## Citrix ADC (formerly NetScaler) VPX Standard Edition - 3Gbps
 ||**13.0**|**12.1**|**12.0**|
 |--|--|--|--|
-|**us-west-2**|ami-02c2bca8c13bce5b3|ami-02f820e3c31273b10|ami-0fc269a1f46267fa5|
-|**us-west-1**|ami-0105e1bd2c91467de|ami-0c731103ffb67d4f8|ami-0c20f81141a48d4ae|
-|**us-east-2**|ami-053d4b15043e0be7c|ami-066f43e715aed2d8b|ami-0a1c98d4d5fc7ac14|
-|**us-east-1**|ami-0e1c842d80bd6a1dd|ami-06762824199ece73b|ami-0b856a499086b2665|
-|**sa-east-1**|ami-0b8cc5e9ec8fbf068|ami-0b3619138315901b1|ami-018501da67b591665|
-|**eu-west-2**|ami-0f4e266c233dab1c8|ami-0542632fcdb518d81|ami-0d6072b98bf46836c|
-|**eu-west-1**|ami-0b0a41b03e4251f90|ami-0be379cf80fa6da1d|ami-017e3ee7dd89c2129|
-|**eu-central-1**|ami-0a4d716745c8e1d49|ami-0de3732026c53b56a|ami-0306c9c62482a1183|
-|**ca-central-1**|ami-015290ec2f9241566|ami-082ef3edcda89ff81|ami-05911166d9089cea0|
-|**ap-southeast-2**|ami-0c7a30ae7b91c4413|ami-0f6ce438a7309197c|ami-032bbad6dfc2c2952|
-|**ap-southeast-1**|ami-0febed3fcd8999c16|ami-0aecb1ec0ec7114ac|ami-09cf2eb77b50ea801|
-|**ap-south-1**|ami-0a7be7e9265254889|ami-0e86b1083563d8ff1|ami-038b7cee8dbe806ad|
-|**ap-northeast-2**|ami-05ab870b1d59dfaa4|ami-0cbe415c5d216586c|ami-014e24f4cf0b4e9f1|
-|**ap-northeast-1**|ami-0626e829c261da009|ami-067b1f70fc336ae47|ami-0d38cff7324d85802|
+|**us-west-2**|ami-071bdec17eb897429|ami-0d053b2602ee5592f|ami-0fc412785118c2c11|
+|**us-west-1**|ami-04d52dfce3b488f11|ami-0afa9063e5f896df1|ami-03feba9720ca047d2|
+|**us-east-2**|ami-0baf3163e4c41db5b|ami-00162d49bae9e24a7|ami-01dc19fa8faa349a7|
+|**us-east-1**|ami-0dbe390e425ad5800|ami-000294b25e9e245a2|ami-0a982888ca058bb6e|
+|**sa-east-1**|ami-039ef9fad1d5bdcc3|ami-0d40991efa933d94b|ami-0b50086cdae7ecddd|
+|**eu-west-2**|ami-00448f92867fe95a8|ami-08acafc86629409e6|ami-0910d783b96a3d400|
+|**eu-west-1**|ami-097d4551d52f9b5a8|ami-055ea3ac3bf352a9e|ami-08f0fbcfb8c811d47|
+|**eu-central-1**|ami-0790567ec89bdabd7|ami-0a46cf9fff8fee311|ami-00fc6c24c6106331b|
+|**ca-central-1**|ami-0ded3299f174d29f8|ami-0cf1b566c02378394|ami-09a949c7d45524c7c|
+|**ap-southeast-2**|ami-0e0b31f92b175c1f7|ami-0eb2003f9473bcc6a|ami-0ef380453166c5620|
+|**ap-southeast-1**|ami-027979a1d1eca146b|ami-0185f8044885b7483|ami-058ce3d81aaafe26f|
+|**ap-south-1**|ami-07938b9a341dc2a8d|ami-00849ba1809534ca3|ami-02215138147d51e1f|
+|**ap-northeast-2**|ami-0eede52bc33e10f77|ami-0b49baf67a5b01f71|ami-066c0ee211fe3a6fa|
+|**ap-northeast-1**|ami-0e74b44d75676e6b2|ami-0dd3036507be36e60|ami-0cd6e90f338eb58c6|
 ---
 ## Citrix ADC (formerly NetScaler) VPX Standard Edition - 5Gbps
 ||**13.0**|**12.1**|**12.0**|
 |--|--|--|--|
-|**us-west-2**|ami-0f11e929101846350|ami-0d5390f22754cfb96|ami-001bf67ff3606c408|
-|**us-west-1**|ami-0e195b8388167f072|ami-0b39fdf0d9d9e774d|ami-0ae1189040f55c34a|
-|**us-east-2**|ami-09402ac7a02a15455|ami-014a6945a5e3a5f6a|ami-01f90ee39e0bf7668|
-|**us-east-1**|ami-0e72a0d130a80a662|ami-0d98cb95032efd856|ami-0645ed6f045864b6e|
-|**sa-east-1**|ami-074097942cb1e0e9b|ami-0d8494f1a1008bec8|ami-0592c8070788dc662|
-|**eu-west-2**|ami-051b52118d34c7ce0|ami-0278d2788ebcc1952|ami-084e14d2e8000406a|
-|**eu-west-1**|ami-0edaf66ffd3f09cfd|ami-0de7586c95c27bebd|ami-064b4b4d4f7cb7118|
-|**eu-central-1**|ami-09056f71dbdba8ffb|ami-0a5e8bc9e94966103|ami-07bb777a2ed560af5|
-|**ca-central-1**|ami-0b39253ee67d280ee|ami-08c0091bc571b867a|ami-01fcf8a2a4f1eae75|
-|**ap-southeast-2**|ami-0a2f284a7063e5d8e|ami-01fb119e27a0b999f|ami-03531414d64f43796|
-|**ap-southeast-1**|ami-0d0d92a5258c7d519|ami-04be5396b6784e98a|ami-03afc35b17401c50a|
-|**ap-south-1**|ami-0cb66bb2383339fe3|ami-08e253d4f57e2d03d|ami-0a27ee53a0a712a29|
-|**ap-northeast-2**|ami-0c26d294c33a40385|ami-06a787f4c8daa7e02|ami-0855c94f34a632277|
-|**ap-northeast-1**|ami-0005f0dc2a2781896|ami-03ee59695150f80e8|ami-01fe56278b740556f|
+|**us-west-2**|ami-0fedccd31ef857fbf|ami-041a252475e299873|ami-0112a206b9fd49247|
+|**us-west-1**|ami-0a4ff47a76efeda2d|ami-08ebf4929307c6583|ami-00889ff704bb9ce0d|
+|**us-east-2**|ami-0d8d2559bbd5f3a79|ami-0c4d59cf7d5975026|ami-0c43cb89dbd7c8ee1|
+|**us-east-1**|ami-0f4027fc3a0617782|ami-097d40892b3e8aee4|ami-02ef18e4011a1d8d8|
+|**sa-east-1**|ami-06d5b0e8142f604e2|ami-0be11e8cd12434d73|ami-06f8f3c86875508a7|
+|**eu-west-2**|ami-0dd8024ec54c60bc7|ami-0f842e531c68d4b09|ami-004050a5aa6013c82|
+|**eu-west-1**|ami-0f777bcc685c0a89b|ami-097ffb79d1b754dc5|ami-0faa313b988253d12|
+|**eu-central-1**|ami-019a22362f491acf6|ami-07e3b9da0dc3f087c|ami-0a27f6af99e27eec7|
+|**ca-central-1**|ami-0c9c6ccadf3f32959|ami-0de542e89a1f11980|ami-0dfe790289e232004|
+|**ap-southeast-2**|ami-06eeac733c87955cf|ami-003fec6a529d6d04f|ami-0f36f4654d87e6ac3|
+|**ap-southeast-1**|ami-0436b0807dbd82d30|ami-033fdd541d3c19383|ami-0f146554c34d773a7|
+|**ap-south-1**|ami-0fe91ecd2ad74fde2|ami-0efc76a21d8f82654|ami-0fe368a71fdf0f406|
+|**ap-northeast-2**|ami-061f7e94531ae11e3|ami-07360f156faf952fb|ami-05cc4e5a01d3f590b|
+|**ap-northeast-1**|ami-0cd2debd0e496ea70|ami-04544c5009c961af7|ami-01f31136655a4875d|
 ---
