@@ -98,10 +98,6 @@ Parameters:
 
 Conditions:
   UseClientEIP: !Equals [!Ref ClientENIEIP, 'Yes']
-  UseCitrixADCImageID: !Not
-    - !Equals
-      - !Ref CitrixADCImageID
-      - ""
   UseManagementPrivateIP: !Not
     - !Equals
       - !Ref ManagementPrivateIP
@@ -184,16 +180,7 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub ${AWS::StackName} ${ADCInstanceTagName}
-      ImageId: !If
-        - UseCitrixADCImageID
-        - !Ref CitrixADCImageID
-        - !FindInMap
-          - AWSRegionArch2AMI
-          - !Ref AWS::Region
-          - !FindInMap
-            - AWSInstanceType2Arch
-            - !Ref CitrixADCInstanceType
-            - Arch
+      ImageId: !Ref CitrixADCImageID
       KeyName: !Ref KeyPairName
       Tenancy: !Ref VPCTenancy
       IamInstanceProfile: !Ref CitrixNodesProfile
@@ -234,101 +221,3 @@ Outputs:
     # Export:
     #   Name:
 
-Mappings:
-  AWSRegionArch2AMI:
-    us-east-1:
-      "32": NOT_YET_SUPPORTED
-      "64": ami-0f38778279d15e095
-      64Cluster: NOT_YET_SUPPORTED
-      64GPU: NOT_YET_SUPPORTED
-    us-east-2:
-      "32": NOT_YET_SUPPORTED
-      "64": ami-08e851d5af412cb1a
-      64Cluster: NOT_YET_SUPPORTED
-      64GPU: NOT_YET_SUPPORTED
-    us-west-1:
-      "32": NOT_YET_SUPPORTED
-      "64": ami-031421c73dff0724c
-      64Cluster: NOT_YET_SUPPORTED
-      64GPU: NOT_YET_SUPPORTED
-    us-west-2:
-      "32": NOT_YET_SUPPORTED
-      "64": ami-0b4676c09e7994cf3
-      64Cluster: NOT_YET_SUPPORTED
-      64GPU: NOT_YET_SUPPORTED
-    us-gov-west-1:
-      "32": NOT_YET_SUPPORTED
-      "64": ami-77beeb16
-      64Cluster: NOT_YET_SUPPORTED
-      64GPU: NOT_YET_SUPPORTED
-    ca-central-1:
-      "32": NOT_YET_SUPPORTED
-      "64": ami-03975d4e197a28cec
-      64Cluster: NOT_YET_SUPPORTED
-      64GPU: NOT_YET_SUPPORTED
-    eu-central-1:
-      "32": NOT_YET_SUPPORTED
-      "64": ami-097304b6b661019e8
-      64Cluster: NOT_YET_SUPPORTED
-      64GPU: NOT_YET_SUPPORTED
-    eu-west-1:
-      "32": NOT_YET_SUPPORTED
-      "64": ami-07ea2ac00d82b1f3d
-      64Cluster: NOT_YET_SUPPORTED
-      64GPU: NOT_YET_SUPPORTED
-    eu-west-2:
-      "32": NOT_YET_SUPPORTED
-      "64": ami-049deb2b212e81285
-      64Cluster: NOT_YET_SUPPORTED
-      64GPU: NOT_YET_SUPPORTED
-    ap-southeast-1:
-      "32": NOT_YET_SUPPORTED
-      "64": ami-05b6b9a7bbd2f4643
-      64Cluster: NOT_YET_SUPPORTED
-      64GPU: NOT_YET_SUPPORTED
-    ap-southeast-2:
-      "32": NOT_YET_SUPPORTED
-      "64": ami-00d96537071f8f219
-      64Cluster: NOT_YET_SUPPORTED
-      64GPU: NOT_YET_SUPPORTED
-    ap-south-1:
-      "32": NOT_YET_SUPPORTED
-      "64": ami-05bda76bec67ae3e1
-      64Cluster: NOT_YET_SUPPORTED
-      64GPU: NOT_YET_SUPPORTED
-    ap-northeast-1:
-      "32": NOT_YET_SUPPORTED
-      "64": ami-03b3dcc43a36bf388
-      64Cluster: NOT_YET_SUPPORTED
-      64GPU: NOT_YET_SUPPORTED
-    ap-northeast-2:
-      "32": NOT_YET_SUPPORTED
-      "64": ami-067a7d4b44ea1f8c8
-      64Cluster: NOT_YET_SUPPORTED
-      64GPU: NOT_YET_SUPPORTED
-    sa-east-1:
-      "32": NOT_YET_SUPPORTED
-      "64": ami-0220bf855f9c4b3e2
-      64Cluster: NOT_YET_SUPPORTED
-      64GPU: NOT_YET_SUPPORTED
-  AWSInstanceType2Arch:
-    m4.large:
-      Arch: "64"
-    m4.2xlarge:
-      Arch: "64"
-    m4.xlarge:
-      Arch: "64"
-    m4.4xlarge:
-      Arch: "64"
-    m4.10xlarge:
-      Arch: "64"
-    c4.large:
-      Arch: "64"
-    c4.xlarge:
-      Arch: "64"
-    c4.2xlarge:
-      Arch: "64"
-    c4.4xlarge:
-      Arch: "64"
-    c4.8xlarge:
-      Arch: "64"
