@@ -1,8 +1,7 @@
 ---
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "This template deploys a VPC, with 3 subnets (Management, client, server) for 2 Availability Zones.
-  It deploys an Internet Gateway, with a default  route on the public subnets.
-  This template also creates a HA pair across Availability Zones with two instance of Citrix ADC:
+Description: "
+  This template creates a HA pair across Availability Zones with two instance of Citrix ADC:
   3 ENIs associated to 3 VPC subnets (Management, Client, Server) on primary and 3 ENIs associated
   to 3 VPC subnets (Management, Client, Server) on secondary.
   All the resource names created by this CFT will be prefixed with a tagName of the stackname
@@ -13,30 +12,24 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
-          default: Availability Zone configuration
-        Parameters:
-          - PrimaryAvailabilityZone
-          - SecondaryAvailabilityZone
-
-      - Label:
           default: Network configuration
         Parameters:
-          - VPCCIDR
-          - RemoteSSHCIDR
-          - RemoteHTTPCIDR
-          - RemoteHTTPSCIDR
-          - PrimaryManagementPublicSubnetCIDR
-          - PrimaryClientPublicSubnetCIDR
-          - PrimaryServerPrivateSubnetCIDR
-          - SecondaryManagementPublicSubnetCIDR
-          - SecondaryClientPublicSubnetCIDR
-          - SecondaryServerPrivateSubnetCIDR
+          - VPCID
+          - PrimaryManagementPublicSubnetID
+          - PrimaryClientPublicSubnetID
+          - PrimaryServerPrivateSubnetID
+          - SecondaryManagementPublicSubnetID
+          - SecondaryClientPublicSubnetID
+          - SecondaryServerPrivateSubnetID
           - PrimaryManagementPrivateIP
           - PrimaryClientPrivateIP
           - PrimaryServerPrivateIP
           - SecondaryManagementPrivateIP
           - SecondaryClientPrivateIP
           - SecondaryServerPrivateIP
+          - RemoteSSHCIDR
+          - RemoteHTTPCIDR
+          - RemoteHTTPSCIDR
           - VPCTenancy
 
       - Label:
@@ -50,26 +43,22 @@ Metadata:
       CitrixADCImageID:
         default: Citrix ADC AMI ID
 
-      VPCCIDR:
-        default: VPC CIDR
+      VPCID:
+        default: VPC ID
 
-      PrimaryAvailabilityZone:
-        default: Primary Availability Zone
-      PrimaryManagementPublicSubnetCIDR:
-        default: Primary Management Public Subnet CIDR
-      PrimaryClientPublicSubnetCIDR:
-        default: Primary Client Public Subnet CIDR
-      PrimaryServerPrivateSubnetCIDR:
-        default: Primary Server Private Subnet CIDR
+      PrimaryManagementPublicSubnetID:
+        default: Primary Management Public Subnet ID
+      PrimaryClientPublicSubnetID:
+        default: Primary Client Public Subnet ID
+      PrimaryServerPrivateSubnetID:
+        default: Primary Server Private Subnet ID
 
-      SecondaryAvailabilityZone:
-        default: Secondary Availability Zone
-      SecondaryManagementPublicSubnetCIDR:
-        default: Secondary Management Public Subnet CIDR
-      SecondaryClientPublicSubnetCIDR:
-        default: Secondary Client Public Subnet CIDR
-      SecondaryServerPrivateSubnetCIDR:
-        default: Secondary Server Private Subnet CIDR
+      SecondaryManagementPublicSubnetID:
+        default: Secondary Management Public Subnet ID
+      SecondaryClientPublicSubnetID:
+        default: Secondary Client Public Subnet ID
+      SecondaryServerPrivateSubnetID:
+        default: Secondary Server Private Subnet ID
 
       PrimaryManagementPrivateIP:
         default: Primary Management Private IP
@@ -104,14 +93,9 @@ Parameters:
     Description: >-
       [OPTIONAL] AMI ID of Citrix ADC to be provisioned. If left empty, "Citrix ADC VPX - Customer Licensed Version 13.0-41.20
       (https://aws.amazon.com/marketplace/pp/B00AA01BOE)" is provisioned by default
-  VPCCIDR:
-    Description: CIDR Block for VPC
-    Type: String
-    Default: 10.0.0.0/16
-    MinLength: 9
-    MaxLength: 18
-    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
-    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
+  VPCID:
+    Type: AWS::EC2::VPC::Id
+    Description: VPC ID of existing Virtual Private Cloud (VPC)
   VPCTenancy:
     Description: The allowed tenancy of instances launched into the VPC
     Type: String
@@ -119,60 +103,31 @@ Parameters:
     AllowedValues:
       - default
       - dedicated
-  PrimaryAvailabilityZone:
-    Description: Availability Zone for Primary CitrixADC deployment
-    Type: AWS::EC2::AvailabilityZone::Name
-  SecondaryAvailabilityZone:
-    Description: Availability Zone for Secondary CitrixADC deployment
-    Type: AWS::EC2::AvailabilityZone::Name
-  PrimaryManagementPublicSubnetCIDR:
-    Description: CIDR block for primary management public subnet located in the primary Availability Zone
-    Type: String
-    Default: 10.0.1.0/24
-    MinLength: 9
-    MaxLength: 18
-    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
-    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
-  PrimaryClientPublicSubnetCIDR:
-    Description: CIDR block for primary client public subnet located in the primary Availability Zone
-    Type: String
-    Default: 10.0.2.0/24
-    MinLength: 9
-    MaxLength: 18
-    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
-    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
-  PrimaryServerPrivateSubnetCIDR:
-    Description: CIDR block for primary server private subnet located in the primary Availability Zone
-    Type: String
-    Default: 10.0.3.0/24
-    MinLength: 9
-    MaxLength: 18
-    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
-    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
-  SecondaryManagementPublicSubnetCIDR:
-    Description: CIDR block for secondary management public subnet located in the secondary Availability Zone
-    Type: String
-    Default: 10.0.4.0/24
-    MinLength: 9
-    MaxLength: 18
-    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
-    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
-  SecondaryClientPublicSubnetCIDR:
-    Description: CIDR block for secondary client public subnet located in the secondary Availability Zone
-    Type: String
-    Default: 10.0.5.0/24
-    MinLength: 9
-    MaxLength: 18
-    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
-    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
-  SecondaryServerPrivateSubnetCIDR:
-    Description: CIDR block for secondary server private subnet located in the secondary Availability Zone
-    Type: String
-    Default: 10.0.6.0/24
-    MinLength: 9
-    MaxLength: 18
-    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
-    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
+  PrimaryManagementPublicSubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: >-
+      Public Subnet ID of an existing subnet dedicated for Primary Management ENI.
+      Note - The CIDR should be different from that of VPC.
+  PrimaryClientPublicSubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: >-
+      Public Subnet ID of an existing subnet dedicated for Primary Client ENI.
+  PrimaryServerPrivateSubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: >-
+      Private Subnet ID of an existing subnet dedicated for Primary Server ENI.
+  SecondaryManagementPublicSubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: >-
+      Public Subnet ID of an existing subnet dedicated for Secondary Management ENI.
+  SecondaryClientPublicSubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: >-
+      Public Subnet ID of an existing subnet dedicated for Secondary Client ENI.
+  SecondaryServerPrivateSubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: >-
+      Private Subnet ID of an existing subnet dedicated for Secondary Server ENI.
   PrimaryManagementPrivateIP:
     Default: ""
     Type: String
@@ -219,11 +174,11 @@ Parameters:
   QSS3KeyPrefix:
     AllowedPattern: "^[0-9a-zA-Z-/]*$"
     ConstraintDescription: >-
-      Note: The QSS3KeyPrefix should have to end with '/'.
       Quick Start key prefix can include numbers, lowercase letters, uppercase
       letters, hyphens (-), and forward slash (/).
     Default: quickstart-citrix-adc-ha-across-az/
     Description: >-
+      Note: The QSS3KeyPrefix should have to end with '/'.
       S3 key prefix for the Quick Start assets. Quick Start key prefix can
       include numbers, lowercase letters, uppercase letters, hyphens (-), and
       forward slash (/).
@@ -293,30 +248,13 @@ Conditions:
       - ""
 
 Resources:
-  VPCStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub >-
-        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/aws-vpc.yaml.template
-      Parameters:
-        PrimaryAvailabilityZone: !Ref PrimaryAvailabilityZone
-        SecondaryAvailabilityZone: !Ref SecondaryAvailabilityZone
-        VPCCIDR: !Ref VPCCIDR
-        PrimaryManagementPublicSubnetCIDR: !Ref PrimaryManagementPublicSubnetCIDR
-        PrimaryClientPublicSubnetCIDR: !Ref PrimaryClientPublicSubnetCIDR
-        PrimaryServerPrivateSubnetCIDR: !Ref PrimaryServerPrivateSubnetCIDR
-        SecondaryManagementPublicSubnetCIDR: !Ref SecondaryManagementPublicSubnetCIDR
-        SecondaryClientPublicSubnetCIDR: !Ref SecondaryClientPublicSubnetCIDR
-        SecondaryServerPrivateSubnetCIDR: !Ref SecondaryServerPrivateSubnetCIDR
-        VPCTenancy: !Ref VPCTenancy
-
   ManagementSecurityGroupStack:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub >-
-        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/security-group.yaml.template
+        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/security-group.template.yaml
       Parameters:
-        VPCID: !GetAtt VPCStack.Outputs.VPCID
+        VPCID: !Ref VPCID
         RemoteSSHCIDR: !Ref RemoteSSHCIDR
         RemoteHTTPCIDR: !Ref RemoteHTTPCIDR
         RemoteHTTPSCIDR: !Ref RemoteHTTPSCIDR
@@ -325,9 +263,9 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub >-
-        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/security-group.yaml.template
+        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/security-group.template.yaml
       Parameters:
-        VPCID: !GetAtt VPCStack.Outputs.VPCID
+        VPCID: !Ref VPCID
         RemoteSSHCIDR: !Ref RemoteSSHCIDR
         RemoteHTTPCIDR: !Ref RemoteHTTPCIDR
         RemoteHTTPSCIDR: !Ref RemoteHTTPSCIDR
@@ -336,9 +274,9 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub >-
-        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/security-group.yaml.template
+        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/security-group.template.yaml
       Parameters:
-        VPCID: !GetAtt VPCStack.Outputs.VPCID
+        VPCID: !Ref VPCID
         RemoteSSHCIDR: !Ref RemoteSSHCIDR
         RemoteHTTPCIDR: !Ref RemoteHTTPCIDR
         RemoteHTTPSCIDR: !Ref RemoteHTTPSCIDR
@@ -347,13 +285,13 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub >-
-        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/iam.yaml.template
+        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/iam.template.yaml
 
   PrimaryADCInstance:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub >-
-        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/citrix-adc.yaml.template
+        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/citrix-adc.template.yaml
       Parameters:
         CitrixADCImageID: !If
           - UseCitrixADCImageID
@@ -365,9 +303,9 @@ Resources:
         ManagementSecurityGroup: !GetAtt ManagementSecurityGroupStack.Outputs.SecurityGroupID
         ClientSecurityGroup: !GetAtt ClientSecurityGroupStack.Outputs.SecurityGroupID
         ServerSecurityGroup: !GetAtt ServerSecurityGroupStack.Outputs.SecurityGroupID
-        ManagementPublicSubnetID: !GetAtt VPCStack.Outputs.PrimaryManagementPublicSubnetID
-        ClientPublicSubnetID: !GetAtt VPCStack.Outputs.PrimaryClientPublicSubnetID
-        ServerPrivateSubnetID: !GetAtt VPCStack.Outputs.PrimaryServerPrivateSubnetID
+        ManagementPublicSubnetID: !Ref PrimaryManagementPublicSubnetID
+        ClientPublicSubnetID: !Ref PrimaryClientPublicSubnetID
+        ServerPrivateSubnetID: !Ref PrimaryServerPrivateSubnetID
         ManagementPrivateIP: !Ref PrimaryManagementPrivateIP
         ClientPrivateIP: !Ref PrimaryClientPrivateIP
         ServerPrivateIP: !Ref PrimaryServerPrivateIP
@@ -382,7 +320,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub >-
-        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/citrix-adc.yaml.template
+        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/citrix-adc.template.yaml
       Parameters:
         CitrixADCImageID: !If
           - UseCitrixADCImageID
@@ -394,9 +332,9 @@ Resources:
         ManagementSecurityGroup: !GetAtt ManagementSecurityGroupStack.Outputs.SecurityGroupID
         ClientSecurityGroup: !GetAtt ClientSecurityGroupStack.Outputs.SecurityGroupID
         ServerSecurityGroup: !GetAtt ServerSecurityGroupStack.Outputs.SecurityGroupID
-        ManagementPublicSubnetID: !GetAtt VPCStack.Outputs.SecondaryManagementPublicSubnetID
-        ClientPublicSubnetID: !GetAtt VPCStack.Outputs.SecondaryClientPublicSubnetID
-        ServerPrivateSubnetID: !GetAtt VPCStack.Outputs.SecondaryServerPrivateSubnetID
+        ManagementPublicSubnetID: !Ref SecondaryManagementPublicSubnetID
+        ClientPublicSubnetID: !Ref SecondaryClientPublicSubnetID
+        ServerPrivateSubnetID: !Ref SecondaryServerPrivateSubnetID
         ManagementPrivateIP: !Ref SecondaryManagementPrivateIP
         ClientPrivateIP: !Ref SecondaryClientPrivateIP
         ServerPrivateIP: !Ref SecondaryServerPrivateIP
@@ -414,13 +352,13 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub >-
-        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/lambda-helper-ha-across-az.yaml.template
+        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/lambda-helper-ha-across-az.template.yaml
       Parameters:
         PrimaryInstanceID: !GetAtt PrimaryADCInstance.Outputs.CitrixADCInstanceID
         PrimaryManagementPublicIP: !GetAtt PrimaryADCInstance.Outputs.ManagementPublicEIP
         PrimaryManagementPrivateIP: !GetAtt PrimaryADCInstance.Outputs.ManagementPrivateNSIP
         PrimaryClientPrivateIP: !GetAtt PrimaryADCInstance.Outputs.ClientPrivateVIP
-        PrimaryClientPublicSubnetID: !GetAtt VPCStack.Outputs.PrimaryClientPublicSubnetID
+        PrimaryClientPublicSubnetID: !Ref PrimaryClientPublicSubnetID
         SecondaryInstanceID: !GetAtt SecondaryADCInstance.Outputs.CitrixADCInstanceID
         SecondaryManagementPublicIP: !GetAtt SecondaryADCInstance.Outputs.ManagementPublicEIP
         SecondaryManagementPrivateIP: !GetAtt SecondaryADCInstance.Outputs.ManagementPrivateNSIP
@@ -428,42 +366,8 @@ Resources:
         QSS3BucketName: !Ref QSS3BucketName
         QSS3KeyPrefix: !Ref QSS3KeyPrefix
 
+
 Outputs:
-  VPCID:
-    Description: VPC ID
-    Value: !GetAtt VPCStack.Outputs.VPCID
-    # Export:
-    #   Name:
-  PrimaryManagementPublicSubnetID:
-    Description: Primary Management Public Subnet ID
-    Value: !GetAtt VPCStack.Outputs.PrimaryManagementPublicSubnetID
-    # Export:
-    #   Name:
-  PrimaryClientPublicSubnetID:
-    Description: Primary Client Public Subnet ID
-    Value: !GetAtt VPCStack.Outputs.PrimaryClientPublicSubnetID
-    # Export:
-    #   Name:
-  PrimaryServerPrivateSubnetID:
-    Description: Primary Server Private Subnet ID
-    Value: !GetAtt VPCStack.Outputs.PrimaryServerPrivateSubnetID
-    # Export:
-    #   Name:
-  SecondaryManagementPublicSubnetID:
-    Description: Secondary Management Public Subnet ID
-    Value: !GetAtt VPCStack.Outputs.SecondaryManagementPublicSubnetID
-    # Export:
-    #   Name:
-  SecondaryClientPublicSubnetID:
-    Description: Secondary Client Public Subnet ID
-    Value: !GetAtt VPCStack.Outputs.SecondaryClientPublicSubnetID
-    # Export:
-    #   Name:
-  SecondaryServerPrivateSubnetID:
-    Description: Secondary Server Private Subnet ID
-    Value: !GetAtt VPCStack.Outputs.SecondaryServerPrivateSubnetID
-    # Export:
-    #   Name:
   ManagementSecurityGroupID:
     Description: Security Group ID for Management ENIs
     Value: !GetAtt ManagementSecurityGroupStack.Outputs.SecurityGroupID
