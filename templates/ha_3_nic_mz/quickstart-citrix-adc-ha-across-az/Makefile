@@ -5,7 +5,7 @@ all: help
 #test-master
 
 #test-workload
-QSS3BucketName=sumanth-citrix
+QSS3BucketName= "<unique-bucket-name>"
 QSS3KeyPrefix=$(notdir $(shell pwd))
 AWS_REGION=us-east-1
 
