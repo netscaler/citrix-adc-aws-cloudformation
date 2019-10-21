@@ -219,9 +219,10 @@ Parameters:
   QSS3KeyPrefix:
     AllowedPattern: "^[0-9a-zA-Z-/]*$"
     ConstraintDescription: >-
+      Note: The QSS3KeyPrefix should have to end with '/'.
       Quick Start key prefix can include numbers, lowercase letters, uppercase
       letters, hyphens (-), and forward slash (/).
-    Default: quickstart-citrix-adc-vpx/
+    Default: quickstart-citrix-adc-ha-across-az/
     Description: >-
       S3 key prefix for the Quick Start assets. Quick Start key prefix can
       include numbers, lowercase letters, uppercase letters, hyphens (-), and
