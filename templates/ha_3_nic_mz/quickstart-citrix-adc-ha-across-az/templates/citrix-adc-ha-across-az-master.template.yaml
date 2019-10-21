@@ -286,11 +286,6 @@ Parameters:
       - c4.4xlarge
       - c4.8xlarge
 
-Conditions:
-  UseCitrixADCImageID: !Not
-    - !Equals
-      - !Ref CitrixADCImageID
-      - ""
 
 Resources:
   VPCStack:
@@ -355,13 +350,7 @@ Resources:
       TemplateURL: !Sub >-
         https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/citrix-adc.template.yaml
       Parameters:
-        CitrixADCImageID: !If
-          - UseCitrixADCImageID
-          - !Ref CitrixADCImageID
-          - !FindInMap
-            - AWSAMIRegionMap
-            - !Ref AWS::Region
-            - CITRIXADC
+        CitrixADCImageID: !Ref CitrixADCImageID
         ManagementSecurityGroup: !GetAtt ManagementSecurityGroupStack.Outputs.SecurityGroupID
         ClientSecurityGroup: !GetAtt ClientSecurityGroupStack.Outputs.SecurityGroupID
         ServerSecurityGroup: !GetAtt ServerSecurityGroupStack.Outputs.SecurityGroupID
@@ -384,13 +373,7 @@ Resources:
       TemplateURL: !Sub >-
         https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/citrix-adc.template.yaml
       Parameters:
-        CitrixADCImageID: !If
-          - UseCitrixADCImageID
-          - !Ref CitrixADCImageID
-          - !FindInMap
-            - AWSAMIRegionMap
-            - !Ref AWS::Region
-            - CITRIXADC
+        CitrixADCImageID: !Ref CitrixADCImageID
         ManagementSecurityGroup: !GetAtt ManagementSecurityGroupStack.Outputs.SecurityGroupID
         ClientSecurityGroup: !GetAtt ClientSecurityGroupStack.Outputs.SecurityGroupID
         ServerSecurityGroup: !GetAtt ServerSecurityGroupStack.Outputs.SecurityGroupID
@@ -553,54 +536,3 @@ Outputs:
       - ""
       - - "http://"
         - !GetAtt SecondaryADCInstance.Outputs.ManagementPublicEIP
-
-Mappings:
-  AWSAMIRegionMap:
-    AMI:
-      BASTION: "" #ubuntu/images/hvm-ssd/ubuntu-trusty-14.04-amd64-server-20160627
-      CITRIXADC: Citrix NetScaler and CloudBridge Connector 13.0-41.20-64 #"Windows_Server-2012-R2_RTM-English-64Bit-Base-2016.08.11"
-    us-east-1:
-      BASTION: ""
-      CITRIXADC: ami-0f38778279d15e095
-    us-east-2:
-      BASTION: ""
-      CITRIXADC: ami-08e851d5af412cb1a
-    us-west-1:
-      BASTION: ""
-      CITRIXADC: ami-031421c73dff0724c
-    us-west-2:
-      BASTION: ""
-      CITRIXADC: ami-0b4676c09e7994cf3
-    us-gov-west-1:
-      BASTION: ""
-      CITRIXADC: ami-77beeb16
-    ca-central-1:
-      BASTION: ""
-      CITRIXADC: ami-03975d4e197a28cec
-    eu-central-1:
-      BASTION: ""
-      CITRIXADC: ami-097304b6b661019e8
-    eu-west-1:
-      BASTION: ""
-      CITRIXADC: ami-07ea2ac00d82b1f3d
-    eu-west-2:
-      BASTION: ""
-      CITRIXADC: ami-049deb2b212e81285
-    ap-southeast-1:
-      BASTION: ""
-      CITRIXADC: ami-05b6b9a7bbd2f4643
-    ap-southeast-2:
-      BASTION: ""
-      CITRIXADC: ami-00d96537071f8f219
-    ap-south-1:
-      BASTION: ""
-      CITRIXADC: ami-05bda76bec67ae3e1
-    ap-northeast-1:
-      BASTION: ""
-      CITRIXADC: ami-03b3dcc43a36bf388
-    ap-northeast-2:
-      BASTION: ""
-      CITRIXADC: ami-067a7d4b44ea1f8c8
-    sa-east-1:
-      BASTION: ""
-      CITRIXADC: ami-0220bf855f9c4b3e2

@@ -98,6 +98,10 @@ Parameters:
 
 Conditions:
   UseClientEIP: !Equals [!Ref ClientENIEIP, 'Yes']
+  UseCitrixADCImageID: !Not
+    - !Equals
+      - !Ref CitrixADCImageID
+      - ""
   UseManagementPrivateIP: !Not
     - !Equals
       - !Ref ManagementPrivateIP
@@ -180,7 +184,13 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub ${AWS::StackName} ${ADCInstanceTagName}
-      ImageId: !Ref CitrixADCImageID
+      ImageId: !If
+          - UseCitrixADCImageID
+          - !Ref CitrixADCImageID
+          - !FindInMap
+            - AWSAMIRegionMap
+            - !Ref AWS::Region
+            - CITRIXADC
       KeyName: !Ref KeyPairName
       Tenancy: !Ref VPCTenancy
       IamInstanceProfile: !Ref CitrixNodesProfile
@@ -221,3 +231,37 @@ Outputs:
     # Export:
     #   Name:
 
+Mappings:
+  AWSAMIRegionMap:
+    AMI:
+      CITRIXADC: Citrix NetScaler and CloudBridge Connector 13.0-41.20-64-63425ded-82f0-4b54-8cdd-6ec8b94bd4f8-ami-07ddf840261f0d4b8.4
+    us-east-1:
+      CITRIXADC: ami-0f38778279d15e095
+    us-east-2:
+      CITRIXADC: ami-08e851d5af412cb1a
+    us-west-1:
+      CITRIXADC: ami-031421c73dff0724c
+    us-west-2:
+      CITRIXADC: ami-0b4676c09e7994cf3
+    us-gov-west-1:
+      CITRIXADC: ami-77beeb16
+    ca-central-1:
+      CITRIXADC: ami-03975d4e197a28cec
+    eu-central-1:
+      CITRIXADC: ami-097304b6b661019e8
+    eu-west-1:
+      CITRIXADC: ami-07ea2ac00d82b1f3d
+    eu-west-2:
+      CITRIXADC: ami-049deb2b212e81285
+    ap-southeast-1:
+      CITRIXADC: ami-05b6b9a7bbd2f4643
+    ap-southeast-2:
+      CITRIXADC: ami-00d96537071f8f219
+    ap-south-1:
+      CITRIXADC: ami-05bda76bec67ae3e1
+    ap-northeast-1:
+      CITRIXADC: ami-03b3dcc43a36bf388
+    ap-northeast-2:
+      CITRIXADC: ami-067a7d4b44ea1f8c8
+    sa-east-1:
+      CITRIXADC: ami-0220bf855f9c4b3e2
