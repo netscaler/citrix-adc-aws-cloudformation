@@ -22,13 +22,12 @@ Metadata:
           default: Network configuration
         Parameters:
           - VPCCIDR
-          - RemoteSSHCIDR
-          - RemoteHTTPCIDR
-          - RemoteHTTPSCIDR
-          - PrimaryManagementPublicSubnetCIDR
+          - RestrictedWebAppCIDR
+          - RestrictedSSHCIDR
+          - PrimaryManagementPrivateSubnetCIDR
           - PrimaryClientPublicSubnetCIDR
           - PrimaryServerPrivateSubnetCIDR
-          - SecondaryManagementPublicSubnetCIDR
+          - SecondaryManagementPrivateSubnetCIDR
           - SecondaryClientPublicSubnetCIDR
           - SecondaryServerPrivateSubnetCIDR
           - PrimaryManagementPrivateIP
@@ -38,6 +37,11 @@ Metadata:
           - SecondaryClientPrivateIP
           - SecondaryServerPrivateIP
           - VPCTenancy
+
+      - Label:
+          default: Bastion host configuration
+        Parameters:
+          - NumBastionHosts
 
       - Label:
           default: Citrix ADC configuration
@@ -55,7 +59,7 @@ Metadata:
 
       PrimaryAvailabilityZone:
         default: Primary Availability Zone
-      PrimaryManagementPublicSubnetCIDR:
+      PrimaryManagementPrivateSubnetCIDR:
         default: Primary Management Public Subnet CIDR
       PrimaryClientPublicSubnetCIDR:
         default: Primary Client Public Subnet CIDR
@@ -64,7 +68,7 @@ Metadata:
 
       SecondaryAvailabilityZone:
         default: Secondary Availability Zone
-      SecondaryManagementPublicSubnetCIDR:
+      SecondaryManagementPrivateSubnetCIDR:
         default: Secondary Management Public Subnet CIDR
       SecondaryClientPublicSubnetCIDR:
         default: Secondary Client Public Subnet CIDR
@@ -86,18 +90,23 @@ Metadata:
 
       VPCTenancy:
         default: VPC tenancy attribute
-      RemoteSSHCIDR:
-        default: Remote SSH CIDR
-      RemoteHTTPCIDR:
-        default: Remote HTTP CIDR
-      RemoteHTTPSCIDR:
-        default: Remote HTTPS CIDR
+      RestrictedWebAppCIDR:
+        default: Remote web traffic CIDR
+      RestrictedSSHCIDR:
+        default: Remote ssh traffic CIDR
       KeyPairName:
         default: Key pair name
       CitrixADCInstanceType:
         default: Citrix ADC instance type
 
 Parameters:
+  NumBastionHosts:
+    AllowedValues:
+      - '1'
+      - '2'
+    Default: '1'
+    Description: The number of bastion hosts to create. The maximum number is two.
+    Type: String
   CitrixADCImageID:
     Type: String
     Default: ""
@@ -125,8 +134,8 @@ Parameters:
   SecondaryAvailabilityZone:
     Description: Availability Zone for Secondary CitrixADC deployment
     Type: AWS::EC2::AvailabilityZone::Name
-  PrimaryManagementPublicSubnetCIDR:
-    Description: CIDR block for primary management public subnet located in the primary Availability Zone
+  PrimaryManagementPrivateSubnetCIDR:
+    Description: CIDR block for primary management private subnet located in the primary Availability Zone
     Type: String
     Default: 10.0.1.0/24
     MinLength: 9
@@ -149,8 +158,8 @@ Parameters:
     MaxLength: 18
     AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
     ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
-  SecondaryManagementPublicSubnetCIDR:
-    Description: CIDR block for secondary management public subnet located in the secondary Availability Zone
+  SecondaryManagementPrivateSubnetCIDR:
+    Description: CIDR block for secondary management private subnet located in the secondary Availability Zone
     Type: String
     Default: 10.0.4.0/24
     MinLength: 9
@@ -228,34 +237,22 @@ Parameters:
       include numbers, lowercase letters, uppercase letters, hyphens (-), and
       forward slash (/).
     Type: String
-  RemoteSSHCIDR:
+  RestrictedWebAppCIDR:
     Type: String
     MinLength: 9
     MaxLength: 18
     Description:
-      "A CIDR block that’s allowed external SSH(port 22) access to the ADCs.
+      "A CIDR block that is allowed to access the ADC on tcp ports 80, 443.
       We recommend that you use a constrained CIDR range to
       reduce the potential of inbound attacks from unknown IP addresses."
     AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
     ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
-  RemoteHTTPCIDR:
-    Default: 0.0.0.0/0
+  RestrictedSSHCIDR:
     Type: String
     MinLength: 9
     MaxLength: 18
     Description:
-      "A CIDR block that’s allowed external HTTP(port 80) access to the ADCs.
-      We recommend that you use a constrained CIDR range to
-      reduce the potential of inbound attacks from unknown IP addresses."
-    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
-    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
-  RemoteHTTPSCIDR:
-    Default: 0.0.0.0/0
-    Type: String
-    MinLength: 9
-    MaxLength: 18
-    Description:
-      "A CIDR block that’s allowed external HTTPS(port 443) access to the ADCs.
+      "A CIDR block that is allowed to access the bastion host on port 22.
       We recommend that you use a constrained CIDR range to
       reduce the potential of inbound attacks from unknown IP addresses."
     AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
@@ -286,253 +283,134 @@ Parameters:
       - c4.4xlarge
       - c4.8xlarge
 
+Conditions:
+  2BastionCondition: !Equals
+    - !Ref NumBastionHosts
+    - '2'
 
 Resources:
   VPCStack:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub >-
-        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/aws-vpc.template.yaml
+        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template
       Parameters:
-        PrimaryAvailabilityZone: !Ref PrimaryAvailabilityZone
-        SecondaryAvailabilityZone: !Ref SecondaryAvailabilityZone
+        NumberOfAZs: '2'
+        AvailabilityZones: !Join 
+          - ','
+          - - !Ref PrimaryAvailabilityZone
+            - !Ref SecondaryAvailabilityZone
         VPCCIDR: !Ref VPCCIDR
-        PrimaryManagementPublicSubnetCIDR: !Ref PrimaryManagementPublicSubnetCIDR
-        PrimaryClientPublicSubnetCIDR: !Ref PrimaryClientPublicSubnetCIDR
-        PrimaryServerPrivateSubnetCIDR: !Ref PrimaryServerPrivateSubnetCIDR
-        SecondaryManagementPublicSubnetCIDR: !Ref SecondaryManagementPublicSubnetCIDR
-        SecondaryClientPublicSubnetCIDR: !Ref SecondaryClientPublicSubnetCIDR
-        SecondaryServerPrivateSubnetCIDR: !Ref SecondaryServerPrivateSubnetCIDR
+        PublicSubnet1CIDR: !Ref PrimaryClientPublicSubnetCIDR
+        PublicSubnet2CIDR: !Ref SecondaryClientPublicSubnetCIDR
+        CreatePrivateSubnets: "true"
+        PrivateSubnet1ACIDR: !Ref PrimaryServerPrivateSubnetCIDR
+        PrivateSubnet2ACIDR: !Ref SecondaryServerPrivateSubnetCIDR
+        CreateAdditionalPrivateSubnets: "true"
+        PrivateSubnet1BCIDR: !Ref PrimaryManagementPrivateSubnetCIDR
+        PrivateSubnet2BCIDR: !Ref SecondaryManagementPrivateSubnetCIDR
         VPCTenancy: !Ref VPCTenancy
 
-  ManagementSecurityGroupStack:
+  BastionStack:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub >-
-        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/security-group.template.yaml
+        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-linux-bastion/templates/linux-bastion.template
       Parameters:
-        VPCID: !GetAtt VPCStack.Outputs.VPCID
-        RemoteSSHCIDR: !Ref RemoteSSHCIDR
-        RemoteHTTPCIDR: !Ref RemoteHTTPCIDR
-        RemoteHTTPSCIDR: !Ref RemoteHTTPSCIDR
-
-  ClientSecurityGroupStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub >-
-        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/security-group.template.yaml
-      Parameters:
-        VPCID: !GetAtt VPCStack.Outputs.VPCID
-        RemoteSSHCIDR: !Ref RemoteSSHCIDR
-        RemoteHTTPCIDR: !Ref RemoteHTTPCIDR
-        RemoteHTTPSCIDR: !Ref RemoteHTTPSCIDR
-
-  ServerSecurityGroupStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub >-
-        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/security-group.template.yaml
-      Parameters:
-        VPCID: !GetAtt VPCStack.Outputs.VPCID
-        RemoteSSHCIDR: !Ref RemoteSSHCIDR
-        RemoteHTTPCIDR: !Ref RemoteHTTPCIDR
-        RemoteHTTPSCIDR: !Ref RemoteHTTPSCIDR
-
-  IAMRoleStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub >-
-        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/iam.template.yaml
-
-  PrimaryADCInstance:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub >-
-        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/citrix-adc.template.yaml
-      Parameters:
-        CitrixADCImageID: !Ref CitrixADCImageID
-        ManagementSecurityGroup: !GetAtt ManagementSecurityGroupStack.Outputs.SecurityGroupID
-        ClientSecurityGroup: !GetAtt ClientSecurityGroupStack.Outputs.SecurityGroupID
-        ServerSecurityGroup: !GetAtt ServerSecurityGroupStack.Outputs.SecurityGroupID
-        ManagementPublicSubnetID: !GetAtt VPCStack.Outputs.PrimaryManagementPublicSubnetID
-        ClientPublicSubnetID: !GetAtt VPCStack.Outputs.PrimaryClientPublicSubnetID
-        ServerPrivateSubnetID: !GetAtt VPCStack.Outputs.PrimaryServerPrivateSubnetID
-        ManagementPrivateIP: !Ref PrimaryManagementPrivateIP
-        ClientPrivateIP: !Ref PrimaryClientPrivateIP
-        ServerPrivateIP: !Ref PrimaryServerPrivateIP
-        ClientENIEIP: 'Yes'
-        ADCInstanceTagName: Primary
+        BastionAMIOS: Ubuntu-Server-16.04-LTS-HVM
         KeyPairName: !Ref KeyPairName
-        VPCTenancy: !Ref VPCTenancy
-        CitrixNodesProfile: !GetAtt IAMRoleStack.Outputs.CitrixNodesProfile
-        CitrixADCInstanceType: !Ref CitrixADCInstanceType
+        NumBastionHosts: !Ref NumBastionHosts
+        PublicSubnet1ID: !GetAtt VPCStack.Outputs.PublicSubnet1ID
+        PublicSubnet2ID: !GetAtt VPCStack.Outputs.PublicSubnet2ID
+        QSS3BucketName: aws-quickstart
+        QSS3KeyPrefix: quickstart-linux-bastion/
+        RemoteAccessCIDR: !Ref RestrictedSSHCIDR
+        VPCID: !GetAtt VPCStack.Outputs.VPCID
 
-  SecondaryADCInstance:
+  WorkLoadStack:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub >-
-        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/citrix-adc.template.yaml
+        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/citrix-adc-ha-across-az-workload.template.yaml
       Parameters:
+        VPCID: !GetAtt VPCStack.Outputs.VPCID
+        VPCTenancy: !Ref VPCTenancy
+        VPCCIDR: !Ref VPCCIDR
+        RestrictedWebAppCIDR: !Ref RestrictedWebAppCIDR
+        RestrictedSSHCIDR: !Ref RestrictedSSHCIDR
+        PrimaryManagementPublicSubnetID: !GetAtt VPCStack.Outputs.PrivateSubnet1BID
+        PrimaryClientPublicSubnetID: !GetAtt VPCStack.Outputs.PublicSubnet1ID
+        PrimaryServerPrivateSubnetID: !GetAtt VPCStack.Outputs.PrivateSubnet1AID
+        SecondaryManagementPublicSubnetID: !GetAtt VPCStack.Outputs.PrivateSubnet2BID
+        SecondaryClientPublicSubnetID: !GetAtt VPCStack.Outputs.PublicSubnet2ID
+        SecondaryServerPrivateSubnetID: !GetAtt VPCStack.Outputs.PrivateSubnet2AID
+        PrimaryManagementPrivateIP: !Ref PrimaryManagementPrivateIP
+        PrimaryClientPrivateIP: !Ref PrimaryClientPrivateIP
+        PrimaryServerPrivateIP: !Ref PrimaryServerPrivateIP
+        SecondaryManagementPrivateIP: !Ref SecondaryManagementPrivateIP
+        SecondaryClientPrivateIP: !Ref SecondaryClientPrivateIP
+        SecondaryServerPrivateIP: !Ref SecondaryServerPrivateIP
         CitrixADCImageID: !Ref CitrixADCImageID
-        ManagementSecurityGroup: !GetAtt ManagementSecurityGroupStack.Outputs.SecurityGroupID
-        ClientSecurityGroup: !GetAtt ClientSecurityGroupStack.Outputs.SecurityGroupID
-        ServerSecurityGroup: !GetAtt ServerSecurityGroupStack.Outputs.SecurityGroupID
-        ManagementPublicSubnetID: !GetAtt VPCStack.Outputs.SecondaryManagementPublicSubnetID
-        ClientPublicSubnetID: !GetAtt VPCStack.Outputs.SecondaryClientPublicSubnetID
-        ServerPrivateSubnetID: !GetAtt VPCStack.Outputs.SecondaryServerPrivateSubnetID
-        ManagementPrivateIP: !Ref SecondaryManagementPrivateIP
-        ClientPrivateIP: !Ref SecondaryClientPrivateIP
-        ServerPrivateIP: !Ref SecondaryServerPrivateIP
-        ClientENIEIP: 'No'
-        ADCInstanceTagName: Secondary
         KeyPairName: !Ref KeyPairName
-        VPCTenancy: !Ref VPCTenancy
-        CitrixNodesProfile: !GetAtt IAMRoleStack.Outputs.CitrixNodesProfile
         CitrixADCInstanceType: !Ref CitrixADCInstanceType
-
-  LambdaHAAZStack:
-    DependsOn:
-      - PrimaryADCInstance
-      - SecondaryADCInstance
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub >-
-        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/lambda-helper-ha-across-az.template.yaml
-      Parameters:
-        PrimaryInstanceID: !GetAtt PrimaryADCInstance.Outputs.CitrixADCInstanceID
-        PrimaryManagementPublicIP: !GetAtt PrimaryADCInstance.Outputs.ManagementPublicEIP
-        PrimaryManagementPrivateIP: !GetAtt PrimaryADCInstance.Outputs.ManagementPrivateNSIP
-        PrimaryClientPrivateIP: !GetAtt PrimaryADCInstance.Outputs.ClientPrivateVIP
-        PrimaryClientPublicSubnetID: !GetAtt VPCStack.Outputs.PrimaryClientPublicSubnetID
-        SecondaryInstanceID: !GetAtt SecondaryADCInstance.Outputs.CitrixADCInstanceID
-        SecondaryManagementPublicIP: !GetAtt SecondaryADCInstance.Outputs.ManagementPublicEIP
-        SecondaryManagementPrivateIP: !GetAtt SecondaryADCInstance.Outputs.ManagementPrivateNSIP
-        SecondaryClientPrivateIP: !GetAtt SecondaryADCInstance.Outputs.ClientPrivateVIP
         QSS3BucketName: !Ref QSS3BucketName
         QSS3KeyPrefix: !Ref QSS3KeyPrefix
+
+
 
 Outputs:
   VPCID:
     Description: VPC ID
     Value: !GetAtt VPCStack.Outputs.VPCID
-    # Export:
-    #   Name:
   PrimaryManagementPublicSubnetID:
     Description: Primary Management Public Subnet ID
-    Value: !GetAtt VPCStack.Outputs.PrimaryManagementPublicSubnetID
-    # Export:
-    #   Name:
+    Value: !GetAtt VPCStack.Outputs.PrivateSubnet1BID
   PrimaryClientPublicSubnetID:
     Description: Primary Client Public Subnet ID
-    Value: !GetAtt VPCStack.Outputs.PrimaryClientPublicSubnetID
-    # Export:
-    #   Name:
+    Value: !GetAtt VPCStack.Outputs.PublicSubnet1ID
   PrimaryServerPrivateSubnetID:
     Description: Primary Server Private Subnet ID
-    Value: !GetAtt VPCStack.Outputs.PrimaryServerPrivateSubnetID
-    # Export:
-    #   Name:
+    Value: !GetAtt VPCStack.Outputs.PrivateSubnet1AID
   SecondaryManagementPublicSubnetID:
     Description: Secondary Management Public Subnet ID
-    Value: !GetAtt VPCStack.Outputs.SecondaryManagementPublicSubnetID
-    # Export:
-    #   Name:
+    Value: !GetAtt VPCStack.Outputs.PrivateSubnet2BID
   SecondaryClientPublicSubnetID:
     Description: Secondary Client Public Subnet ID
-    Value: !GetAtt VPCStack.Outputs.SecondaryClientPublicSubnetID
-    # Export:
-    #   Name:
+    Value: !GetAtt VPCStack.Outputs.PublicSubnet2ID
   SecondaryServerPrivateSubnetID:
     Description: Secondary Server Private Subnet ID
-    Value: !GetAtt VPCStack.Outputs.SecondaryServerPrivateSubnetID
-    # Export:
-    #   Name:
-  ManagementSecurityGroupID:
-    Description: Security Group ID for Management ENIs
-    Value: !GetAtt ManagementSecurityGroupStack.Outputs.SecurityGroupID
-    # Export:
-    #   Name:
-  ClientSecurityGroupID:
-    Description: Security Group ID for Client ENIs
-    Value: !GetAtt ClientSecurityGroupStack.Outputs.SecurityGroupID
-    # Export:
-    #   Name:
-  ServerSecurityGroupID:
-    Description: Security Group ID for Server ENIs
-    Value: !GetAtt ServerSecurityGroupStack.Outputs.SecurityGroupID
-    # Export:
-    #   Name:
+    Value: !GetAtt VPCStack.Outputs.PrivateSubnet2AID
+  SecurityGroupID:
+    Description: Security Group ID for ADC ENIs
+    Value: !GetAtt WorkLoadStack.Outputs.SecurityGroupID
   InstanceProfileName:
     Description: Instance Profile for ADCs
-    Value: !GetAtt IAMRoleStack.Outputs.CitrixNodesProfile
-    # Export:
-    #   Name:
+    Value: !GetAtt WorkLoadStack.Outputs.InstanceProfileName
   PrimaryADCInstanceID:
     Description: Primary ADC Instance ID
-    Value: !GetAtt PrimaryADCInstance.Outputs.CitrixADCInstanceID
-    # Export:
-    #   Name:
-  PrimaryManagementPublicEIP:
-    Description: Primary Management Public EIP
-    Value: !GetAtt PrimaryADCInstance.Outputs.ManagementPublicEIP
-    # Export:
-    #   Name:
+    Value: !GetAtt WorkLoadStack.Outputs.PrimaryADCInstanceID
   PrimaryManagementPrivateNSIP:
     Description: Primary Management Private NSIP
-    Value: !GetAtt PrimaryADCInstance.Outputs.ManagementPrivateNSIP
-    # Export:
-    #   Name:
+    Value: !GetAtt WorkLoadStack.Outputs.PrimaryManagementPrivateNSIP
   PrimaryClientPublicEIP:
     Description: Primary Client Public EIP
-    Value: !GetAtt PrimaryADCInstance.Outputs.ClientPublicEIP
-    # Export:
-    #   Name:
+    Value: !GetAtt WorkLoadStack.Outputs.PrimaryClientPublicEIP
   PrimaryClientPrivateVIP:
     Description: Primary Client Private VIP
-    Value: !GetAtt PrimaryADCInstance.Outputs.ClientPrivateVIP
-    # Export:
-    #   Name:
+    Value: !GetAtt WorkLoadStack.Outputs.PrimaryClientPrivateVIP
   SecondaryADCInstanceID:
     Description: Secondary ADC Instance ID
-    Value: !GetAtt SecondaryADCInstance.Outputs.CitrixADCInstanceID
-    # Export:
-    #   Name:
-  SecondaryManagementPublicEIP:
-    Description: Secondary Management Public EIP
-    Value: !GetAtt SecondaryADCInstance.Outputs.ManagementPublicEIP
-    # Export:
-    #   Name:
+    Value: !GetAtt WorkLoadStack.Outputs.SecondaryADCInstanceID
   SecondaryManagementPrivateNSIP:
     Description: Secondary Management Private NSIP
-    Value: !GetAtt SecondaryADCInstance.Outputs.ManagementPrivateNSIP
-    # Export:
-    #   Name:
+    Value: !GetAtt WorkLoadStack.Outputs.SecondaryManagementPrivateNSIP
   SecondaryClientPrivateVIP:
     Description: Secondary Client Private VIP
-    Value: !GetAtt SecondaryADCInstance.Outputs.ClientPrivateVIP
-    # Export:
-    #   Name:
-  PrimaryCitrixADCManagementURL:
-    Description: HTTPS URL to the Management GUI of Primary CitrixADC (uses self-signed cert)
-    Value: !Join
-      - ""
-      - - "https://"
-        - !GetAtt PrimaryADCInstance.Outputs.ManagementPublicEIP
-  PrimaryCitrixADCManagementURL2:
-    Description: HTTP URL to the Management GUI of Primary CitrixADC
-    Value: !Join
-      - ""
-      - - "http://"
-        - !GetAtt PrimaryADCInstance.Outputs.ManagementPublicEIP
-  SecondaryCitrixADCManagementURL:
-    Description: HTTPS URL to the Management GUI of Secondary CitrixADC (uses self-signed cert)
-    Value: !Join
-      - ""
-      - - "https://"
-        - !GetAtt SecondaryADCInstance.Outputs.ManagementPublicEIP
-  SecondaryCitrixADCManagementURL2:
-    Description: HTTP URL to the Management GUI of Secondary CitrixADC
-    Value: !Join
-      - ""
-      - - "http://"
-        - !GetAtt SecondaryADCInstance.Outputs.ManagementPublicEIP
+    Value: !GetAtt WorkLoadStack.Outputs.SecondaryClientPrivateVIP
+  LinuxBastionHostEIP1:
+    Description: Elastic IP 1 for Bastion
+    Value: !GetAtt BastionStack.Outputs.EIP1
+  LinuxBastionHostEIP2:
+    Condition: 2BastionCondition
+    Description: Elastic IP 2 for Bastion
+    Value: !GetAtt BastionStack.Outputs.EIP2

@@ -158,15 +158,6 @@ Resources:
         - UseServerPrivateIP
         - !Ref ServerPrivateIP
         - !Ref AWS::NoValue
-  ManagementEIP:
-    Type: AWS::EC2::EIP
-    Properties:
-      Domain: vpc
-  ManagementEIPAssociation:
-    Type: AWS::EC2::EIPAssociation
-    Properties:
-      NetworkInterfaceId: !Ref ManagementENI
-      AllocationId: !GetAtt ManagementEIP.AllocationId
   ClientEIP:
     Condition: UseClientEIP
     Type: AWS::EC2::EIP
@@ -196,40 +187,27 @@ Resources:
       IamInstanceProfile: !Ref CitrixNodesProfile
       InstanceType: !Ref CitrixADCInstanceType
       NetworkInterfaces:
-        - DeviceIndex: 0
+        - DeviceIndex: '0'
           NetworkInterfaceId: !Ref ManagementENI
-        - DeviceIndex: 1
+        - DeviceIndex: '1'
           NetworkInterfaceId: !Ref ClientENI
-        - DeviceIndex: 2
+        - DeviceIndex: '2'
           NetworkInterfaceId: !Ref ServerENI
 
 Outputs:
   CitrixADCInstanceID:
     Description: Citrix InstanceID
     Value: !Ref CitrixADCInstance
-    # Export:
-    #   Name:
-  ManagementPublicEIP:
-    Description: Management Public EIP
-    Value: !Ref ManagementEIP
-    # Export:
-    #   Name:
   ManagementPrivateNSIP:
     Description: Management Private IP
     Value: !GetAtt ManagementENI.PrimaryPrivateIpAddress
-    # Export:
-    #   Name:
   ClientPublicEIP:
     Condition: UseClientEIP
     Description: Client Public EIP
     Value: !Ref ClientEIP
-    # Export:
-    #   Name:
   ClientPrivateVIP:
     Description: Client Private IP
     Value: !GetAtt ClientENI.PrimaryPrivateIpAddress
-    # Export:
-    #   Name:
 
 Mappings:
   AWSAMIRegionMap:

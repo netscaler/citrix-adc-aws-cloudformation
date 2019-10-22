@@ -1,0 +1,8 @@
+[submodule "templates/ha_3_nic_mz/quickstart-citrix-adc-ha-across-az/submodules/quickstart-aws-vpc"]
+	path = templates/ha_3_nic_mz/quickstart-citrix-adc-ha-across-az/submodules/quickstart-aws-vpc
+	url = git@github.com:aws-quickstart/quickstart-aws-vpc.git
+	branch = master
+[submodule "templates/ha_3_nic_mz/quickstart-citrix-adc-ha-across-az/submodules/quickstart-linux-bastion"]
+	path = templates/ha_3_nic_mz/quickstart-citrix-adc-ha-across-az/submodules/quickstart-linux-bastion
+	url = git@github.com:aws-quickstart/quickstart-linux-bastion.git
+	branch = master

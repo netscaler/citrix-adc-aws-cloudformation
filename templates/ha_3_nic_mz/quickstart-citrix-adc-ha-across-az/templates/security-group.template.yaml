@@ -7,34 +7,30 @@ Parameters:
   VPCID:
     Description: VPC ID
     Type: String
-  RemoteSSHCIDR:
+  VPCCIDR:
+    Description: CIDR Block for VPC
+    Type: String
+    Default: 10.0.0.0/16
+    MinLength: 9
+    MaxLength: 18
+    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
+  RestrictedWebAppCIDR:
     Type: String
     MinLength: 9
     MaxLength: 18
     Description:
-      "A CIDR block that’s allowed external SSH(port 22) access to the ADCs.
+      "A CIDR block that is allowed to access the ADC on tcp ports 80, 443.
       We recommend that you use a constrained CIDR range to
       reduce the potential of inbound attacks from unknown IP addresses."
     AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
     ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
-  RemoteHTTPCIDR:
-    Default: 0.0.0.0/0
+  RestrictedSSHCIDR:
     Type: String
     MinLength: 9
     MaxLength: 18
     Description:
-      "A CIDR block that’s allowed external HTTP(port 80) access to the ADCs.
-      We recommend that you use a constrained CIDR range to
-      reduce the potential of inbound attacks from unknown IP addresses."
-    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
-    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
-  RemoteHTTPSCIDR:
-    Default: 0.0.0.0/0
-    Type: String
-    MinLength: 9
-    MaxLength: 18
-    Description:
-      "A CIDR block that’s allowed external HTTPS(port 443) access to the ADCs.
+      "A CIDR block that is allowed to access the bastion host on port 22.
       We recommend that you use a constrained CIDR range to
       reduce the potential of inbound attacks from unknown IP addresses."
     AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
@@ -53,15 +49,19 @@ Resources:
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
-          CidrIp: !Ref RemoteSSHCIDR
+          CidrIp: !Ref RestrictedSSHCIDR
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
-          CidrIp: !Ref RemoteHTTPCIDR
+          CidrIp: !Ref RestrictedWebAppCIDR
         - IpProtocol: tcp
           FromPort: 443
           ToPort: 443
-          CidrIp: !Ref RemoteHTTPSCIDR
+          CidrIp: !Ref RestrictedWebAppCIDR
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: !Ref VPCCIDR
 
   InboundRule:
     Type: AWS::EC2::SecurityGroupIngress
@@ -76,5 +76,3 @@ Outputs:
   SecurityGroupID:
     Description: Security Group ID
     Value: !Ref SecurityGroup
-    # Export:
-    #   Name:
