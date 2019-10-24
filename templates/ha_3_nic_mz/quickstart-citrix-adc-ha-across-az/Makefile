@@ -5,21 +5,19 @@ all: help
 #test-master
 
 #test-workload
-QSS3BucketName= "georgen-test"
+# See the following links before creating the bucket
+# https://github.com/aws-quickstart/quickstart-linux-bastion/issues/35#issuecomment-524320027
+# https://docs.aws.amazon.com/general/latest/gr/signature-version-2.html
+QSS3BucketName= "your-own-bucket-name"
 QSS3KeyPrefix="quickstart-citrix-adc-ha-across-az"
-AWS_REGION=us-east-1
 
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
-	@echo "\tsync-bucket	creates ${QSS3BucketName} bucket in ${AWS_REGION} aws region and creates a copy of quickstart code in this S3 bucket"
+	@echo "\tsync-bucket	creates ${QSS3BucketName} bucket and creates a copy of quickstart code in this S3 bucket"
 
 lint:
 	cfn-lint templates/*.yaml
-
-create-bucket:
-	@echo "Creating bucket: ${QSS3BucketName}"
-	aws s3 mb s3://${QSS3BucketName}
 
 ziplambda:
 	cd functions/source/ha-across-az/ && 7z -tzip a lambda-ha-3-nic-mz.zip lambda-ha-3-nic-mz.py
