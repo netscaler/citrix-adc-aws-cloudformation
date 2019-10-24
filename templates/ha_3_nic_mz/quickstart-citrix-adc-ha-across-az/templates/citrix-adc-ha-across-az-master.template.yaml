@@ -322,8 +322,8 @@ Resources:
         NumBastionHosts: !Ref NumBastionHosts
         PublicSubnet1ID: !GetAtt VPCStack.Outputs.PublicSubnet1ID
         PublicSubnet2ID: !GetAtt VPCStack.Outputs.PublicSubnet2ID
-        QSS3BucketName: aws-quickstart
-        QSS3KeyPrefix: quickstart-linux-bastion/
+        QSS3BucketName: !Ref QSS3BucketName
+        QSS3KeyPrefix: !Sub ${QSS3KeyPrefix}submodules/quickstart-linux-bastion/
         RemoteAccessCIDR: !Ref RestrictedSSHCIDR
         VPCID: !GetAtt VPCStack.Outputs.VPCID
 

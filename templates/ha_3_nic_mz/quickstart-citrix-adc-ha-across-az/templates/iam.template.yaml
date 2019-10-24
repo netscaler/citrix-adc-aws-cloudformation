@@ -58,5 +58,3 @@ Outputs:
   CitrixNodesProfile:
     Description: Citrix ADC instance profile
     Value: !Ref CitrixNodesProfile
-    # Export:
-    #   Name:
