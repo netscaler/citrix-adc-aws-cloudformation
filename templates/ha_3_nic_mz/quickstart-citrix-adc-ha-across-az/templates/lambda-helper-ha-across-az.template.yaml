@@ -7,9 +7,6 @@ Parameters:
   PrimaryInstanceID:
     Description: Primary ADC Instance ID
     Type: String
-  PrimaryManagementPublicIP:
-    Description: Primary ADC Management Public IP
-    Type: String
   PrimaryManagementPrivateIP:
     Description: Primary Management Private IP
     Type: String
@@ -22,9 +19,6 @@ Parameters:
       Public Subnet ID of an existing subnet dedicated for Primary Client ENI.
   SecondaryInstanceID:
     Description: Secondary InstanceID
-    Type: String
-  SecondaryManagementPublicIP:
-    Description: Secondary Management Public IP
     Type: String
   SecondaryManagementPrivateIP:
     Description: Secondary Management Private IP
@@ -56,6 +50,12 @@ Parameters:
       S3 key prefix for the Quick Start assets. Quick Start key prefix can
       include numbers, lowercase letters, uppercase letters, hyphens (-), and
       forward slash (/).
+    Type: String
+  ManagementSecurityGroupID:
+    Type: String
+  PrimarySubnetID:
+    Type: String
+  SecondarySubnetID:
     Type: String
 
 Resources:
@@ -198,6 +198,19 @@ Resources:
                   - "ec2:DescribeInstanceStatus"
                 Resource: "*"
                 Effect: Allow
+        - PolicyName: lambdaallowvpcaccessexecution
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Action:
+                  - "ec2:CreateNetworkInterface"
+                  - "ec2:DeleteNetworkInterface"
+                  - "ec2:AttachNetworkInterface"
+                  - "ec2:DetachNetworkInterface"
+                  - "ec2:ModifyNetworkInterfaceAttribute"
+                  - "ec2:ResetNetworkInterfaceAttribute"
+                Resource: "*"
+                Effect: Allow
   ConfigureHAFunction:
     DependsOn: CopyZips
     Type: AWS::Lambda::Function
@@ -212,17 +225,21 @@ Resources:
       Runtime: python3.6
       Timeout: 900
       Role: !GetAtt LambdaExecutionRole.Arn
+      VpcConfig:
+        SubnetIds:
+          - !Ref PrimarySubnetID
+          - !Ref SecondarySubnetID
+        SecurityGroupIds:
+          - !Ref ManagementSecurityGroupID
   ConfigureLambda:
     Type: Custom::LambdaHAAZ
     Properties:
       ServiceToken: !GetAtt ConfigureHAFunction.Arn
       PriInstanceID: !Ref PrimaryInstanceID
-      PriPubNSIP: !Ref PrimaryManagementPublicIP
       PriNSIP: !Ref PrimaryManagementPrivateIP
       PriVIP: !Ref PrimaryClientPrivateIP
       PriVIPSubnet: !Ref PrimaryClientPublicSubnetID
       SecInstanceID: !Ref SecondaryInstanceID
-      SecPubNSIP: !Ref SecondaryManagementPublicIP
       SecNSIP: !Ref SecondaryManagementPrivateIP
       SecVIP: !Ref SecondaryClientPrivateIP
 # Outputs:

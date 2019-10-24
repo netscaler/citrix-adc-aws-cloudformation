@@ -15,9 +15,9 @@ Metadata:
           default: Network configuration
         Parameters:
           - VPCID
-          - RemoteSSHCIDR
-          - RemoteHTTPCIDR
-          - RemoteHTTPSCIDR
+          - VPCCIDR
+          - RestrictedWebAppCIDR
+          - RestrictedSSHCIDR
           - PrimaryManagementPublicSubnetID
           - PrimaryClientPublicSubnetID
           - PrimaryServerPrivateSubnetID
@@ -45,13 +45,19 @@ Metadata:
 
       VPCID:
         default: VPC ID
-
+      VPCCIDR:
+        default: VPC CIDR
       PrimaryManagementPublicSubnetID:
         default: Primary Management Public Subnet ID
       PrimaryClientPublicSubnetID:
         default: Primary Client Public Subnet ID
       PrimaryServerPrivateSubnetID:
         default: Primary Server Private Subnet ID
+
+      RestrictedWebAppCIDR:
+        default: Remote web traffic CIDR
+      RestrictedSSHCIDR:
+        default: Remote ssh traffic CIDR
 
       SecondaryManagementPublicSubnetID:
         default: Secondary Management Public Subnet ID
@@ -75,12 +81,6 @@ Metadata:
 
       VPCTenancy:
         default: VPC tenancy attribute
-      RemoteSSHCIDR:
-        default: Remote SSH CIDR
-      RemoteHTTPCIDR:
-        default: Remote HTTP CIDR
-      RemoteHTTPSCIDR:
-        default: Remote HTTPS CIDR
       KeyPairName:
         default: Key pair name
       CitrixADCInstanceType:
@@ -96,6 +96,14 @@ Parameters:
   VPCID:
     Type: AWS::EC2::VPC::Id
     Description: VPC ID of existing Virtual Private Cloud (VPC)
+  VPCCIDR:
+    Description: CIDR Block for VPC
+    Type: String
+    Default: 10.0.0.0/16
+    MinLength: 9
+    MaxLength: 18
+    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
   VPCTenancy:
     Description: The allowed tenancy of instances launched into the VPC
     Type: String
@@ -103,6 +111,26 @@ Parameters:
     AllowedValues:
       - default
       - dedicated
+  RestrictedWebAppCIDR:
+    Type: String
+    MinLength: 9
+    MaxLength: 18
+    Description:
+      "A CIDR block that is allowed to access the ADC on tcp ports 80, 443.
+      We recommend that you use a constrained CIDR range to
+      reduce the potential of inbound attacks from unknown IP addresses."
+    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
+  RestrictedSSHCIDR:
+    Type: String
+    MinLength: 9
+    MaxLength: 18
+    Description:
+      "A CIDR block that is allowed to access the bastion host on port 22.
+      We recommend that you use a constrained CIDR range to
+      reduce the potential of inbound attacks from unknown IP addresses."
+    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
   PrimaryManagementPublicSubnetID:
     Type: AWS::EC2::Subnet::Id
     Description: >-
@@ -183,38 +211,6 @@ Parameters:
       include numbers, lowercase letters, uppercase letters, hyphens (-), and
       forward slash (/).
     Type: String
-  RemoteSSHCIDR:
-    Type: String
-    MinLength: 9
-    MaxLength: 18
-    Description:
-      "A CIDR block that’s allowed external SSH(port 22) access to the ADCs.
-      We recommend that you use a constrained CIDR range to
-      reduce the potential of inbound attacks from unknown IP addresses."
-    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
-    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
-  RemoteHTTPCIDR:
-    Default: 0.0.0.0/0
-    Type: String
-    MinLength: 9
-    MaxLength: 18
-    Description:
-      "A CIDR block that’s allowed external HTTP(port 80) access to the ADCs.
-      We recommend that you use a constrained CIDR range to
-      reduce the potential of inbound attacks from unknown IP addresses."
-    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
-    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
-  RemoteHTTPSCIDR:
-    Default: 0.0.0.0/0
-    Type: String
-    MinLength: 9
-    MaxLength: 18
-    Description:
-      "A CIDR block that’s allowed external HTTPS(port 443) access to the ADCs.
-      We recommend that you use a constrained CIDR range to
-      reduce the potential of inbound attacks from unknown IP addresses."
-    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
-    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
   KeyPairName:
     ConstraintDescription: "Can contain only alphanumeric characters, spaces, dashes and underscores."
     Description: EC2 key pair name to remotely access ADCs on port 22 (SSH)
@@ -243,38 +239,16 @@ Parameters:
 
 
 Resources:
-  ManagementSecurityGroupStack:
+  SecurityGroupStack:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub >-
         https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/security-group.template.yaml
       Parameters:
         VPCID: !Ref VPCID
-        RemoteSSHCIDR: !Ref RemoteSSHCIDR
-        RemoteHTTPCIDR: !Ref RemoteHTTPCIDR
-        RemoteHTTPSCIDR: !Ref RemoteHTTPSCIDR
-
-  ClientSecurityGroupStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub >-
-        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/security-group.template.yaml
-      Parameters:
-        VPCID: !Ref VPCID
-        RemoteSSHCIDR: !Ref RemoteSSHCIDR
-        RemoteHTTPCIDR: !Ref RemoteHTTPCIDR
-        RemoteHTTPSCIDR: !Ref RemoteHTTPSCIDR
-
-  ServerSecurityGroupStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub >-
-        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/security-group.template.yaml
-      Parameters:
-        VPCID: !Ref VPCID
-        RemoteSSHCIDR: !Ref RemoteSSHCIDR
-        RemoteHTTPCIDR: !Ref RemoteHTTPCIDR
-        RemoteHTTPSCIDR: !Ref RemoteHTTPSCIDR
+        VPCCIDR: !Ref VPCCIDR
+        RestrictedWebAppCIDR: !Ref RestrictedWebAppCIDR
+        RestrictedSSHCIDR: !Ref RestrictedSSHCIDR
 
   IAMRoleStack:
     Type: AWS::CloudFormation::Stack
@@ -289,9 +263,9 @@ Resources:
         https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/citrix-adc.template.yaml
       Parameters:
         CitrixADCImageID: !Ref CitrixADCImageID
-        ManagementSecurityGroup: !GetAtt ManagementSecurityGroupStack.Outputs.SecurityGroupID
-        ClientSecurityGroup: !GetAtt ClientSecurityGroupStack.Outputs.SecurityGroupID
-        ServerSecurityGroup: !GetAtt ServerSecurityGroupStack.Outputs.SecurityGroupID
+        ManagementSecurityGroup: !GetAtt SecurityGroupStack.Outputs.SecurityGroupID
+        ClientSecurityGroup: !GetAtt SecurityGroupStack.Outputs.SecurityGroupID
+        ServerSecurityGroup: !GetAtt SecurityGroupStack.Outputs.SecurityGroupID
         ManagementPublicSubnetID: !Ref PrimaryManagementPublicSubnetID
         ClientPublicSubnetID: !Ref PrimaryClientPublicSubnetID
         ServerPrivateSubnetID: !Ref PrimaryServerPrivateSubnetID
@@ -312,9 +286,9 @@ Resources:
         https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/citrix-adc.template.yaml
       Parameters:
         CitrixADCImageID: !Ref CitrixADCImageID
-        ManagementSecurityGroup: !GetAtt ManagementSecurityGroupStack.Outputs.SecurityGroupID
-        ClientSecurityGroup: !GetAtt ClientSecurityGroupStack.Outputs.SecurityGroupID
-        ServerSecurityGroup: !GetAtt ServerSecurityGroupStack.Outputs.SecurityGroupID
+        ManagementSecurityGroup: !GetAtt SecurityGroupStack.Outputs.SecurityGroupID
+        ClientSecurityGroup: !GetAtt SecurityGroupStack.Outputs.SecurityGroupID
+        ServerSecurityGroup: !GetAtt SecurityGroupStack.Outputs.SecurityGroupID
         ManagementPublicSubnetID: !Ref SecondaryManagementPublicSubnetID
         ClientPublicSubnetID: !Ref SecondaryClientPublicSubnetID
         ServerPrivateSubnetID: !Ref SecondaryServerPrivateSubnetID
@@ -329,114 +303,49 @@ Resources:
         CitrixADCInstanceType: !Ref CitrixADCInstanceType
 
   LambdaHAAZStack:
-    DependsOn:
-      - PrimaryADCInstance
-      - SecondaryADCInstance
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub >-
         https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/lambda-helper-ha-across-az.template.yaml
       Parameters:
         PrimaryInstanceID: !GetAtt PrimaryADCInstance.Outputs.CitrixADCInstanceID
-        PrimaryManagementPublicIP: !GetAtt PrimaryADCInstance.Outputs.ManagementPublicEIP
         PrimaryManagementPrivateIP: !GetAtt PrimaryADCInstance.Outputs.ManagementPrivateNSIP
         PrimaryClientPrivateIP: !GetAtt PrimaryADCInstance.Outputs.ClientPrivateVIP
         PrimaryClientPublicSubnetID: !Ref PrimaryClientPublicSubnetID
         SecondaryInstanceID: !GetAtt SecondaryADCInstance.Outputs.CitrixADCInstanceID
-        SecondaryManagementPublicIP: !GetAtt SecondaryADCInstance.Outputs.ManagementPublicEIP
         SecondaryManagementPrivateIP: !GetAtt SecondaryADCInstance.Outputs.ManagementPrivateNSIP
         SecondaryClientPrivateIP: !GetAtt SecondaryADCInstance.Outputs.ClientPrivateVIP
         QSS3BucketName: !Ref QSS3BucketName
         QSS3KeyPrefix: !Ref QSS3KeyPrefix
-
+        ManagementSecurityGroupID: !GetAtt SecurityGroupStack.Outputs.SecurityGroupID
+        PrimarySubnetID: !Ref PrimaryManagementPublicSubnetID
+        SecondarySubnetID: !Ref SecondaryManagementPublicSubnetID
 
 Outputs:
-  ManagementSecurityGroupID:
-    Description: Security Group ID for Management ENIs
-    Value: !GetAtt ManagementSecurityGroupStack.Outputs.SecurityGroupID
-    # Export:
-    #   Name:
-  ClientSecurityGroupID:
-    Description: Security Group ID for Client ENIs
-    Value: !GetAtt ClientSecurityGroupStack.Outputs.SecurityGroupID
-    # Export:
-    #   Name:
-  ServerSecurityGroupID:
-    Description: Security Group ID for Server ENIs
-    Value: !GetAtt ServerSecurityGroupStack.Outputs.SecurityGroupID
-    # Export:
-    #   Name:
+  SecurityGroupID:
+    Description: Security Group ID for ADC ENIs
+    Value: !GetAtt SecurityGroupStack.Outputs.SecurityGroupID
   InstanceProfileName:
     Description: Instance Profile for ADCs
     Value: !GetAtt IAMRoleStack.Outputs.CitrixNodesProfile
-    # Export:
-    #   Name:
   PrimaryADCInstanceID:
     Description: Primary ADC Instance ID
     Value: !GetAtt PrimaryADCInstance.Outputs.CitrixADCInstanceID
-    # Export:
-    #   Name:
-  PrimaryManagementPublicEIP:
-    Description: Primary Management Public EIP
-    Value: !GetAtt PrimaryADCInstance.Outputs.ManagementPublicEIP
-    # Export:
-    #   Name:
   PrimaryManagementPrivateNSIP:
     Description: Primary Management Private NSIP
     Value: !GetAtt PrimaryADCInstance.Outputs.ManagementPrivateNSIP
-    # Export:
-    #   Name:
   PrimaryClientPublicEIP:
     Description: Primary Client Public EIP
     Value: !GetAtt PrimaryADCInstance.Outputs.ClientPublicEIP
-    # Export:
-    #   Name:
   PrimaryClientPrivateVIP:
     Description: Primary Client Private VIP
     Value: !GetAtt PrimaryADCInstance.Outputs.ClientPrivateVIP
-    # Export:
-    #   Name:
   SecondaryADCInstanceID:
     Description: Secondary ADC Instance ID
     Value: !GetAtt SecondaryADCInstance.Outputs.CitrixADCInstanceID
-    # Export:
-    #   Name:
-  SecondaryManagementPublicEIP:
-    Description: Secondary Management Public EIP
-    Value: !GetAtt SecondaryADCInstance.Outputs.ManagementPublicEIP
-    # Export:
-    #   Name:
   SecondaryManagementPrivateNSIP:
     Description: Secondary Management Private NSIP
     Value: !GetAtt SecondaryADCInstance.Outputs.ManagementPrivateNSIP
-    # Export:
-    #   Name:
   SecondaryClientPrivateVIP:
     Description: Secondary Client Private VIP
     Value: !GetAtt SecondaryADCInstance.Outputs.ClientPrivateVIP
-    # Export:
-    #   Name:
-  PrimaryCitrixADCManagementURL:
-    Description: HTTPS URL to the Management GUI of Primary CitrixADC (uses self-signed cert)
-    Value: !Join
-      - ""
-      - - "https://"
-        - !GetAtt PrimaryADCInstance.Outputs.ManagementPublicEIP
-  PrimaryCitrixADCManagementURL2:
-    Description: HTTP URL to the Management GUI of Primary CitrixADC
-    Value: !Join
-      - ""
-      - - "http://"
-        - !GetAtt PrimaryADCInstance.Outputs.ManagementPublicEIP
-  SecondaryCitrixADCManagementURL:
-    Description: HTTPS URL to the Management GUI of Secondary CitrixADC (uses self-signed cert)
-    Value: !Join
-      - ""
-      - - "https://"
-        - !GetAtt SecondaryADCInstance.Outputs.ManagementPublicEIP
-  SecondaryCitrixADCManagementURL2:
-    Description: HTTP URL to the Management GUI of Secondary CitrixADC
-    Value: !Join
-      - ""
-      - - "http://"
-        - !GetAtt SecondaryADCInstance.Outputs.ManagementPublicEIP
