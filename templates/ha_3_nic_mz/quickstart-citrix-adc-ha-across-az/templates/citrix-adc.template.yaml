@@ -22,10 +22,10 @@ Parameters:
   ServerSecurityGroup:
     Description: Security Group ID for Citrix ADC Server ENI
     Type: String
-  ManagementPublicSubnetID:
+  ManagementPrivateSubnetID:
     Type: AWS::EC2::Subnet::Id
     Description: >-
-      Public Subnet ID of an existing subnet dedicated for Management ENI.
+      Private Subnet ID of an existing subnet dedicated for Management ENI.
       Note - The CIDR should be different from that of VPC.
   ClientPublicSubnetID:
     Type: AWS::EC2::Subnet::Id
@@ -122,7 +122,7 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub ${AWS::StackName} PrimaryManagement
-      SubnetId: !Ref ManagementPublicSubnetID
+      SubnetId: !Ref ManagementPrivateSubnetID
       GroupSet:
         - !Ref ManagementSecurityGroup
       Description: ENI connected to Primary Management Subnet
