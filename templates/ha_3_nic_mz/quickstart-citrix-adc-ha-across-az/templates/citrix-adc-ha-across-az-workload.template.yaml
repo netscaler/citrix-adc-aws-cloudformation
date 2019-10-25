@@ -18,10 +18,10 @@ Metadata:
           - VPCCIDR
           - RestrictedWebAppCIDR
           - RestrictedSSHCIDR
-          - PrimaryManagementPublicSubnetID
+          - PrimaryManagementPrivateSubnetID
           - PrimaryClientPublicSubnetID
           - PrimaryServerPrivateSubnetID
-          - SecondaryManagementPublicSubnetID
+          - SecondaryManagementPrivateSubnetID
           - SecondaryClientPublicSubnetID
           - SecondaryServerPrivateSubnetID
           - PrimaryManagementPrivateIP
@@ -47,8 +47,8 @@ Metadata:
         default: VPC ID
       VPCCIDR:
         default: VPC CIDR
-      PrimaryManagementPublicSubnetID:
-        default: Primary Management Public Subnet ID
+      PrimaryManagementPrivateSubnetID:
+        default: Primary Management Private Subnet ID
       PrimaryClientPublicSubnetID:
         default: Primary Client Public Subnet ID
       PrimaryServerPrivateSubnetID:
@@ -59,8 +59,8 @@ Metadata:
       RestrictedSSHCIDR:
         default: Remote ssh traffic CIDR
 
-      SecondaryManagementPublicSubnetID:
-        default: Secondary Management Public Subnet ID
+      SecondaryManagementPrivateSubnetID:
+        default: Secondary Management Private Subnet ID
       SecondaryClientPublicSubnetID:
         default: Secondary Client Public Subnet ID
       SecondaryServerPrivateSubnetID:
@@ -131,10 +131,10 @@ Parameters:
       reduce the potential of inbound attacks from unknown IP addresses."
     AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
     ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
-  PrimaryManagementPublicSubnetID:
+  PrimaryManagementPrivateSubnetID:
     Type: AWS::EC2::Subnet::Id
     Description: >-
-      Public Subnet ID of an existing subnet dedicated for Primary Management ENI.
+      Private Subnet ID of an existing subnet dedicated for Primary Management ENI.
       Note - The CIDR should be different from that of VPC.
   PrimaryClientPublicSubnetID:
     Type: AWS::EC2::Subnet::Id
@@ -144,10 +144,10 @@ Parameters:
     Type: AWS::EC2::Subnet::Id
     Description: >-
       Private Subnet ID of an existing subnet dedicated for Primary Server ENI.
-  SecondaryManagementPublicSubnetID:
+  SecondaryManagementPrivateSubnetID:
     Type: AWS::EC2::Subnet::Id
     Description: >-
-      Public Subnet ID of an existing subnet dedicated for Secondary Management ENI.
+      Private Subnet ID of an existing subnet dedicated for Secondary Management ENI.
   SecondaryClientPublicSubnetID:
     Type: AWS::EC2::Subnet::Id
     Description: >-
@@ -266,7 +266,7 @@ Resources:
         ManagementSecurityGroup: !GetAtt SecurityGroupStack.Outputs.SecurityGroupID
         ClientSecurityGroup: !GetAtt SecurityGroupStack.Outputs.SecurityGroupID
         ServerSecurityGroup: !GetAtt SecurityGroupStack.Outputs.SecurityGroupID
-        ManagementPublicSubnetID: !Ref PrimaryManagementPublicSubnetID
+        ManagementPrivateSubnetID: !Ref PrimaryManagementPrivateSubnetID
         ClientPublicSubnetID: !Ref PrimaryClientPublicSubnetID
         ServerPrivateSubnetID: !Ref PrimaryServerPrivateSubnetID
         ManagementPrivateIP: !Ref PrimaryManagementPrivateIP
@@ -289,7 +289,7 @@ Resources:
         ManagementSecurityGroup: !GetAtt SecurityGroupStack.Outputs.SecurityGroupID
         ClientSecurityGroup: !GetAtt SecurityGroupStack.Outputs.SecurityGroupID
         ServerSecurityGroup: !GetAtt SecurityGroupStack.Outputs.SecurityGroupID
-        ManagementPublicSubnetID: !Ref SecondaryManagementPublicSubnetID
+        ManagementPrivateSubnetID: !Ref SecondaryManagementPrivateSubnetID
         ClientPublicSubnetID: !Ref SecondaryClientPublicSubnetID
         ServerPrivateSubnetID: !Ref SecondaryServerPrivateSubnetID
         ManagementPrivateIP: !Ref SecondaryManagementPrivateIP
@@ -318,8 +318,8 @@ Resources:
         QSS3BucketName: !Ref QSS3BucketName
         QSS3KeyPrefix: !Ref QSS3KeyPrefix
         ManagementSecurityGroupID: !GetAtt SecurityGroupStack.Outputs.SecurityGroupID
-        PrimarySubnetID: !Ref PrimaryManagementPublicSubnetID
-        SecondarySubnetID: !Ref SecondaryManagementPublicSubnetID
+        PrimarySubnetID: !Ref PrimaryManagementPrivateSubnetID
+        SecondarySubnetID: !Ref SecondaryManagementPrivateSubnetID
 
 Outputs:
   SecurityGroupID:
