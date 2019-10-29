@@ -337,7 +337,6 @@ Resources:
         VPCTenancy: !Ref VPCTenancy
         VPCCIDR: !Ref VPCCIDR
         RestrictedWebAppCIDR: !Ref RestrictedWebAppCIDR
-        RestrictedSSHCIDR: !Ref RestrictedSSHCIDR
         PrimaryManagementPrivateSubnetID: !GetAtt VPCStack.Outputs.PrivateSubnet1BID
         PrimaryClientPublicSubnetID: !GetAtt VPCStack.Outputs.PublicSubnet1ID
         PrimaryServerPrivateSubnetID: !GetAtt VPCStack.Outputs.PrivateSubnet1AID

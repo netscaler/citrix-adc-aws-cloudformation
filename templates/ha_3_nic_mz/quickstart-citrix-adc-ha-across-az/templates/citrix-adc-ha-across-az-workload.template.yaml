@@ -123,32 +123,32 @@ Parameters:
     Description: >-
       Private Subnet ID of an existing subnet dedicated for Primary Management ENI.
       Note - The CIDR should be different from that of VPC.
-      (Private Subnet 1B)
+      (VPC Stack Private Subnet 1B)
   PrimaryClientPublicSubnetID:
     Type: AWS::EC2::Subnet::Id
     Description: >-
       Public Subnet ID of an existing subnet dedicated for Primary Client ENI.
-      (Public Subnet 1)
+      (VPC Stack Public Subnet 1)
   PrimaryServerPrivateSubnetID:
     Type: AWS::EC2::Subnet::Id
     Description: >-
       Private Subnet ID of an existing subnet dedicated for Primary Server ENI.
-      (Private Subnet 1A)
+      (VPC Stack Private Subnet 1A)
   SecondaryManagementPrivateSubnetID:
     Type: AWS::EC2::Subnet::Id
     Description: >-
       Private Subnet ID of an existing subnet dedicated for Secondary Management ENI.
-      (Private Subnet 2B)
+      (VPC Stack Private Subnet 2B)
   SecondaryClientPublicSubnetID:
     Type: AWS::EC2::Subnet::Id
     Description: >-
       Public Subnet ID of an existing subnet dedicated for Secondary Client ENI.
-      (Public Subnet 2)
+      (VPC Stack Public Subnet 2)
   SecondaryServerPrivateSubnetID:
     Type: AWS::EC2::Subnet::Id
     Description: >-
       Private Subnet ID of an existing subnet dedicated for Secondary Server ENI.
-      (Private Subnet 2A)
+      (VPC Stack Private Subnet 2A)
   PrimaryManagementPrivateIP:
     Default: ""
     Type: String
