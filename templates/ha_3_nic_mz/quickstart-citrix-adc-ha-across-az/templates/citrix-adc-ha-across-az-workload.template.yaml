@@ -17,7 +17,6 @@ Metadata:
           - VPCID
           - VPCCIDR
           - RestrictedWebAppCIDR
-          - RestrictedSSHCIDR
           - PrimaryManagementPrivateSubnetID
           - PrimaryClientPublicSubnetID
           - PrimaryServerPrivateSubnetID
@@ -56,8 +55,6 @@ Metadata:
 
       RestrictedWebAppCIDR:
         default: Remote web traffic CIDR
-      RestrictedSSHCIDR:
-        default: Remote ssh traffic CIDR
 
       SecondaryManagementPrivateSubnetID:
         default: Secondary Management Private Subnet ID
@@ -121,41 +118,37 @@ Parameters:
       reduce the potential of inbound attacks from unknown IP addresses."
     AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
     ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
-  RestrictedSSHCIDR:
-    Type: String
-    MinLength: 9
-    MaxLength: 18
-    Description:
-      "A CIDR block that is allowed to access the bastion host on port 22.
-      We recommend that you use a constrained CIDR range to
-      reduce the potential of inbound attacks from unknown IP addresses."
-    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
-    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
   PrimaryManagementPrivateSubnetID:
     Type: AWS::EC2::Subnet::Id
     Description: >-
       Private Subnet ID of an existing subnet dedicated for Primary Management ENI.
       Note - The CIDR should be different from that of VPC.
+      (VPC Stack Private Subnet 1B)
   PrimaryClientPublicSubnetID:
     Type: AWS::EC2::Subnet::Id
     Description: >-
       Public Subnet ID of an existing subnet dedicated for Primary Client ENI.
+      (VPC Stack Public Subnet 1)
   PrimaryServerPrivateSubnetID:
     Type: AWS::EC2::Subnet::Id
     Description: >-
       Private Subnet ID of an existing subnet dedicated for Primary Server ENI.
+      (VPC Stack Private Subnet 1A)
   SecondaryManagementPrivateSubnetID:
     Type: AWS::EC2::Subnet::Id
     Description: >-
       Private Subnet ID of an existing subnet dedicated for Secondary Management ENI.
+      (VPC Stack Private Subnet 2B)
   SecondaryClientPublicSubnetID:
     Type: AWS::EC2::Subnet::Id
     Description: >-
       Public Subnet ID of an existing subnet dedicated for Secondary Client ENI.
+      (VPC Stack Public Subnet 2)
   SecondaryServerPrivateSubnetID:
     Type: AWS::EC2::Subnet::Id
     Description: >-
       Private Subnet ID of an existing subnet dedicated for Secondary Server ENI.
+      (VPC Stack Private Subnet 2A)
   PrimaryManagementPrivateIP:
     Default: ""
     Type: String
@@ -248,7 +241,6 @@ Resources:
         VPCID: !Ref VPCID
         VPCCIDR: !Ref VPCCIDR
         RestrictedWebAppCIDR: !Ref RestrictedWebAppCIDR
-        RestrictedSSHCIDR: !Ref RestrictedSSHCIDR
 
   IAMRoleStack:
     Type: AWS::CloudFormation::Stack
