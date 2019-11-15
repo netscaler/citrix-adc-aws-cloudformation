@@ -1,0 +1,81 @@
+---
+# source: https://raw.githubusercontent.com/taskcat/taskcat/master/tests/data/config_full_example/.taskcat.yml
+#
+project:
+  name: quickstart-citrix-adc-appfw
+  build_submodules: false
+  lambda_source_path: functions/source
+  lambda_zip_path: functions/packages
+  package_lambda: false
+  regions:
+    - us-east-1
+  # [REQUIRED] path to template file relative to the project config file path. If
+  # defined, template is optional in tests
+  # template: ./templates/citrix-adc-appfw-master.template.yaml
+tests:
+  test-master:
+    parameters:
+      VPCCIDR: "10.0.0.0/16"
+      VPCTenancy: default
+
+      PrimaryAvailabilityZone: us-east-1a
+      SecondaryAvailabilityZone: us-east-1b
+
+      PrimaryManagementPrivateSubnetCIDR: "10.0.1.0/24"
+      PrimaryClientPublicSubnetCIDR: "10.0.2.0/24"
+      PrimaryServerPrivateSubnetCIDR: "10.0.3.0/24"
+      PrimaryManagementPrivateIP: ""
+      PrimaryClientPrivateIP: ""
+      PrimaryServerPrivateIP: ""
+
+      SecondaryManagementPrivateSubnetCIDR: "10.0.4.0/24"
+      SecondaryClientPublicSubnetCIDR: "10.0.5.0/24"
+      SecondaryServerPrivateSubnetCIDR: "10.0.6.0/24"
+      SecondaryManagementPrivateIP: ""
+      SecondaryClientPrivateIP: ""
+      SecondaryServerPrivateIP: ""
+
+      CitrixADCImageID: ""
+      KeyPairName: "" # TODO: aws key pair
+      CitrixADCInstanceType: m4.xlarge
+
+      QSS3BucketName: "" # TODO: s3 bucket name
+      QSS3KeyPrefix: quickstart-citrix-adc-appfw/
+
+      RestrictedWebAppCIDR: "0.0.0.0/0"
+      RestrictedSSHCIDR: "0.0.0.0/0"
+      NumBastionHosts: 1
+      # [REQUIRED] path to template file relative to the project config file path. If
+      # template is defined in project section this can be ommitted
+    template: ./templates/citrix-adc-appfw-master.template.yaml
+  test-workload:
+    parameters:
+      VPCID: "vpc-" # TODO:
+      VPCCIDR: "" # TODO:
+      VPCTenancy: default
+
+      PrimaryManagementPrivateSubnetID: "subnet-" # TODO:
+      PrimaryClientPublicSubnetID: "subnet-" # TODO:
+      PrimaryServerPrivateSubnetID: "subnet-" # TODO:
+      PrimaryManagementPrivateIP: ""
+      PrimaryClientPrivateIP: ""
+      PrimaryServerPrivateIP: ""
+
+      SecondaryManagementPrivateSubnetID: "subnet-" # TODO:
+      SecondaryClientPublicSubnetID: "subnet-" # TODO:
+      SecondaryServerPrivateSubnetID: "subnet-" # TODO:
+      SecondaryManagementPrivateIP: ""
+      SecondaryClientPrivateIP: ""
+      SecondaryServerPrivateIP: ""
+
+      CitrixADCImageID: ""
+      KeyPairName: "" # TODO: aws key pair
+      CitrixADCInstanceType: m4.xlarge
+
+      QSS3BucketName: "" # TODO: s3 bucket name
+      QSS3KeyPrefix: quickstart-citrix-adc-appfw/
+
+      RestrictedWebAppCIDR: "0.0.0.0/0"
+      # [REQUIRED] path to template file relative to the project config file path. If
+      # template is defined in project section this can be ommitted
+    template: ./templates/citrix-adc-appfw-workload.template.yaml
