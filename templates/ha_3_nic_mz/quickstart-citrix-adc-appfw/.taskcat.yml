@@ -8,7 +8,7 @@ project:
   lambda_zip_path: functions/packages
   package_lambda: false
   regions:
-    - us-east-1
+    - ap-south-1
   # [REQUIRED] path to template file relative to the project config file path. If
   # defined, template is optional in tests
   # template: ./templates/citrix-adc-appfw-master.template.yaml
@@ -18,8 +18,8 @@ tests:
       VPCCIDR: "10.0.0.0/16"
       VPCTenancy: default
 
-      PrimaryAvailabilityZone: us-east-1a
-      SecondaryAvailabilityZone: us-east-1b
+      PrimaryAvailabilityZone: ap-south-1a
+      SecondaryAvailabilityZone: ap-south-1b
 
       PrimaryManagementPrivateSubnetCIDR: "10.0.1.0/24"
       PrimaryClientPublicSubnetCIDR: "10.0.2.0/24"
@@ -51,8 +51,8 @@ tests:
   test-workload:
     parameters:
       VPCID: "vpc-" # TODO:
-      VPCCIDR: "" # TODO:
       VPCTenancy: default
+      BastionSecurityGroupID: ""
 
       PrimaryManagementPrivateSubnetID: "subnet-" # TODO:
       PrimaryClientPublicSubnetID: "subnet-" # TODO:
