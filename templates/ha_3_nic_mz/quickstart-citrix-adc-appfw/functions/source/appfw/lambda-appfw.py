@@ -804,7 +804,7 @@ def lambda_handler(event, context):
                     "crosssitescriptingcheckcompleteurls": "ON",
                     "dosecurecreditcardlogging": "OFF",
                     "responsecontenttype": "application/octet-stream",
-                    "excludefileuploadfromchecks": "ON",
+                    "excludefileuploadfromchecks": "OFF",
                     "checkrequestheaders": "ON",
                 }
                 add_appfw_profile(primary, name=APPFW_PROFILE, configdict=profileconfig)
