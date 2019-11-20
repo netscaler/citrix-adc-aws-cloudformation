@@ -7,14 +7,9 @@ Parameters:
   VPCID:
     Description: VPC ID
     Type: String
-  VPCCIDR:
-    Description: CIDR Block for VPC
-    Type: String
-    Default: 10.0.0.0/16
-    MinLength: 9
-    MaxLength: 18
-    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
-    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
+  BastionSecurityGroupID:
+    Description: Bastion Security Group ID
+    Type: AWS::EC2::SecurityGroup::Id
   RestrictedWebAppCIDR:
     Type: String
     MinLength: 9
@@ -27,13 +22,40 @@ Parameters:
     ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
 
 Resources:
-  SecurityGroup:
+  ManagementSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       Tags:
         - Key: Name
           Value: !Sub ${AWS::StackName} SecurityGroup
-      GroupDescription: "Enable SSH access via port 22, HTTP with port 80 and HTTPS with port 443"
+      GroupDescription: "Allow everything from management security group and bastion security group"
+      VpcId: !Ref VPCID
+
+  ManagementInboundRule:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: tcp
+      FromPort: 0
+      ToPort: 65535
+      SourceSecurityGroupId: !GetAtt ManagementSecurityGroup.GroupId
+      GroupId: !GetAtt ManagementSecurityGroup.GroupId
+
+  ManagementBastionInboundRule:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: tcp
+      FromPort: 0
+      ToPort: 65535
+      SourceSecurityGroupId: !Ref BastionSecurityGroupID
+      GroupId: !GetAtt ManagementSecurityGroup.GroupId
+
+  ClientSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName} SecurityGroup
+      GroupDescription: "Enable HTTP and HTTPs from RestrictedWebAppCIDR and everything from bastion security group."
       VpcId: !Ref VPCID
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -44,21 +66,52 @@ Resources:
           FromPort: 443
           ToPort: 443
           CidrIp: !Ref RestrictedWebAppCIDR
-        - IpProtocol: tcp
-          FromPort: 0
-          ToPort: 65535
-          CidrIp: !Ref VPCCIDR
 
-  InboundRule:
+  ClientBastionInboundRule:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       IpProtocol: tcp
       FromPort: 0
       ToPort: 65535
-      SourceSecurityGroupId: !GetAtt SecurityGroup.GroupId
-      GroupId: !GetAtt SecurityGroup.GroupId
+      SourceSecurityGroupId: !Ref BastionSecurityGroupID
+      GroupId: !GetAtt ClientSecurityGroup.GroupId
+
+  ServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName} SecurityGroup
+      GroupDescription: "Allow everything from within the server and bastion security group."
+      VpcId: !Ref VPCID
+
+  ServerInboundRule:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: tcp
+      FromPort: 0
+      ToPort: 65535
+      SourceSecurityGroupId: !GetAtt ServerSecurityGroup.GroupId
+      GroupId: !GetAtt ServerSecurityGroup.GroupId
+
+  ServerBastionInboundRule:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: tcp
+      FromPort: 0
+      ToPort: 65535
+      SourceSecurityGroupId: !Ref BastionSecurityGroupID
+      GroupId: !GetAtt ServerSecurityGroup.GroupId
 
 Outputs:
-  SecurityGroupID:
-    Description: Security Group ID
-    Value: !Ref SecurityGroup
+  ManagementSecurityGroupID:
+    Description: Management Security Group ID
+    Value: !Ref ManagementSecurityGroup
+
+  ClientSecurityGroupID:
+    Description: Management Security Group ID
+    Value: !Ref ClientSecurityGroup
+
+  ServerSecurityGroupID:
+    Description: Management Security Group ID
+    Value: !Ref ServerSecurityGroup

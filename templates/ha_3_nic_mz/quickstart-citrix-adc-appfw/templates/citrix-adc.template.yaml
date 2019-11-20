@@ -53,10 +53,10 @@ Parameters:
   ClientENIEIP:
     Description: Choose 'Yes' to assign EIP for Client ENI
     Type: String
-    Default: "No"
+    Default: 'No'
     AllowedValues:
-      - "No"
-      - "Yes"
+      - 'No'
+      - 'Yes'
   ADCInstanceTagName:
     Description: Tag Name for Citrix ADC
     Type: String
@@ -97,7 +97,7 @@ Parameters:
       - c4.8xlarge
 
 Conditions:
-  UseClientEIP: !Equals [!Ref ClientENIEIP, "Yes"]
+  UseClientEIP: !Equals [!Ref ClientENIEIP, 'Yes']
   UseCitrixADCImageID: !Not
     - !Equals
       - !Ref CitrixADCImageID
@@ -176,22 +176,22 @@ Resources:
         - Key: Name
           Value: !Sub ${AWS::StackName} ${ADCInstanceTagName}
       ImageId: !If
-        - UseCitrixADCImageID
-        - !Ref CitrixADCImageID
-        - !FindInMap
-          - AWSAMIRegionMap
-          - !Ref AWS::Region
-          - CITRIXADC
+          - UseCitrixADCImageID
+          - !Ref CitrixADCImageID
+          - !FindInMap
+            - AWSAMIRegionMap
+            - !Ref AWS::Region
+            - CITRIXADC
       KeyName: !Ref KeyPairName
       Tenancy: !Ref VPCTenancy
       IamInstanceProfile: !Ref CitrixNodesProfile
       InstanceType: !Ref CitrixADCInstanceType
       NetworkInterfaces:
-        - DeviceIndex: "0"
+        - DeviceIndex: '0'
           NetworkInterfaceId: !Ref ManagementENI
-        - DeviceIndex: "1"
+        - DeviceIndex: '1'
           NetworkInterfaceId: !Ref ClientENI
-        - DeviceIndex: "2"
+        - DeviceIndex: '2'
           NetworkInterfaceId: !Ref ServerENI
 
 Outputs:
