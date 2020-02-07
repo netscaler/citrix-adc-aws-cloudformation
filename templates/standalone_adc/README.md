@@ -1,5 +1,5 @@
 ## CloudFormation Template description
-This template   Launches required number of Citrix ADCs. By default Customer Licensed (BYOL) ADC will be launched with 3 ENIs associated to 3 VPC subnets (Management, Client, Server) on primary and 3 ENIs associated to 3 VPC subnets (Management, Client, Server) on secondary.
+This template   Launches required number of Citrix ADCs. By default Customer Licensed (BYOL) ADC will be launched with 3 ENIs associated to 3 VPC subnets (Management, Client, Server).
 
 The output of the CloudFormation template includes:
 
