@@ -70,13 +70,7 @@ Parameters:
       SubnetId of an existing subnet in your Virtual Private Cloud (VPC)
       dedicated for Client side
   pKeyName:
-    ConstraintDescription:
-      Can contain only alphanumeric characters, spaces, dashes
-      and underscores.
     Description: Name of an existing EC2 KeyPair to enable SSH access to the instances
-    MinLength: 1
-    AllowedPattern: "[-_ a-zA-Z0-9]*"
-    MaxLength: 64
     Type: AWS::EC2::KeyPair::KeyName
   pManagementIP:
     Default: ""
@@ -397,12 +391,9 @@ Resources:
         - cUseCitrixADCImageID
         - !Ref pCitrixADCImageID
         - !FindInMap
-          - AWSRegionArch2AMI
-          - !Ref "AWS::Region"
-          - !FindInMap
-            - AWSInstanceType2Arch
-            - !Ref pInstanceType
-            - Arch
+          - AWSAMIRegionMap
+          - !Ref AWS::Region
+          - CITRIXADC
       KeyName:
         Ref: pKeyName
       Tenancy:
@@ -412,13 +403,13 @@ Resources:
       InstanceType:
         Ref: pInstanceType
       NetworkInterfaces:
-        - DeviceIndex: 0
+        - DeviceIndex: "0"
           NetworkInterfaceId:
             Ref: rNsipENI
-        - DeviceIndex: 1
+        - DeviceIndex: "1"
           NetworkInterfaceId:
             Ref: rClientENI
-        - DeviceIndex: 2
+        - DeviceIndex: "2"
           NetworkInterfaceId:
             Ref: rServerENI
   rNsipENI:
@@ -454,7 +445,7 @@ Resources:
       Count: 0
       Handle:
         Ref: rMyWaitHandle
-      Timeout: 60
+      Timeout: "60"
   rVPXInstanceSec:
     DependsOn: myWaitCondition
     Type: AWS::EC2::Instance
@@ -485,12 +476,9 @@ Resources:
         - cUseCitrixADCImageID
         - !Ref pCitrixADCImageID
         - !FindInMap
-          - AWSRegionArch2AMI
-          - !Ref "AWS::Region"
-          - !FindInMap
-            - AWSInstanceType2Arch
-            - !Ref pInstanceType
-            - Arch
+          - AWSAMIRegionMap
+          - !Ref AWS::Region
+          - CITRIXADC
       KeyName:
         Ref: pKeyName
       Tenancy:
@@ -500,7 +488,7 @@ Resources:
       InstanceType:
         Ref: pInstanceType
       NetworkInterfaces:
-        - DeviceIndex: 0
+        - DeviceIndex: "0"
           NetworkInterfaceId:
             Ref: rNsipENISec
   rAssociateEipNsipSec:
@@ -515,100 +503,44 @@ Resources:
 
 
 Mappings:
-  AWSRegionArch2AMI:
-    us-east-1:
-      "32": NOT_YET_SUPPORTED
-      "64": ami-0fe34330ab860f7f6
-      64Cluster: NOT_YET_SUPPORTED
-      64GPU: NOT_YET_SUPPORTED
-    us-east-2:
-      "32": NOT_YET_SUPPORTED
-      "64": ami-0cbd0a3af75c2d849
-      64Cluster: NOT_YET_SUPPORTED
-      64GPU: NOT_YET_SUPPORTED
-    us-west-1:
-      "32": NOT_YET_SUPPORTED
-      "64": ami-0f7079dc26313c083
-      64Cluster: NOT_YET_SUPPORTED
-      64GPU: NOT_YET_SUPPORTED
-    us-west-2:
-      "32": NOT_YET_SUPPORTED
-      "64": ami-0330b7f1cd4367eb8
-      64Cluster: NOT_YET_SUPPORTED
-      64GPU: NOT_YET_SUPPORTED
+  AWSAMIRegionMap:
+    AMI:
+      CITRIXADC: Citrix NetScaler and CloudBridge Connector 13.0-52.24-64-63425ded-82f0-4b54-8cdd-6ec8b94bd4f8-ami-05e241fd9b61abb3a.4
     us-gov-west-1:
-      "32": NOT_YET_SUPPORTED
-      "64": ami-7f58391e
-      64Cluster: NOT_YET_SUPPORTED
-      64GPU: NOT_YET_SUPPORTED
-    ca-central-1:
-      "32": NOT_YET_SUPPORTED
-      "64": ami-06f6d5000b2edc8c1
-      64Cluster: NOT_YET_SUPPORTED
-      64GPU: NOT_YET_SUPPORTED
-    eu-central-1:
-      "32": NOT_YET_SUPPORTED
-      "64": ami-0dbd87bc3f6b7ac0a
-      64Cluster: NOT_YET_SUPPORTED
-      64GPU: NOT_YET_SUPPORTED
-    eu-west-1:
-      "32": NOT_YET_SUPPORTED
-      "64": ami-0198651093460fef7
-      64Cluster: NOT_YET_SUPPORTED
-      64GPU: NOT_YET_SUPPORTED
-    eu-west-2:
-      "32": NOT_YET_SUPPORTED
-      "64": ami-087f98b111285ff8a
-      64Cluster: NOT_YET_SUPPORTED
-      64GPU: NOT_YET_SUPPORTED
-    ap-southeast-1:
-      "32": NOT_YET_SUPPORTED
-      "64": ami-0af3ea5ad3eefdbc3
-      64Cluster: NOT_YET_SUPPORTED
-      64GPU: NOT_YET_SUPPORTED
-    ap-southeast-2:
-      "32": NOT_YET_SUPPORTED
-      "64": ami-0e0ef92e0f3c299c9
-      64Cluster: NOT_YET_SUPPORTED
-      64GPU: NOT_YET_SUPPORTED
-    ap-south-1:
-      "32": NOT_YET_SUPPORTED
-      "64": ami-038c43b331d7e5c56
-      64Cluster: NOT_YET_SUPPORTED
-      64GPU: NOT_YET_SUPPORTED
-    ap-northeast-1:
-      "32": NOT_YET_SUPPORTED
-      "64": ami-0e2c84948e8c42db0
-      64Cluster: NOT_YET_SUPPORTED
-      64GPU: NOT_YET_SUPPORTED
-    ap-northeast-2:
-      "32": NOT_YET_SUPPORTED
-      "64": ami-009afa7d85d599854
-      64Cluster: NOT_YET_SUPPORTED
-      64GPU: NOT_YET_SUPPORTED
-    sa-east-1:
-      "32": NOT_YET_SUPPORTED
-      "64": ami-0ae382bdd08cbbb88
-      64Cluster: NOT_YET_SUPPORTED
-      64GPU: NOT_YET_SUPPORTED
-  AWSInstanceType2Arch:
-    m4.large:
-      Arch: "64"
-    m4.2xlarge:
-      Arch: "64"
-    m4.xlarge:
-      Arch: "64"
-    m4.4xlarge:
-      Arch: "64"
-    m4.10xlarge:
-      Arch: "64"
-    c4.large:
-      Arch: "64"
-    c4.xlarge:
-      Arch: "64"
-    c4.2xlarge:
-      Arch: "64"
-    c4.4xlarge:
-      Arch: "64"
-    c4.8xlarge:
-      Arch: "64"
+      CITRIXADC: ami-00d2e361
+    us-gov-east-1:
+      CITRIXADC: ami-21f11d50
+    us-east-2: # US East (Ohio)
+      CITRIXADC: ami-0e8e26c508fa94732
+    us-east-1: # US East (N. Virginia)
+      CITRIXADC: ami-0bb96d1f8f79db909
+    us-west-1: # US West (N. California)
+      CITRIXADC: ami-0707f52c208d83427
+    us-west-2: # US West (Oregon)
+      CITRIXADC: ami-0503d15aed657c87d
+    ap-east-1: # Asia Pacific (Hong Kong)
+      CITRIXADC: ami-0b44e0d299d3b3a33
+    ap-south-1: # Asia Pacific (Mumbai)
+      CITRIXADC: ami-027978a22dc893058
+    ap-northeast-2: # Asia Pacific (Seoul)
+      CITRIXADC: ami-0ad520c016e96f260
+    ap-southeast-1: # Asia Pacific (Singapore)
+      CITRIXADC: ami-0316840d86abe4e5e
+    ap-southeast-2: # Asia Pacific (Sydney)
+      CITRIXADC: ami-02098e6dfe08d9299
+    ap-northeast-1: # Asia Pacific (Tokyo)
+      CITRIXADC: ami-0a5d628c2e1ea45e9
+    ca-central-1: # Canada (Central)
+      CITRIXADC: ami-02cbae7662e592d24
+    eu-central-1: # Europe (Frankfurt)
+      CITRIXADC: ami-05d81856537a0cfc2
+    eu-west-1: # Europe (Ireland)
+      CITRIXADC: ami-023da45cff4446484
+    eu-west-2: # Europe (London)
+      CITRIXADC: ami-037b51b95111f4231
+    eu-west-3: # Europe (Paris)
+      CITRIXADC: ami-0bd4c025bd6afab4a
+    eu-north-1: # Europe (Stockholm)
+      CITRIXADC: ami-01672d9e4fd60f85d
+    sa-east-1: # South America (São Paulo)
+      CITRIXADC: ami-0c66fc6fff94c64b9
