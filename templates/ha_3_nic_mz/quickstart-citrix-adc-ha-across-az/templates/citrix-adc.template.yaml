@@ -11,7 +11,7 @@ Parameters:
     Type: String
     Default: ""
     Description: >-
-      AMI ID of Citrix ADC to be provisioned. If left empty, "Citrix ADC VPX - Customer Licensed Version 13.0-41.20
+      AMI ID of Citrix ADC to be provisioned. If left empty, "Citrix ADC VPX - Customer Licensed Version 13.0-52.24
       (https://aws.amazon.com/marketplace/pp/B00AA01BOE)" is provisioned by default
   ManagementSecurityGroup:
     Description: Security Group ID for Citrix ADC Management ENI
@@ -61,11 +61,7 @@ Parameters:
     Description: Tag Name for Citrix ADC
     Type: String
   KeyPairName:
-    ConstraintDescription: "Can contain only alphanumeric characters, spaces, dashes and underscores."
     Description: EC2 key pair name to remotely access ADCs on port 22 (SSH)
-    MinLength: 1
-    AllowedPattern: "[-_ a-zA-Z0-9]*"
-    MaxLength: 64
     Type: AWS::EC2::KeyPair::KeyName
   VPCTenancy:
     Description: The allowed tenancy of instances launched into the VPC
@@ -212,34 +208,42 @@ Outputs:
 Mappings:
   AWSAMIRegionMap:
     AMI:
-      CITRIXADC: Citrix NetScaler and CloudBridge Connector 13.0-41.20-64-63425ded-82f0-4b54-8cdd-6ec8b94bd4f8-ami-07ddf840261f0d4b8.4
-    us-east-1:
-      CITRIXADC: ami-0f38778279d15e095
-    us-east-2:
-      CITRIXADC: ami-08e851d5af412cb1a
-    us-west-1:
-      CITRIXADC: ami-031421c73dff0724c
-    us-west-2:
-      CITRIXADC: ami-0b4676c09e7994cf3
+      CITRIXADC: Citrix NetScaler and CloudBridge Connector 13.0-52.24-64-63425ded-82f0-4b54-8cdd-6ec8b94bd4f8-ami-05e241fd9b61abb3a.4
     us-gov-west-1:
-      CITRIXADC: ami-77beeb16
-    ca-central-1:
-      CITRIXADC: ami-03975d4e197a28cec
-    eu-central-1:
-      CITRIXADC: ami-097304b6b661019e8
-    eu-west-1:
-      CITRIXADC: ami-07ea2ac00d82b1f3d
-    eu-west-2:
-      CITRIXADC: ami-049deb2b212e81285
-    ap-southeast-1:
-      CITRIXADC: ami-05b6b9a7bbd2f4643
-    ap-southeast-2:
-      CITRIXADC: ami-00d96537071f8f219
-    ap-south-1:
-      CITRIXADC: ami-05bda76bec67ae3e1
-    ap-northeast-1:
-      CITRIXADC: ami-03b3dcc43a36bf388
-    ap-northeast-2:
-      CITRIXADC: ami-067a7d4b44ea1f8c8
-    sa-east-1:
-      CITRIXADC: ami-0220bf855f9c4b3e2
+      CITRIXADC: ami-00d2e361
+    us-gov-east-1:
+      CITRIXADC: ami-21f11d50
+    us-east-2: # US East (Ohio)
+      CITRIXADC: ami-0e8e26c508fa94732
+    us-east-1: # US East (N. Virginia)
+      CITRIXADC: ami-0bb96d1f8f79db909
+    us-west-1: # US West (N. California)
+      CITRIXADC: ami-0707f52c208d83427
+    us-west-2: # US West (Oregon)
+      CITRIXADC: ami-0503d15aed657c87d
+    ap-east-1: # Asia Pacific (Hong Kong)
+      CITRIXADC: ami-0b44e0d299d3b3a33
+    ap-south-1: # Asia Pacific (Mumbai)
+      CITRIXADC: ami-027978a22dc893058
+    ap-northeast-2: # Asia Pacific (Seoul)
+      CITRIXADC: ami-0ad520c016e96f260
+    ap-southeast-1: # Asia Pacific (Singapore)
+      CITRIXADC: ami-0316840d86abe4e5e
+    ap-southeast-2: # Asia Pacific (Sydney)
+      CITRIXADC: ami-02098e6dfe08d9299
+    ap-northeast-1: # Asia Pacific (Tokyo)
+      CITRIXADC: ami-0a5d628c2e1ea45e9
+    ca-central-1: # Canada (Central)
+      CITRIXADC: ami-02cbae7662e592d24
+    eu-central-1: # Europe (Frankfurt)
+      CITRIXADC: ami-05d81856537a0cfc2
+    eu-west-1: # Europe (Ireland)
+      CITRIXADC: ami-023da45cff4446484
+    eu-west-2: # Europe (London)
+      CITRIXADC: ami-037b51b95111f4231
+    eu-west-3: # Europe (Paris)
+      CITRIXADC: ami-0bd4c025bd6afab4a
+    eu-north-1: # Europe (Stockholm)
+      CITRIXADC: ami-01672d9e4fd60f85d
+    sa-east-1: # South America (São Paulo)
+      CITRIXADC: ami-0c66fc6fff94c64b9
