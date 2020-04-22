@@ -26,6 +26,9 @@
 - Citrix Web App Firewall
   * [Citrix Web App Firewall (WAF) - 200 Mbps](#citrix-web-app-firewall-waf---200-mbps)
   * [Citrix Web App Firewall (WAF) - 1000 Mbps](#citrix-web-app-firewall-waf---1000-mbps)
+- ADM Service Agent AMI
+  * [ADM Service Agent AMI](#adm-service-agent-ami)
+
 
 
 # Citrix AWS AMI-IDs
@@ -408,4 +411,23 @@
 |**ap-south-1**|ami-0bdbf33f6b247a9f2|
 |**ap-northeast-2**|ami-0632be1166d5b93e9|
 |**ap-northeast-1**|ami-072697b740c80ac29|
+---
+## ADM Service Agent AMI
+||**13.0**|
+|--|--|
+|**us-west-2**|ami-07e5b85c23a612ec2|
+|**us-west-1**|ami-0810f0cc198cad4ff|
+|**us-east-2**|ami-02355b727fa49925b|
+|**us-east-1**|ami-0cea48909f1ef4ff8|
+|**sa-east-1**|ami-07f27360fe492237c|
+|**eu-west-2**|ami-07a35e91239614090|
+|**eu-west-1**|ami-09b76fcbd96280318|
+|**eu-north-1**|ami-0dcd601b0e0711473|
+|**eu-central-1**|ami-00e0ca6ae33f3d45c|
+|**ca-central-1**|ami-043e4d5a3cd980251|
+|**ap-southeast-2**|ami-01a920c5d234710dc|
+|**ap-southeast-1**|ami-01d8dbcad90c19f5f|
+|**ap-south-1**|ami-08c621d89c033fb58|
+|**ap-northeast-2**|ami-0037a976cfdd57db8|
+|**ap-northeast-1**|ami-0ed17788f3d643980|
 ---
