@@ -58,45 +58,45 @@ Metadata:
 Mappings:
   AWSAMIRegionMap:
     AMI:
-      CITRIXADC: Citrix NetScaler and CloudBridge Connector 13.0-52.24-64-63425ded-82f0-4b54-8cdd-6ec8b94bd4f8-ami-05e241fd9b61abb3a.4
+      CITRIXADC: Citrix NetScaler and CloudBridge Connector 13.0-52.24-64-daf08ece-57d1-4c0a-826a-b8d9449e3930-ami-05e241fd9b61abb3a.4
     us-gov-west-1:
-      CITRIXADC: ami-00d2e361
+      CITRIXADC: ami-f2eedf93
     us-gov-east-1:
-      CITRIXADC: ami-21f11d50
+      CITRIXADC: ami-85f61af4
     us-east-2: # US East (Ohio)
-      CITRIXADC: ami-0e8e26c508fa94732
+      CITRIXADC: ami-0d0e1aa65b5141a65
     us-east-1: # US East (N. Virginia)
-      CITRIXADC: ami-0bb96d1f8f79db909
+      CITRIXADC: ami-0bf7e3cd2187afdab
     us-west-1: # US West (N. California)
-      CITRIXADC: ami-0707f52c208d83427
+      CITRIXADC: ami-0703346270c4d0b7c
     us-west-2: # US West (Oregon)
-      CITRIXADC: ami-0503d15aed657c87d
+      CITRIXADC: ami-00ebfef051dd95718
     ap-east-1: # Asia Pacific (Hong Kong)
-      CITRIXADC: ami-0b44e0d299d3b3a33
+      CITRIXADC: ami-0aa98e59e5661aab7
     ap-south-1: # Asia Pacific (Mumbai)
-      CITRIXADC: ami-027978a22dc893058
+      CITRIXADC: ami-06d6c11e1cbff9ae8
     ap-northeast-2: # Asia Pacific (Seoul)
-      CITRIXADC: ami-0ad520c016e96f260
+      CITRIXADC: ami-0d73d400a2b4da4ee
     ap-southeast-1: # Asia Pacific (Singapore)
-      CITRIXADC: ami-0316840d86abe4e5e
+      CITRIXADC: ami-0ed0c6997b0e77a0a
     ap-southeast-2: # Asia Pacific (Sydney)
-      CITRIXADC: ami-02098e6dfe08d9299
+      CITRIXADC: ami-0f230b2f3ebacc16d
     ap-northeast-1: # Asia Pacific (Tokyo)
-      CITRIXADC: ami-0a5d628c2e1ea45e9
+      CITRIXADC: ami-0a809e44e4cb1fc94
     ca-central-1: # Canada (Central)
-      CITRIXADC: ami-02cbae7662e592d24
+      CITRIXADC: ami-01c6e2295c8e8323e
     eu-central-1: # Europe (Frankfurt)
-      CITRIXADC: ami-05d81856537a0cfc2
+      CITRIXADC: ami-07dd425e220e28c87
     eu-west-1: # Europe (Ireland)
-      CITRIXADC: ami-023da45cff4446484
+      CITRIXADC: ami-069d284cd5b867a58
     eu-west-2: # Europe (London)
-      CITRIXADC: ami-037b51b95111f4231
+      CITRIXADC: ami-0796b3837edc4029c
     eu-west-3: # Europe (Paris)
-      CITRIXADC: ami-0bd4c025bd6afab4a
+      CITRIXADC: ami-0a164c705872f38d0
     eu-north-1: # Europe (Stockholm)
-      CITRIXADC: ami-01672d9e4fd60f85d
+      CITRIXADC: ami-02fcb525f36e4e7e4
     sa-east-1: # South America (São Paulo)
-      CITRIXADC: ami-0c66fc6fff94c64b9
+      CITRIXADC: ami-02a8ac11fda009ffe
 Parameters:
   VpcId:
     Type: "AWS::EC2::VPC::Id"
