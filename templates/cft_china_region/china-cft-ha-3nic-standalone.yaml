@@ -1,0 +1,478 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Conditions:
+  AssignEIP2ManagementENI: !Equals
+    - !Ref 'ManagementENIEIP'
+    - 'Yes'
+  UseCitrixADCImageID: !Not
+    - !Equals
+      - !Ref 'CitrixADCImageID'
+      - ''
+  UseClientPrivateIP: !Not
+    - !Equals
+      - !Ref 'ClientPrivateIP'
+      - ''
+  UseManagementPrivateIP: !Not
+    - !Equals
+      - !Ref 'ManagementPrivateIP'
+      - ''
+  UseServerPrivateIP: !Not
+    - !Equals
+      - !Ref 'ServerPrivateIP'
+      - ''
+Mappings:
+  AWSAMIRegionMap:
+    AMI:
+      CITRIXADC: Citrix NetScaler
+    ap-east-1:
+      CITRIXADC: ami-0b44e0d299d3b3a33
+    ap-northeast-1:
+      CITRIXADC: ami-0a5d628c2e1ea45e9
+    ap-northeast-2:
+      CITRIXADC: ami-0ad520c016e96f260
+    ap-south-1:
+      CITRIXADC: ami-027978a22dc893058
+    ap-southeast-1:
+      CITRIXADC: ami-0316840d86abe4e5e
+    ap-southeast-2:
+      CITRIXADC: ami-02098e6dfe08d9299
+    ca-central-1:
+      CITRIXADC: ami-02cbae7662e592d24
+    cn-north-1:
+      CITRIXADC: ami-0d9491d2d555c45a8
+    cn-northwest-1:
+      CITRIXADC: ami-03f29167b9413158e
+    eu-central-1:
+      CITRIXADC: ami-05d81856537a0cfc2
+    eu-north-1:
+      CITRIXADC: ami-01672d9e4fd60f85d
+    eu-west-1:
+      CITRIXADC: ami-023da45cff4446484
+    eu-west-2:
+      CITRIXADC: ami-037b51b95111f4231
+    eu-west-3:
+      CITRIXADC: ami-0bd4c025bd6afab4a
+    sa-east-1:
+      CITRIXADC: ami-0c66fc6fff94c64b9
+    us-east-1:
+      CITRIXADC: ami-0bb96d1f8f79db909
+    us-east-2:
+      CITRIXADC: ami-0e8e26c508fa94732
+    us-gov-east-1:
+      CITRIXADC: ami-21f11d50
+    us-gov-west-1:
+      CITRIXADC: ami-00d2e361
+    us-west-1:
+      CITRIXADC: ami-0707f52c208d83427
+    us-west-2:
+      CITRIXADC: ami-0503d15aed657c87d
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Network Configuration
+        Parameters:
+          - VPCID
+          - RestrictedWebAppCIDR
+          - RestrictedSSHCIDR
+          - ManagementPrivateSubnetID
+          - ClientPublicSubnetID
+          - ServerPrivateSubnetID
+          - VPCTenancy
+      - Label:
+          default: Citrix ADC Configuration
+        Parameters:
+          - CitrixADCInstanceType
+          - KeyPairName
+          - PublishCloudwatchMetrics
+      - Label:
+          default: Optional Configuration
+        Parameters:
+          - CitrixADCImageID
+          - ManagementENIEIP
+          - ManagementPrivateIP
+          - ClientPrivateIP
+          - ServerPrivateIP
+    ParameterLabels:
+      CitrixADCImageID:
+        default: Citrix ADC AMI ID
+      CitrixADCInstanceType:
+        default: Citrix ADC instance type
+      ClientPrivateIP:
+        default: Client Private IP (VIP)
+      ClientPublicSubnetID:
+        default: Subnet ID associated with Citrix ADC Client interface
+      KeyPairName:
+        default: Keypair to associate to ADCs
+      ManagementENIEIP:
+        default: Should PublicIP(EIP) be assigned to management interfaces?
+      ManagementPrivateIP:
+        default: Management Private IP (NSIP)
+      ManagementPrivateSubnetID:
+        default: Subnet ID associated with Citrix ADC Management interface
+      PublishCloudwatchMetrics:
+        default: Publish custom metrics to CloudWatch?
+      RestrictedSSHCIDR:
+        default: Address range to access Management interfaces
+      RestrictedWebAppCIDR:
+        default: Address range to access apps behind the ADCs
+      ServerPrivateIP:
+        default: Server Private IP (SNIP)
+      ServerPrivateSubnetID:
+        default: Subnet ID associated with Citrix ADC Client interface
+      VPCID:
+        default: VPC ID to deploy the resources
+      VPCTenancy:
+        default: ''
+Outputs:
+  CitrixADCIAMRole:
+    Description: Citrix ADC IAM Role
+    Export:
+      Name: !Sub '${AWS::StackName}-CitrixADCIAMRole'
+    Value: !GetAtt 'CitrixADCIAMRole.Arn'
+  CitrixADCInstanceID:
+    Description: Citrix ADC Instance ID
+    Export:
+      Name: !Sub '${AWS::StackName}-CitrixADCInstanceID'
+    Value: !Ref 'CitrixADCInstance'
+  CitrixADCInstanceProfile:
+    Description: Citrix ADC IAM Instance Profile
+    Export:
+      Name: !Sub '${AWS::StackName}-CitrixADCInstanceProfile'
+    Value: !GetAtt 'CitrixADCInstanceProfile.Arn'
+  ClientPrivateIP:
+    Description: ADC Client Private IP (VIP)
+    Export:
+      Name: !Sub '${AWS::StackName}-ClientPrivateIP'
+    Value: !GetAtt 'ClientENI.PrimaryPrivateIpAddress'
+  ClientSG:
+    Description: ''
+    Export:
+      Name: !Sub '${AWS::StackName}-ClientSG'
+    Value: !Ref 'ClientSG'
+  ManagementEIP:
+    Condition: AssignEIP2ManagementENI
+    Description: ''
+    Export:
+      Name: !Sub '${AWS::StackName}-ManagementEIP'
+    Value: !Ref 'ManagementEIP'
+  ManagementPrivateIP:
+    Description: ADC Management Private IP (NSIP)
+    Export:
+      Name: !Sub '${AWS::StackName}-ManagementPrivateIP'
+    Value: !GetAtt 'ManagementENI.PrimaryPrivateIpAddress'
+  ManagementSG:
+    Description: ''
+    Export:
+      Name: !Sub '${AWS::StackName}-ManagementSG'
+    Value: !Ref 'ManagementSG'
+  ServerPrivateIP:
+    Description: ADC Server Private IP (SNIP)
+    Export:
+      Name: !Sub '${AWS::StackName}-ServerPrivateIP'
+    Value: !GetAtt 'ServerENI.PrimaryPrivateIpAddress'
+Parameters:
+  CitrixADCImageID:
+    Default: ''
+    Description: ''
+    Type: String
+  CitrixADCInstanceType:
+    AllowedValues:
+      - t2.medium
+      - t2.large
+      - t2.xlarge
+      - t2.2xlarge
+      - m3.large
+      - m3.xlarge
+      - m3.2xlarge
+      - m4.large
+      - m4.xlarge
+      - m4.2xlarge
+      - m4.4xlarge
+      - m4.10xlarge
+      - m4.16xlarge
+      - m5.large
+      - m5.xlarge
+      - m5.2xlarge
+      - m5.4xlarge
+      - m5.8xlarge
+      - m5.12xlarge
+      - m5.16xlarge
+      - m5.24xlarge
+      - c4.large
+      - c4.xlarge
+      - c4.2xlarge
+      - c4.4xlarge
+      - c4.8xlarge
+      - c5.large
+      - c5.xlarge
+      - c5.2xlarge
+      - c5.4xlarge
+      - c5.9xlarge
+      - c5.12xlarge
+      - c5.18xlarge
+      - c5.24xlarge
+      - c5n.large
+      - c5n.xlarge
+      - c5n.2xlarge
+      - c5n.4xlarge
+      - c5n.9xlarge
+      - c5n.18xlarge
+    Default: m4.xlarge
+    Description: ''
+    Type: String
+  ClientPrivateIP:
+    AllowedPattern: ()|(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
+    ConstraintDescription: Must be a valid IP of the form x.x.x.x
+    Default: ''
+    Description: If not specified, the private ip will be auto assigned
+    Type: String
+  ClientPublicSubnetID:
+    Description: ''
+    Type: AWS::EC2::Subnet::Id
+  KeyPairName:
+    Description: ''
+    Type: AWS::EC2::KeyPair::KeyName
+  ManagementENIEIP:
+    AllowedValues:
+      - 'No'
+      - 'Yes'
+    Default: 'No'
+    Description: ''
+    Type: String
+  ManagementPrivateIP:
+    AllowedPattern: ()|(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
+    ConstraintDescription: Must be a valid IP of the form x.x.x.x
+    Default: ''
+    Description: If not specified, the private ip will be auto assigned
+    Type: String
+  ManagementPrivateSubnetID:
+    Description: ''
+    Type: AWS::EC2::Subnet::Id
+  PublishCloudwatchMetrics:
+    AllowedValues:
+      - 'No'
+      - 'Yes'
+    Default: 'Yes'
+    Description: ''
+    Type: String
+  RestrictedSSHCIDR:
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x
+    Description: Must be a valid IP CIDR range of the form x.x.x.x/x
+    Type: String
+  RestrictedWebAppCIDR:
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x
+    Description: Must be a valid IP CIDR range of the form x.x.x.x/x
+    Type: String
+  ServerPrivateIP:
+    AllowedPattern: ()|(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
+    ConstraintDescription: Must be a valid IP of the form x.x.x.x
+    Default: ''
+    Description: If not specified, the private ip will be auto assigned
+    Type: String
+  ServerPrivateSubnetID:
+    Description: ''
+    Type: AWS::EC2::Subnet::Id
+  VPCID:
+    Description: ''
+    Type: AWS::EC2::VPC::Id
+  VPCTenancy:
+    AllowedValues:
+      - default
+      - dedicated
+    Default: default
+    Description: ''
+    Type: String
+Resources:
+  AssociateManagementEIP2ENI:
+    Condition: AssignEIP2ManagementENI
+    Properties:
+      AllocationId: !GetAtt 'ManagementEIP.AllocationId'
+      NetworkInterfaceId: !Ref 'ManagementENI'
+      PrivateIpAddress: !GetAtt 'ManagementENI.PrimaryPrivateIpAddress'
+    Type: AWS::EC2::EIPAssociation
+  CitrixADCIAMRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com.cn
+        Version: '2012-10-17'
+      Description: Citrix ADC IAM Role
+      Path: /
+      Policies:
+        - PolicyDocument:
+            Statement:
+              - Action:
+                  - ec2:DescribeInstances
+                  - ec2:DescribeNetworkInterfaces
+                  - ec2:DetachNetworkInterface
+                  - ec2:AttachNetworkInterface
+                  - ec2:StartInstances
+                  - ec2:StopInstances
+                  - ec2:RebootInstances
+                  - ec2:DescribeAddresses
+                  - ec2:AssociateAddress
+                  - ec2:DisassociateAddress
+                  - autoscaling:*
+                  - sns:CreateTopic
+                  - sns:DeleteTopic
+                  - sns:ListTopics
+                  - sns:Subscribe
+                  - sqs:CreateQueue
+                  - sqs:ListQueues
+                  - sqs:DeleteMessage
+                  - sqs:GetQueueAttributes
+                  - sqs:SetQueueAttributes
+                  - iam:SimulatePrincipalPolicy
+                  - iam:GetRole
+                  - ec2:UnassignPrivateIpAddresses
+                  - ec2:AssignPrivateIpAddresses
+                Effect: Allow
+                Resource: '*'
+            Version: '2012-10-17'
+          PolicyName: Citrixnode
+    Type: AWS::IAM::Role
+  CitrixADCInstance:
+    Properties:
+      IamInstanceProfile: !Ref 'CitrixADCInstanceProfile'
+      ImageId: !If
+        - UseCitrixADCImageID
+        - !Ref 'CitrixADCImageID'
+        - !FindInMap
+          - AWSAMIRegionMap
+          - !Ref 'AWS::Region'
+          - CITRIXADC
+      InstanceType: !Ref 'CitrixADCInstanceType'
+      KeyName: !Ref 'KeyPairName'
+      NetworkInterfaces:
+        - DeviceIndex: '0'
+          NetworkInterfaceId: !Ref 'ManagementENI'
+        - DeviceIndex: '1'
+          NetworkInterfaceId: !Ref 'ClientENI'
+        - DeviceIndex: '2'
+          NetworkInterfaceId: !Ref 'ServerENI'
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-CitrixADCInstance'
+      Tenancy: !Ref 'VPCTenancy'
+      UserData: !Base64
+        Fn::Sub: PublishCloudwatchMetrics=${PublishCloudwatchMetrics}
+    Type: AWS::EC2::Instance
+  CitrixADCInstanceProfile:
+    Properties:
+      Path: /
+      Roles:
+        - !Ref 'CitrixADCIAMRole'
+    Type: AWS::IAM::InstanceProfile
+  ClientENI:
+    Properties:
+      Description: ADC Client Private IP (VIP)
+      GroupSet:
+        - !Ref 'ClientSG'
+      PrivateIpAddress: !If
+        - UseClientPrivateIP
+        - !Ref 'ClientPrivateIP'
+        - !Ref 'AWS::NoValue'
+      SecondaryPrivateIpAddressCount: 0
+      SubnetId: !Ref 'ClientPublicSubnetID'
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-ClientENI'
+    Type: AWS::EC2::NetworkInterface
+  ClientSG:
+    Properties:
+      GroupDescription: ClientSG
+      GroupName: !Sub '${AWS::StackName}-ClientSG'
+      SecurityGroupIngress:
+        - CidrIp: !Ref 'RestrictedWebAppCIDR'
+          Description: HTTP Allow All
+          FromPort: 80
+          IpProtocol: tcp
+          ToPort: 80
+        - CidrIp: !Ref 'RestrictedWebAppCIDR'
+          Description: HTTPS Allow All
+          FromPort: 443
+          IpProtocol: tcp
+          ToPort: 443
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-ClientSG'
+      VpcId: !Ref 'VPCID'
+    Type: AWS::EC2::SecurityGroup
+  ManagementEIP:
+    Condition: AssignEIP2ManagementENI
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-ManagementEIP'
+    Type: AWS::EC2::EIP
+  ManagementENI:
+    Properties:
+      Description: ADC Management Private IP (NSIP)
+      GroupSet:
+        - !Ref 'ManagementSG'
+      PrivateIpAddress: !If
+        - UseManagementPrivateIP
+        - !Ref 'ManagementPrivateIP'
+        - !Ref 'AWS::NoValue'
+      SecondaryPrivateIpAddressCount: 0
+      SubnetId: !Ref 'ManagementPrivateSubnetID'
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-ManagementENI'
+    Type: AWS::EC2::NetworkInterface
+  ManagementInboundRule:
+    Properties:
+      FromPort: 0
+      GroupId: !GetAtt 'ManagementSG.GroupId'
+      IpProtocol: tcp
+      SourceSecurityGroupId: !GetAtt 'ManagementSG.GroupId'
+      ToPort: 65535
+    Type: AWS::EC2::SecurityGroupIngress
+  ManagementSG:
+    Properties:
+      GroupDescription: ManagementSG
+      GroupName: !Sub '${AWS::StackName}-ManagementSG'
+      SecurityGroupIngress:
+        - CidrIp: !Ref 'RestrictedSSHCIDR'
+          Description: SSH Allow All
+          FromPort: 22
+          IpProtocol: tcp
+          ToPort: 22
+        - CidrIp: !Ref 'RestrictedWebAppCIDR'
+          Description: HTTP Allow All
+          FromPort: 80
+          IpProtocol: tcp
+          ToPort: 80
+        - CidrIp: !Ref 'RestrictedWebAppCIDR'
+          Description: HTTPS Allow All
+          FromPort: 443
+          IpProtocol: tcp
+          ToPort: 443
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-ManagementSG'
+      VpcId: !Ref 'VPCID'
+    Type: AWS::EC2::SecurityGroup
+  ServerENI:
+    Properties:
+      Description: ADC Server Private IP (SNIP)
+      GroupSet: []
+      PrivateIpAddress: !If
+        - UseServerPrivateIP
+        - !Ref 'ServerPrivateIP'
+        - !Ref 'AWS::NoValue'
+      SecondaryPrivateIpAddressCount: 0
+      SubnetId: !Ref 'ServerPrivateSubnetID'
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-ServerENI'
+    Type: AWS::EC2::NetworkInterface
+
