@@ -1,0 +1,430 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Conditions:
+  AssignClientEIP: !Equals
+    - !Ref 'ClientENIEIP'
+    - 'Yes'
+  AssignEIP2ManagementENI: !Equals
+    - !Ref 'ManagementENIEIP'
+    - 'Yes'
+  UseLatestAMI: !Equals
+    - !Ref 'CitrixADCImageID'
+    - ''
+  UsePooledLicense: !Equals
+    - !Ref 'PooledLicense'
+    - 'Yes'
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Network Configuration
+        Parameters:
+          - VPCID
+          - RestrictedWebAppCIDR
+          - RestrictedSSHCIDR
+          - ManagementPrivateSubnetID
+          - ClientPublicSubnetID
+          - ServerPrivateSubnetID
+          - VPCTenancy
+      - Label:
+          default: Citrix ADC Configuration
+        Parameters:
+          - ADCProductName
+          - ADCProductVersion
+          - CitrixADCInstanceType
+          - KeyPairName
+          - PublishCloudwatchMetrics
+      - Label:
+          default: Optional Configuration
+        Parameters:
+          - CitrixADCImageID
+          - ManagementENIEIP
+          - ClientENIEIP
+      - Label:
+          default: License Server Configuration (Optional)
+        Parameters:
+          - PooledLicense
+          - ADMIP
+          - LicensingMode
+          - Bandwidth
+          - PooledEdition
+          - Platform
+          - VCPUEdition
+    ParameterLabels:
+      ADCProductName:
+        default: Citrix ADC Product Name
+      ADCProductVersion:
+        default: Citrix ADC Product Version
+      ADMIP:
+        default: Reachable ADM or ADM Agent IP
+      Bandwidth:
+        default: Pooled-Licensing Bandwidth in Mbps (Select this if the above LicensingMode
+          is `Pooled-Licensing`)
+      CitrixADCImageID:
+        default: Citrix ADC AMI ID
+      CitrixADCInstanceType:
+        default: Citrix ADC instance type
+      ClientENIEIP:
+        default: Should PublicIP(EIP) be assigned to client interface?
+      ClientPublicSubnetID:
+        default: Subnet ID associated with ADC Client interface
+      KeyPairName:
+        default: Keypair to associate to ADCs
+      LicensingMode:
+        default: Licensing Mode
+      ManagementENIEIP:
+        default: Should PublicIP(EIP) be assigned to management interfaces?
+      ManagementPrivateSubnetID:
+        default: Subnet ID associated with Management interface
+      Platform:
+        default: CICO-Licensing Appliance Platform Type (Select this if the above
+          LicensingMode is `CICO-Licensing`)
+      PooledEdition:
+        default: Pooled-Licensing License Edition (Select this if the above LicensingMode
+          is `Pooled-Licensing`)
+      PooledLicense:
+        default: Do you want to allocate license from ADM?
+      PublishCloudwatchMetrics:
+        default: Publish custom metrics to CloudWatch?
+      RestrictedSSHCIDR:
+        default: Address range to access Management interfaces
+      RestrictedWebAppCIDR:
+        default: Address range to access apps behind the ADCs
+      ServerPrivateSubnetID:
+        default: Subnet ID associated with ADC Server interface
+      VCPUEdition:
+        default: CPU-Licensing Edition (Select this if the above LicensingMode is
+          `CPU-Licensing`)
+      VPCID:
+        default: VPC ID to deploy the resources
+      VPCTenancy:
+        default: ''
+Outputs:
+  ClientSecurityGroupID:
+    Description: Security Group associated with Client Interfaces
+    Export:
+      Name: !Sub '${AWS::StackName}-ClientSecurityGroupID'
+    Value: !GetAtt 'SecurityGroupStack.Outputs.ClientSG'
+  ClientVIPIP:
+    Condition: AssignClientEIP
+    Description: Client VIP Public IP
+    Export:
+      Name: !Sub '${AWS::StackName}-ClientVIPIP'
+    Value: !GetAtt 'CitrixADCHASameAZStack.Outputs.ClientEIP'
+  ManagementSecurityGroupID:
+    Description: Security Group associated with Management Interfaces
+    Export:
+      Name: !Sub '${AWS::StackName}-ManagementSecurityGroupID'
+    Value: !GetAtt 'SecurityGroupStack.Outputs.ManagementSG'
+  PrimaryCitrixADCIP:
+    Condition: AssignEIP2ManagementENI
+    Description: Primary Citrix ADC Public Management IP
+    Export:
+      Name: !Sub '${AWS::StackName}-PrimaryCitrixADCIP'
+    Value: !GetAtt 'CitrixADCHASameAZStack.Outputs.PrimaryManagementEIP'
+  PrimaryCitrixADCInstanceID:
+    Description: Primary Citrix ADC Instance ID
+    Export:
+      Name: !Sub '${AWS::StackName}-PrimaryCitrixADCInstanceID'
+    Value: !GetAtt 'CitrixADCHASameAZStack.Outputs.PrimaryADCInstanceID'
+  SecondaryCitrixADCIP:
+    Condition: AssignEIP2ManagementENI
+    Description: Secondary Citrix ADC Public Management IP
+    Export:
+      Name: !Sub '${AWS::StackName}-SecondaryCitrixADCIP'
+    Value: !GetAtt 'CitrixADCHASameAZStack.Outputs.SecondaryManagementEIP'
+  SecondaryCitrixADCInstanceID:
+    Description: Secondary Citrix ADC Instance ID
+    Export:
+      Name: !Sub '${AWS::StackName}-SecondaryCitrixADCInstanceID'
+    Value: !GetAtt 'CitrixADCHASameAZStack.Outputs.SecondaryADCInstanceID'
+  ServerSecurityGroupID:
+    Description: Security Group associated with Server Interfaces
+    Export:
+      Name: !Sub '${AWS::StackName}-ServerSecurityGroupID'
+    Value: !GetAtt 'SecurityGroupStack.Outputs.ServerSG'
+Parameters:
+  ADCProductName:
+    AllowedValues:
+      - Citrix ADC VPX - Customer Licensed
+      - Citrix ADC VPX Express - 20 Mbps
+      - Citrix ADC VPX Standard Edition - 10 Mbps
+      - Citrix ADC VPX Standard Edition - 200 Mbps
+      - Citrix ADC VPX Standard Edition - 1000 Mbps
+      - Citrix ADC VPX Standard Edition - 3Gbps
+      - Citrix ADC VPX Standard Edition - 5Gbps
+      - Citrix ADC VPX Premium Edition - 10 Mbps
+      - Citrix ADC VPX Premium Edition - 200 Mbps
+      - Citrix ADC VPX Premium Edition - 1000 Mbps
+      - Citrix ADC VPX Premium Edition - 3Gbps
+      - Citrix ADC VPX Premium Edition - 5Gbps
+      - Citrix ADC VPX Advanced Edition - 10 Mbps
+      - Citrix ADC VPX Advanced Edition - 200 Mbps
+      - Citrix ADC VPX Advanced Edition - 1000 Mbps
+      - Citrix ADC VPX Advanced Edition - 3Gbps
+      - Citrix ADC VPX Advanced Edition - 5Gbps
+    Default: Citrix ADC VPX - Customer Licensed
+    Description: ''
+    Type: String
+  ADCProductVersion:
+    AllowedValues:
+      - '13.0'
+      - '12.1'
+      - '12.0'
+    Default: '13.0'
+    Description: ''
+    Type: String
+  ADMIP:
+    AllowedPattern: ()|(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
+    ConstraintDescription: Must be a valid IP of the form x.x.x.x
+    Default: ''
+    Description: ''
+    Type: String
+  Bandwidth:
+    Description: 'Should be multile of 10 Mbps. Initial bandwidth of the license in
+      Mbps to be allocated after BYOL ADC is created. '
+    Type: Number
+  CitrixADCImageID:
+    Description: If left empty, `Citrix ADC VPC - Customer Licensed` (https://aws.amazon.com/marketplace/pp/B00AA01BOE)
+      is provisioned by default.
+    Type: String
+  CitrixADCInstanceType:
+    AllowedValues:
+      - t2.medium
+      - t2.large
+      - t2.xlarge
+      - t2.2xlarge
+      - m3.large
+      - m3.xlarge
+      - m3.2xlarge
+      - m4.large
+      - m4.xlarge
+      - m4.2xlarge
+      - m4.4xlarge
+      - m4.10xlarge
+      - m4.16xlarge
+      - m5.large
+      - m5.xlarge
+      - m5.2xlarge
+      - m5.4xlarge
+      - m5.8xlarge
+      - m5.12xlarge
+      - m5.16xlarge
+      - m5.24xlarge
+      - c4.large
+      - c4.xlarge
+      - c4.2xlarge
+      - c4.4xlarge
+      - c4.8xlarge
+      - c5.large
+      - c5.xlarge
+      - c5.2xlarge
+      - c5.4xlarge
+      - c5.9xlarge
+      - c5.12xlarge
+      - c5.18xlarge
+      - c5.24xlarge
+      - c5n.large
+      - c5n.xlarge
+      - c5n.2xlarge
+      - c5n.4xlarge
+      - c5n.9xlarge
+      - c5n.18xlarge
+    Default: m4.xlarge
+    Description: ''
+    Type: String
+  ClientENIEIP:
+    AllowedValues:
+      - 'No'
+      - 'Yes'
+    Default: 'Yes'
+    Description: ''
+    Type: String
+  ClientPublicSubnetID:
+    Description: ''
+    Type: AWS::EC2::Subnet::Id
+  KeyPairName:
+    Description: ''
+    Type: AWS::EC2::KeyPair::KeyName
+  LicensingMode:
+    AllowedValues:
+      - ''
+      - Pooled-Licensing
+      - CICO-Licensing
+      - CPU-Licensing
+    Default: ''
+    Description: ''
+    Type: String
+  ManagementENIEIP:
+    AllowedValues:
+      - 'No'
+      - 'Yes'
+    Default: 'No'
+    Description: ''
+    Type: String
+  ManagementPrivateSubnetID:
+    Description: ''
+    Type: AWS::EC2::Subnet::Id
+  Platform:
+    AllowedValues:
+      - ''
+      - VPX-10
+      - VPX-25
+      - VPX-200
+      - VPX-1000
+      - VPX-3000
+      - VPX-5000
+      - VPX-8000
+      - VPX-10G
+      - VPX-15G
+      - VPX-25G
+      - VPX-40G
+      - VPX-100G
+    Default: ''
+    Description: ''
+    Type: String
+  PooledEdition:
+    AllowedValues:
+      - ''
+      - Standard
+      - Advanced
+      - Premium
+    Default: ''
+    Description: ''
+    Type: String
+  PooledLicense:
+    AllowedValues:
+      - 'No'
+      - 'Yes'
+    Default: 'No'
+    Description: ''
+    Type: String
+  PublishCloudwatchMetrics:
+    AllowedValues:
+      - 'No'
+      - 'Yes'
+    Default: 'Yes'
+    Description: ''
+    Type: String
+  RestrictedSSHCIDR:
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x
+    Description: Must be a valid IP CIDR range of the form x.x.x.x/x
+    Type: String
+  RestrictedWebAppCIDR:
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x
+    Description: Must be a valid IP CIDR range of the form x.x.x.x/x
+    Type: String
+  ServerPrivateSubnetID:
+    Description: ''
+    Type: AWS::EC2::Subnet::Id
+  VCPUEdition:
+    AllowedValues:
+      - ''
+      - Standard
+      - Advanced
+      - Premium
+    Default: ''
+    Description: ''
+    Type: String
+  VPCID:
+    Description: ''
+    Type: AWS::EC2::VPC::Id
+  VPCTenancy:
+    AllowedValues:
+      - default
+      - dedicated
+    Default: default
+    Description: ''
+    Type: String
+Resources:
+  CitrixADCHASameAZStack:
+    Properties:
+      Parameters:
+        CitrixADCImageID: !If
+          - UseLatestAMI
+          - !GetAtt 'LatestAMIStack.Outputs.LatestAMI'
+          - !Ref 'CitrixADCImageID'
+        CitrixADCInstanceProfile: !GetAtt 'IAMRoleStack.Outputs.CitrixADCInstanceProfile'
+        CitrixADCInstanceType: !Ref 'CitrixADCInstanceType'
+        ClientENIEIP: !Ref 'ClientENIEIP'
+        ClientPublicSubnetID: !Ref 'ClientPublicSubnetID'
+        ClientSecurityGroupID: !GetAtt 'SecurityGroupStack.Outputs.ClientSG'
+        KeyPairName: !Ref 'KeyPairName'
+        ManagementENIEIP: !Ref 'ManagementENIEIP'
+        ManagementPrivateSubnetID: !Ref 'ManagementPrivateSubnetID'
+        ManagementSecurityGroupID: !GetAtt 'SecurityGroupStack.Outputs.ManagementSG'
+        PublishCloudwatchMetrics: !Ref 'PublishCloudwatchMetrics'
+        ServerPrivateSubnetID: !Ref 'ServerPrivateSubnetID'
+        ServerSecurityGroupID: !GetAtt 'SecurityGroupStack.Outputs.ServerSG'
+        VPCTenancy: !Ref 'VPCTenancy'
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-CitrixADCHASameAZStack'
+      TemplateURL: https://sumanth-citrix-mumbai.s3.amazonaws.com/templates/nested-stacks/cft-stack-ha-3nic-same-az.yaml
+    Type: AWS::CloudFormation::Stack
+  IAMRoleStack:
+    Properties:
+      Parameters: {}
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-IAMRoleStack'
+      TemplateURL: https://sumanth-citrix-mumbai.s3.amazonaws.com/templates/nested-stacks/cft-stack-citrixadc-iam-role.yaml
+    Type: AWS::CloudFormation::Stack
+  LambdaCopierStack:
+    Properties:
+      Parameters:
+        S3BucketName: sumanth-citrix-mumbai
+        S3Key: lambda-citrixadc-awscft.zip
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-LambdaCopierStack'
+      TemplateURL: https://sumanth-citrix-mumbai.s3.amazonaws.com/templates/nested-stacks/cft-stack-lambda-copier.yaml
+    Type: AWS::CloudFormation::Stack
+  LatestAMIStack:
+    Condition: UseLatestAMI
+    Properties:
+      Parameters:
+        ADCProductName: !Ref 'ADCProductName'
+        ADCProductVersion: !Ref 'ADCProductVersion'
+        S3BucketName: !GetAtt 'LambdaCopierStack.Outputs.LambdaZipsBucket'
+        S3Key: lambda-citrixadc-awscft.zip
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-LatestAMIStack'
+      TemplateURL: https://sumanth-citrix-mumbai.s3.amazonaws.com/templates/nested-stacks/cft-stack-find-latest-ami.yaml
+    Type: AWS::CloudFormation::Stack
+  PooledLicenseStack:
+    Condition: UsePooledLicense
+    Properties:
+      Parameters:
+        ADCInstanceID: !GetAtt 'CitrixADCHASameAZStack.Outputs.PrimaryADCInstanceID'
+        ADMIP: !Ref 'ADMIP'
+        Bandwidth: !Ref 'Bandwidth'
+        DeployMode: HA
+        LicensingMode: !Ref 'LicensingMode'
+        ManagementPrivateIP: !GetAtt 'CitrixADCHASameAZStack.Outputs.PrimaryManagementPrivateIP'
+        ManagementPrivateSubnetID: !Ref 'ManagementPrivateSubnetID'
+        ManagementSecurityGroupID: !GetAtt 'SecurityGroupStack.Outputs.ManagementSG'
+        Platform: !Ref 'Platform'
+        PooledEdition: !Ref 'PooledEdition'
+        S3BucketName: !GetAtt 'LambdaCopierStack.Outputs.LambdaZipsBucket'
+        S3Key: lambda-citrixadc-awscft.zip
+        VCPUEdition: !Ref 'VCPUEdition'
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-PooledLicenseStack'
+      TemplateURL: https://sumanth-citrix-mumbai.s3.amazonaws.com/templates/nested-stacks/cft-stack-pooled-license.yaml
+    Type: AWS::CloudFormation::Stack
+  SecurityGroupStack:
+    Properties:
+      Parameters:
+        RestrictedSSHCIDR: !Ref 'RestrictedSSHCIDR'
+        RestrictedWebAppCIDR: !Ref 'RestrictedWebAppCIDR'
+        VPCID: !Ref 'VPCID'
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-SecurityGroupStack'
+      TemplateURL: https://sumanth-citrix-mumbai.s3.amazonaws.com/templates/nested-stacks/cft-stack-securitygroup.yaml
+    Type: AWS::CloudFormation::Stack
+
