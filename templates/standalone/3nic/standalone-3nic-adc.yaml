@@ -381,7 +381,7 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub '${AWS::StackName}-CitrixADCStack'
-      TemplateURL: https://sumanth-citrix-mumbai.s3.amazonaws.com/templates/nested-stacks/cft-stack-standalone-adc.yaml
+      TemplateURL: https://citrixadc-automation.s3.amazonaws.com/templates/nested-stacks/cft-stack-standalone-adc.yaml
     Type: AWS::CloudFormation::Stack
   IAMRoleStack:
     Properties:
@@ -389,17 +389,17 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub '${AWS::StackName}-IAMRoleStack'
-      TemplateURL: https://sumanth-citrix-mumbai.s3.amazonaws.com/templates/nested-stacks/cft-stack-citrixadc-iam-role.yaml
+      TemplateURL: https://citrixadc-automation.s3.amazonaws.com/templates/nested-stacks/cft-stack-citrixadc-iam-role.yaml
     Type: AWS::CloudFormation::Stack
   LambdaCopierStack:
     Properties:
       Parameters:
-        S3BucketName: sumanth-citrix-mumbai
+        S3BucketName: citrixadc-automation
         S3Key: lambda-citrixadc-awscft.zip
       Tags:
         - Key: Name
           Value: !Sub '${AWS::StackName}-LambdaCopierStack'
-      TemplateURL: https://sumanth-citrix-mumbai.s3.amazonaws.com/templates/nested-stacks/cft-stack-lambda-copier.yaml
+      TemplateURL: https://citrixadc-automation.s3.amazonaws.com/templates/nested-stacks/cft-stack-lambda-copier.yaml
     Type: AWS::CloudFormation::Stack
   LatestAMIStack:
     Condition: UseLatestAMI
@@ -412,7 +412,7 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub '${AWS::StackName}-LatestAMIStack'
-      TemplateURL: https://sumanth-citrix-mumbai.s3.amazonaws.com/templates/nested-stacks/cft-stack-find-latest-ami.yaml
+      TemplateURL: https://citrixadc-automation.s3.amazonaws.com/templates/nested-stacks/cft-stack-find-latest-ami.yaml
     Type: AWS::CloudFormation::Stack
   PooledLicenseStack:
     Condition: UsePooledLicense
@@ -434,7 +434,7 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub '${AWS::StackName}-PooledLicenseStack'
-      TemplateURL: https://sumanth-citrix-mumbai.s3.amazonaws.com/templates/nested-stacks/cft-stack-pooled-license.yaml
+      TemplateURL: https://citrixadc-automation.s3.amazonaws.com/templates/nested-stacks/cft-stack-pooled-license.yaml
     Type: AWS::CloudFormation::Stack
   SecurityGroupStack:
     Properties:
@@ -445,6 +445,6 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub '${AWS::StackName}-SecurityGroupStack'
-      TemplateURL: https://sumanth-citrix-mumbai.s3.amazonaws.com/templates/nested-stacks/cft-stack-securitygroup.yaml
+      TemplateURL: https://citrixadc-automation.s3.amazonaws.com/templates/nested-stacks/cft-stack-securitygroup.yaml
     Type: AWS::CloudFormation::Stack
 
