@@ -421,7 +421,6 @@ Resources:
         ADCInstanceID: !GetAtt 'CitrixADCStack.Outputs.CitrixADCInstanceID'
         ADMIP: !Ref 'ADMIP'
         Bandwidth: !Ref 'Bandwidth'
-        DeployMode: STANDALONE
         LicensingMode: !Ref 'LicensingMode'
         ManagementPrivateIP: !GetAtt 'CitrixADCStack.Outputs.ManagementPrivateIP'
         ManagementPrivateSubnetID: !Ref 'ManagementPrivateSubnetID'

@@ -1,69 +1,23 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Outputs:
-  PooledLicenseRole:
+  LambdaConfigureHASameAZRole:
     Description: ''
     Export:
-      Name: !Sub '${AWS::StackName}-PooledLicenseRole'
-    Value: !Sub 'https://console.aws.amazon.com/iam/home#/roles/${PooledLicenseRole}'
+      Name: !Sub '${AWS::StackName}-LambdaConfigureHASameAZRole'
+    Value: !Sub 'https://console.aws.amazon.com/iam/home#/roles/${LambdaConfigureHASameAZRole}'
 Parameters:
-  ADCInstanceID:
-    Description: ''
-    Type: String
-  ADMIP:
-    AllowedPattern: ()|(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
-    ConstraintDescription: Must be a valid IP of the form x.x.x.x
-    Default: ''
-    Description: ''
-    Type: String
-  Bandwidth:
-    Description: 'Should be multile of 10 Mbps. Initial bandwidth of the license in
-      Mbps to be allocated after BYOL ADC is created. '
-    Type: Number
-  LicensingMode:
-    AllowedValues:
-      - ''
-      - Pooled-Licensing
-      - CICO-Licensing
-      - CPU-Licensing
-    Default: ''
-    Description: ''
-    Type: String
-  ManagementPrivateIP:
-    AllowedPattern: ()|(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
-    ConstraintDescription: Must be a valid IP of the form x.x.x.x
-    Default: ''
-    Description: ''
-    Type: String
   ManagementPrivateSubnetID:
     Description: ''
     Type: AWS::EC2::Subnet::Id
   ManagementSecurityGroupID:
     Description: ''
     Type: AWS::EC2::SecurityGroup::Id
-  Platform:
-    AllowedValues:
-      - ''
-      - VPX-10
-      - VPX-25
-      - VPX-200
-      - VPX-1000
-      - VPX-3000
-      - VPX-5000
-      - VPX-8000
-      - VPX-10G
-      - VPX-15G
-      - VPX-25G
-      - VPX-40G
-      - VPX-100G
-    Default: ''
+  PrimaryInstanceID:
     Description: ''
     Type: String
-  PooledEdition:
-    AllowedValues:
-      - ''
-      - Standard
-      - Advanced
-      - Premium
+  PrimaryManagementPrivateIP:
+    AllowedPattern: ()|(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
+    ConstraintDescription: Must be a valid IP of the form x.x.x.x
     Default: ''
     Description: ''
     Type: String
@@ -74,40 +28,28 @@ Parameters:
   S3Key:
     Description: ''
     Type: String
-  VCPUEdition:
-    AllowedValues:
-      - ''
-      - Standard
-      - Advanced
-      - Premium
+  SecondaryInstanceID:
+    Description: ''
+    Type: String
+  SecondaryManagementPrivateIP:
+    AllowedPattern: ()|(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
+    ConstraintDescription: Must be a valid IP of the form x.x.x.x
     Default: ''
     Description: ''
     Type: String
 Resources:
-  AllocatePooledLicense:
-    Properties:
-      ADCInstanceID: !Ref 'ADCInstanceID'
-      ADCPrivateNSIP: !Ref 'ManagementPrivateIP'
-      ADMIP: !Ref 'ADMIP'
-      Bandwidth: !Ref 'Bandwidth'
-      LicensingMode: !Ref 'LicensingMode'
-      Platform: !Ref 'Platform'
-      PooledEdition: !Ref 'PooledEdition'
-      ServiceToken: !GetAtt 'PooledLicenseFunction.Arn'
-      VCPUEdition: !Ref 'VCPUEdition'
-    Type: AWS::CloudFormation::CustomResource
-  PooledLicenseFunction:
+  ConfigureHASameAZFunction:
     Properties:
       Code:
         S3Bucket: !Ref 'S3BucketName'
         S3Key: !Ref 'S3Key'
-      Description: PooledLicenseFunction
-      Handler: lambda_pooled_license.lambda_handler
-      Role: !GetAtt 'PooledLicenseRole.Arn'
+      Description: ConfigureHASameAZFunction
+      Handler: lambda_ha_same_az.lambda_handler
+      Role: !GetAtt 'LambdaConfigureHASameAZRole.Arn'
       Runtime: python3.6
       Tags:
         - Key: Name
-          Value: !Sub '${AWS::StackName}-PooledLicenseFunction'
+          Value: !Sub '${AWS::StackName}-ConfigureHASameAZFunction'
       Timeout: 900
       VpcConfig:
         SecurityGroupIds:
@@ -115,7 +57,15 @@ Resources:
         SubnetIds:
           - !Ref 'ManagementPrivateSubnetID'
     Type: AWS::Lambda::Function
-  PooledLicenseRole:
+  ConfigureLambda:
+    Properties:
+      PrimaryADCInstanceID: !Ref 'PrimaryInstanceID'
+      PrimaryADCPrivateNSIP: !Ref 'PrimaryManagementPrivateIP'
+      SecondaryADCInstanceID: !Ref 'SecondaryInstanceID'
+      SecondaryADCPrivateNSIP: !Ref 'SecondaryManagementPrivateIP'
+      ServiceToken: !GetAtt 'ConfigureHASameAZFunction.Arn'
+    Type: AWS::CloudFormation::CustomResource
+  LambdaConfigureHASameAZRole:
     Properties:
       AssumeRolePolicyDocument:
         Statement:

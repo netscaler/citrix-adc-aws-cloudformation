@@ -52,6 +52,6 @@ The CloudFormation template requires sufficient IAM previliges to create IAM rol
 |**South America (São Paulo)** sa-east-1|[![](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=sa-east-1#/stacks/new?templateURL=https://s3.amazonaws.com/citrixadc-automation/templates/standalone/3nic/standalone-3nic-adc.yaml)|
 
 ## Additional Links:
-- **Citrix ADC on AWS** : https://www.citrix.com/en-in/products/citrix-adc/resources/netscaler-on-aws.html
-- **VPX installation in AWS** : https://docs.citrix.com/en-us/netscaler/12/deploying-vpx/install-vpx-on-aws.html
-- **NetScaler Overview** : https://www.citrix.com/products/netscaler-adc/resources/netscaler-vpx.html
+- **Citrix ADC VPX on AWS**: https://docs.citrix.com/en-us/citrix-adc/13/deploying-vpx/deploy-aws.html
+- **Deploy a Citrix ADC VPX standalone instance on AWS**:https://docs.citrix.com/en-us/citrix-adc/13/deploying-vpx/deploy-aws/launch-vpx-for-aws-ami.html
+- **Citrix ADC Overview** : https://www.citrix.com/en-in/products/citrix-adc/

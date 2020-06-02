@@ -51,6 +51,7 @@ The CloudFormation template requires sufficient IAM previliges to create IAM rol
 
 
 ## Additional Links:
-- **How High Availability on AWS works** : https://docs.citrix.com/en-us/citrix-adc/13/deploying-vpx/deploy-aws/how-aws-ha-works.html
+- **Citrix ADC VPX on AWS**: https://docs.citrix.com/en-us/citrix-adc/13/deploying-vpx/deploy-aws.html
 - **Deploy a high availability pair on AWS** : https://docs.citrix.com/en-us/citrix-adc/13/deploying-vpx/deploy-aws/vpx-aws-ha.html
+- **How High Availability on AWS works** : https://docs.citrix.com/en-us/citrix-adc/13/deploying-vpx/deploy-aws/how-aws-ha-works.html
 - **Citrix ADC Overview** : https://www.citrix.com/en-in/products/citrix-adc/

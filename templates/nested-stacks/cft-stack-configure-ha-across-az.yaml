@@ -118,6 +118,8 @@ Resources:
                   - ec2:DetachNetworkInterface
                   - ec2:ModifyNetworkInterfaceAttribute
                   - ec2:ResetNetworkInterfaceAttribute
+                  - ec2:AssignPrivateIpAddresses
+                  - ec2:UnassignPrivateIpAddresses
                 Effect: Allow
                 Resource: '*'
             Version: '2012-10-17'

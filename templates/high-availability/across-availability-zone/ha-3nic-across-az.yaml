@@ -411,6 +411,12 @@ Parameters:
     Type: String
 Resources:
   ConfigureHAAZStack:
+    Metadata:
+      PseudoDependsOn: !If
+        - UsePooledLicense
+        - - !Ref 'PrimaryPooledLicenseStack'
+          - !Ref 'SecondaryPooledLicenseStack'
+        - ''
     Properties:
       Parameters:
         ManagementSecurityGroupID: !GetAtt 'SecurityGroupStack.Outputs.ManagementSG'
@@ -461,29 +467,6 @@ Resources:
           Value: !Sub '${AWS::StackName}-LatestAMIStack'
       TemplateURL: https://citrixadc-automation.s3.amazonaws.com/templates/nested-stacks/cft-stack-find-latest-ami.yaml
     Type: AWS::CloudFormation::Stack
-  PooledLicenseStack:
-    Condition: UsePooledLicense
-    DependsOn: ConfigureHAAZStack
-    Properties:
-      Parameters:
-        ADCInstanceID: !GetAtt 'PrimaryCitrixADCStack.Outputs.CitrixADCInstanceID'
-        ADMIP: !Ref 'ADMIP'
-        Bandwidth: !Ref 'Bandwidth'
-        DeployMode: HA
-        LicensingMode: !Ref 'LicensingMode'
-        ManagementPrivateIP: !GetAtt 'PrimaryCitrixADCStack.Outputs.ManagementPrivateIP'
-        ManagementPrivateSubnetID: !Ref 'PrimaryManagementPrivateSubnetID'
-        ManagementSecurityGroupID: !GetAtt 'SecurityGroupStack.Outputs.ManagementSG'
-        Platform: !Ref 'Platform'
-        PooledEdition: !Ref 'PooledEdition'
-        S3BucketName: !GetAtt 'LambdaCopierStack.Outputs.LambdaZipsBucket'
-        S3Key: lambda-citrixadc-awscft.zip
-        VCPUEdition: !Ref 'VCPUEdition'
-      Tags:
-        - Key: Name
-          Value: !Sub '${AWS::StackName}-PooledLicenseStack'
-      TemplateURL: https://citrixadc-automation.s3.amazonaws.com/templates/nested-stacks/cft-stack-pooled-license.yaml
-    Type: AWS::CloudFormation::Stack
   PrimaryCitrixADCStack:
     Properties:
       Parameters:
@@ -513,6 +496,27 @@ Resources:
           Value: !Sub '${AWS::StackName}-PrimaryCitrixADCStack'
       TemplateURL: https://citrixadc-automation.s3.amazonaws.com/templates/nested-stacks/cft-stack-standalone-adc.yaml
     Type: AWS::CloudFormation::Stack
+  PrimaryPooledLicenseStack:
+    Condition: UsePooledLicense
+    Properties:
+      Parameters:
+        ADCInstanceID: !GetAtt 'PrimaryCitrixADCStack.Outputs.CitrixADCInstanceID'
+        ADMIP: !Ref 'ADMIP'
+        Bandwidth: !Ref 'Bandwidth'
+        LicensingMode: !Ref 'LicensingMode'
+        ManagementPrivateIP: !GetAtt 'PrimaryCitrixADCStack.Outputs.ManagementPrivateIP'
+        ManagementPrivateSubnetID: !Ref 'PrimaryManagementPrivateSubnetID'
+        ManagementSecurityGroupID: !GetAtt 'SecurityGroupStack.Outputs.ManagementSG'
+        Platform: !Ref 'Platform'
+        PooledEdition: !Ref 'PooledEdition'
+        S3BucketName: !GetAtt 'LambdaCopierStack.Outputs.LambdaZipsBucket'
+        S3Key: lambda-citrixadc-awscft.zip
+        VCPUEdition: !Ref 'VCPUEdition'
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-PrimaryPooledLicenseStack'
+      TemplateURL: https://citrixadc-automation.s3.amazonaws.com/templates/nested-stacks/cft-stack-pooled-license.yaml
+    Type: AWS::CloudFormation::Stack
   SecondaryCitrixADCStack:
     Properties:
       Parameters:
@@ -541,6 +545,27 @@ Resources:
         - Key: Name
           Value: !Sub '${AWS::StackName}-SecondaryCitrixADCStack'
       TemplateURL: https://citrixadc-automation.s3.amazonaws.com/templates/nested-stacks/cft-stack-standalone-adc.yaml
+    Type: AWS::CloudFormation::Stack
+  SecondaryPooledLicenseStack:
+    Condition: UsePooledLicense
+    Properties:
+      Parameters:
+        ADCInstanceID: !GetAtt 'SecondaryCitrixADCStack.Outputs.CitrixADCInstanceID'
+        ADMIP: !Ref 'ADMIP'
+        Bandwidth: !Ref 'Bandwidth'
+        LicensingMode: !Ref 'LicensingMode'
+        ManagementPrivateIP: !GetAtt 'SecondaryCitrixADCStack.Outputs.ManagementPrivateIP'
+        ManagementPrivateSubnetID: !Ref 'SecondaryManagementPrivateSubnetID'
+        ManagementSecurityGroupID: !GetAtt 'SecurityGroupStack.Outputs.ManagementSG'
+        Platform: !Ref 'Platform'
+        PooledEdition: !Ref 'PooledEdition'
+        S3BucketName: !GetAtt 'LambdaCopierStack.Outputs.LambdaZipsBucket'
+        S3Key: lambda-citrixadc-awscft.zip
+        VCPUEdition: !Ref 'VCPUEdition'
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-SecondaryPooledLicenseStack'
+      TemplateURL: https://citrixadc-automation.s3.amazonaws.com/templates/nested-stacks/cft-stack-pooled-license.yaml
     Type: AWS::CloudFormation::Stack
   SecurityGroupStack:
     Properties:
