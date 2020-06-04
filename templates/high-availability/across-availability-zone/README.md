@@ -1,5 +1,4 @@
 ## CloudFormation Template description
-> If VPC, subnets, iGateway do not already exists and ADCs are to be provisioned on fresh resources, refer [vpc-infra](../../vpc-infra/) to create the prequisite infra
 
 This template provisions two Citrix ADC VPX in two different AWS Availability Zones and configures them as High-Availabile. This template also gives an option to allocate Pooled License to Citrix ADCs while provisioning.
 This template creates the below resources:
@@ -25,6 +24,7 @@ This template creates the below resources:
 
 
 ## Pre-requisites
+> If VPC, subnets, iGateway do not already exists and ADCs are to be provisioned on fresh resources, refer [vpc-infra](../../vpc-infra/) to create the prequisite infra
 The CloudFormation template requires sufficient IAM previliges to create IAM roles, beyond normal EC2 full privileges. The user of this template also needs to [accept the terms and subscribe to the AWS Marketplace product](https://aws.amazon.com/marketplace/pp/B00AA01BOE/) before using this CloudFormation template.
 <p>The following should be present</p>
 
@@ -39,6 +39,7 @@ The CloudFormation template requires sufficient IAM previliges to create IAM rol
 		- Client side Subnet
 		- Servers side Subnet
 - 3 unallocated EIPs
+- EC2 KeyPair
 
 
 ## Network architecture
