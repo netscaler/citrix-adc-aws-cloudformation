@@ -20,7 +20,7 @@ Each template in this repository has colocated documentation describing the usag
 ## A note on AMI IDs
 Almost all the CFTs have the intelligence to find the latest available AMI-ID in AWS Marketplace for a Citrix ADC Product Name and Product Version taken as user-input in Parameter section.
 There is also a user input field `Citrix Image ID` to allow users to specify the AMI-ID of their choice.
->For a ProductName-ProductVersion-AMI-ID matric, refer [here](./templates/README.md)
+>For a ProductName-ProductVersion-AMI-ID matrix, refer [here](./templates/README.md)
 
 ## Versioning
 The master branch of the repository generally has the latest version of the template. Older released versions are tagged appropriately
