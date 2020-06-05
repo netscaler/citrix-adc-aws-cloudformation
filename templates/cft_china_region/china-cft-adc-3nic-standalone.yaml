@@ -93,7 +93,7 @@ Metadata:
       ClientPrivateIP:
         default: Client Private IP (VIP)
       ClientPublicSubnetID:
-        default: Subnet ID associated with Citrix ADC Client interface
+        default: Subnet ID associated with Citrix ADC Client interface (Traffic coming from `client` to the `ADC VIP`)
       KeyPairName:
         default: Keypair to associate to ADCs
       ManagementENIEIP:
@@ -111,7 +111,7 @@ Metadata:
       ServerPrivateIP:
         default: Server Private IP (SNIP)
       ServerPrivateSubnetID:
-        default: Subnet ID associated with Citrix ADC Client interface
+        default: Subnet ID associated with Citrix ADC Server interface (Traffic leaving from the `ADC SNIP` to the `backend`)
       VPCID:
         default: VPC ID to deploy the resources
       VPCTenancy:

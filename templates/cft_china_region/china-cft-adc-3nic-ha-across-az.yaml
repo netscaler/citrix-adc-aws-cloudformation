@@ -126,7 +126,7 @@ Metadata:
       PrimaryClientPrivateIP:
         default: Primary Client Private IP (VIP)
       PrimaryClientPublicSubnetID:
-        default: Subnet ID associated with Primary ADC Client interface
+        default: Subnet ID associated with Primary ADC Client interface (Traffic coming from `client` to the `ADC VIP`)
       PrimaryManagementPrivateIP:
         default: Primary Management Private IP (NSIP)
       PrimaryManagementPrivateSubnetID:
@@ -134,7 +134,7 @@ Metadata:
       PrimaryServerPrivateIP:
         default: Primary Server Private IP (SNIP)
       PrimaryServerPrivateSubnetID:
-        default: Subnet ID associated with Primary ADC Client interface
+        default: Subnet ID associated with Primary ADC Server interface (Traffic leaving from the `ADC SNIP` to the `backend`)
       PublishCloudwatchMetrics:
         default: Publish custom metrics to CloudWatch?
       RestrictedSSHCIDR:
@@ -148,7 +148,7 @@ Metadata:
       SecondaryClientPrivateIP:
         default: Secondary Client Private IP (VIP)
       SecondaryClientPublicSubnetID:
-        default: Subnet ID associated with Secondary ADC Client interface
+        default: Subnet ID associated with Secondary ADC Client interface (Traffic coming from `client` to the `ADC VIP`)
       SecondaryManagementPrivateIP:
         default: Secondary Management Private IP (NSIP)
       SecondaryManagementPrivateSubnetID:
@@ -156,7 +156,7 @@ Metadata:
       SecondaryServerPrivateIP:
         default: Secondary Server Private IP (SNIP)
       SecondaryServerPrivateSubnetID:
-        default: Subnet ID associated with Secondary ADC Server interface
+        default: Subnet ID associated with Secondary ADC Server interface (Traffic leaving from the `ADC SNIP` to the `backend`)
       VPCID:
         default: VPC ID to deploy the resources
       VPCTenancy:
