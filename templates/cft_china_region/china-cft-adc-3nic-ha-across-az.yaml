@@ -6,10 +6,6 @@ Conditions:
   AssignEIP2ManagementENI: !Equals
     - !Ref "ManagementENIEIP"
     - "Yes"
-  UseCitrixADCImageID: !Not
-    - !Equals
-      - !Ref "CitrixADCImageID"
-      - ""
   UsePrimaryClientPrivateIP: !Not
     - !Equals
       - !Ref "PrimaryClientPrivateIP"
@@ -105,7 +101,6 @@ Metadata:
       - Label:
           default: Optional Configuration
         Parameters:
-          - CitrixADCImageID
           - ManagementENIEIP
           - ClientENIEIP
           - PrimaryManagementPrivateIP
@@ -120,8 +115,6 @@ Metadata:
           - S3BucketName
           - S3Key
     ParameterLabels:
-      CitrixADCImageID:
-        default: Citrix ADC AMI ID
       CitrixADCInstanceType:
         default: Citrix ADC instance type
       ClientENIEIP:
@@ -253,10 +246,6 @@ Outputs:
       Name: !Sub "${AWS::StackName}-SecondaryServerPrivateIP"
     Value: !GetAtt "SecondaryServerENI.PrimaryPrivateIpAddress"
 Parameters:
-  CitrixADCImageID:
-    Default: ""
-    Description: ""
-    Type: String
   CitrixADCInstanceType:
     AllowedValues:
       - t2.medium
@@ -629,10 +618,7 @@ Resources:
   PrimaryInstance:
     Properties:
       IamInstanceProfile: !Ref "CitrixADCInstanceProfile"
-      ImageId: !If
-        - UseCitrixADCImageID
-        - !Ref "CitrixADCImageID"
-        - !FindInMap
+      ImageId: !FindInMap
           - AWSAMIRegionMap
           - !Ref "AWS::Region"
           - CITRIXADC
@@ -707,10 +693,7 @@ Resources:
   SecondaryInstance:
     Properties:
       IamInstanceProfile: !Ref "CitrixADCInstanceProfile"
-      ImageId: !If
-        - UseCitrixADCImageID
-        - !Ref "CitrixADCImageID"
-        - !FindInMap
+      ImageId: !FindInMap
           - AWSAMIRegionMap
           - !Ref "AWS::Region"
           - CITRIXADC
