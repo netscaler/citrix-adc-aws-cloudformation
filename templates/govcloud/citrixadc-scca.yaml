@@ -1,0 +1,1740 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: ---
+
+Parameters:
+  VPCCIDR:
+    Description: VPC CIDR block.
+    Type: String
+    Default: 10.0.0.0/16
+    MinLength: 9
+    MaxLength: 18
+    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
+  SubnetACIDR:
+    Description: CIDR block for Subnet A
+    Type: String
+    Default: 10.0.1.0/24
+    MinLength: 9
+    MaxLength: 18
+    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
+  SubnetBCIDR:
+    Description: CIDR block for Subnet B
+    Type: String
+    Default: 10.0.2.0/24
+    MinLength: 9
+    MaxLength: 18
+    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
+  SubnetCCIDR:
+    Description: CIDR block for Subnet C
+    Type: String
+    Default: 10.0.3.0/24
+    MinLength: 9
+    MaxLength: 18
+    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
+  SubnetDCIDR:
+    Description: CIDR block for Subnet D
+    Type: String
+    Default: 10.0.4.0/24
+    MinLength: 9
+    MaxLength: 18
+    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
+  SubnetMCIDR:
+    Description: CIDR block for Subnet M
+    Type: String
+    Default: 10.0.13.0/24
+    MinLength: 9
+    MaxLength: 18
+    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
+  KeyPairName:
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instances
+    Type: AWS::EC2::KeyPair::KeyName
+  VPCTenancy:
+    Default: default
+    Type: String
+    Description: "The allowed tenancy of instances launched into the VPC"
+    AllowedValues:
+      - default
+      - dedicated
+  CitrixADCImageID:
+    Type: String
+    Default: ""
+    Description: >-
+      "[OPTIONAL] AMI ID of Citrix ADC (13.0.41.x+) to be provisioned. 
+      If left empty, "Citrix ADC VPX - Customer Licensed Version 13.0-41.20
+      (https://aws.amazon.com/marketplace/pp/B00AA01BOE)" is provisioned by default"
+  CitrixADCInstanceType:
+    Default: m4.xlarge
+    ConstraintDescription: Must be a valid EC2 instance type.
+    Type: String
+    Description: "Type of Citrix ADC instance"
+    AllowedValues:
+      - m4.xlarge
+      - m4.2xlarge
+      - m4.4xlarge
+      - m4.10xlarge
+      - m3.large
+      - m3.xlarge
+      - m3.2xlarge
+      - c4.large
+      - c4.xlarge
+      - c4.2xlarge
+      - c4.4xlarge
+      - c4.8xlarge
+  SSHRestrictedCIDR:
+    Type: String
+    MinLength: 9
+    MaxLength: 18
+    Description: "The IP address range that can SSH to the EC2 instance (port: 22)."
+    AllowedPattern: "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
+  WebRestrictedCIDR:
+    Type: String
+    MinLength: 9
+    MaxLength: 18
+    Description: "The IP address range that can HTTP to the EC2 instance (port: 80)."
+    AllowedPattern: "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
+  RDPRestrictedCIDR:
+    Type: String
+    MinLength: 9
+    MaxLength: 18
+    Description: "The IP address range that can HTTP to the EC2 instance (port: 80)."
+    AllowedPattern: "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
+  PublishCloudwatchMetrics:
+    Default: "Yes"
+    Type: String
+    AllowedValues:
+      - "Yes"
+      - "No"
+    Description:
+      'Enter "Yes" to enable publishing of VPX metrics to Cloudwatch, or
+      "No" to disable publishing.'
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Citrix ADC Configuration
+        Parameters:
+          - CitrixADCImageID
+          - CitrixADCInstanceType
+          - KeyPairName
+          - VPCTenancy
+          - PublishCloudwatchMetrics
+      - Label:
+          default: VPC Security Configuration
+        Parameters:
+          - SSHRestrictedCIDR
+          - WebRestrictedCIDR
+          - RDPRestrictedCIDR
+      - Label:
+          default: VPC Network Configuration
+        Parameters:
+          - VPCCIDR
+          - SubnetACIDR
+          - SubnetBCIDR
+          - SubnetCCIDR
+          - SubnetDCIDR
+          - SubnetMCIDR
+
+    ParameterLabels:
+      CitrixADCImageID:
+        default: Citrix ADC AMI ID
+      CitrixADCInstanceType:
+        default: Citrix ADC Instance Type
+      KeyPairName:
+        default: KeyPair Name
+      VPCTenancy:
+        default: VPC Tenancy Type
+      PublishCloudwatchMetrics:
+        default: Enable publishing custom metrics to cloudwatch?
+
+      SSHRestrictedCIDR:
+        default: Remote SSH Restricted CIDR
+      WebRestrictedCIDR:
+        default: Remote HTTP/HTTPS Restricted CIDR
+      RDPRestrictedCIDR:
+        default: Remote RDP Restricted CIDR
+
+      VPCCIDR:
+        default: VPC CIDR
+      SubnetACIDR:
+        default: External ADC Client Subnet CIDR
+      SubnetBCIDR:
+        default: External ADC Server Subnet CIDR
+      SubnetCCIDR:
+        default: Internal ADC Client Subnet CIDR
+      SubnetDCIDR:
+        default: Internal ADC Server Subnet CIDR
+      SubnetMCIDR:
+        default: Management Subnet CIDR
+
+Conditions:
+  UseCitrixADCImageID: !Not
+    - !Equals
+      - !Ref CitrixADCImageID
+      - ""
+  USGovRegion: !Or
+    - !Equals
+      - !Ref "AWS::Region"
+      - us-gov-west-1
+    - !Equals
+      - !Ref "AWS::Region"
+      - us-gov-east-1
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VPCCIDR
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      InstanceTenancy: !Ref VPCTenancy
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref VPC
+  SubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select
+        - 0
+        - Fn::GetAZs: ""
+      CidrBlock: !Ref SubnetACIDR
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: SubnetA
+  SubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select
+        - 0
+        - Fn::GetAZs: ""
+      CidrBlock: !Ref SubnetBCIDR
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: SubnetB
+  SubnetC:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select
+        - 0
+        - Fn::GetAZs: ""
+      CidrBlock: !Ref SubnetCCIDR
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: SubnetC
+  SubnetD:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select
+        - 0
+        - Fn::GetAZs: ""
+      CidrBlock: !Ref SubnetDCIDR
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: SubnetD
+  SubnetM:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select
+        - 0
+        - Fn::GetAZs: ""
+      CidrBlock: !Ref SubnetMCIDR
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: SubnetM
+
+  PublicSubnetARouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: Public SubnetA
+  PublicSubnetARoute:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicSubnetARouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+  PublicSubnetARouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicSubnetARouteTable
+      SubnetId: !Ref SubnetA
+
+  PrivateSubnetBRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: Private SubnetB
+  PrivateSubnetBRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateSubnetBRouteTable
+      SubnetId: !Ref SubnetB
+
+  PrivateSubnetCRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: Private SubnetC
+  PrivateSubnetCRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateSubnetCRouteTable
+      SubnetId: !Ref SubnetC
+
+  PrivateSubnetDRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: Private SubnetD
+  PrivateSubnetDRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateSubnetDRouteTable
+      SubnetId: !Ref SubnetD
+
+  PrivateSubnetMRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: Private SubnetM
+  PrivateSubnetMRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateSubnetMRouteTable
+      SubnetId: !Ref SubnetM
+
+  NetworkACLSubnetA:
+    DependsOn: ConfigureLambda
+    Type: AWS::EC2::NetworkAcl
+    Properties:
+      Tags:
+        - Key: Name
+          Value: SubnetA
+      VpcId: !Ref VPC
+  NetworkACLSubnetAssociationSubnetA:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId: !Ref NetworkACLSubnetA
+      SubnetId: !Ref SubnetA
+  NetworkACLSubnetARuleFromSubnetB:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref NetworkACLSubnetA
+      Egress: false #Inbound
+      RuleNumber: 100
+      CidrBlock: !Ref SubnetBCIDR
+      Icmp:
+        Code: -1
+        Type: -1
+      Protocol: -1
+      RuleAction: allow
+  NetworkACLSubnetARuleFromOutside:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref NetworkACLSubnetA
+      Egress: false #Inbound
+      RuleNumber: 110
+      CidrBlock: 0.0.0.0/0
+      Icmp:
+        Code: -1
+        Type: -1
+      Protocol: -1
+      RuleAction: allow
+  NetworkACLSubnetARuleToSubnetB:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref NetworkACLSubnetA
+      Egress: true #Outbound
+      RuleNumber: 100
+      CidrBlock: !Ref SubnetBCIDR
+      Icmp:
+        Code: -1
+        Type: -1
+      Protocol: -1
+      RuleAction: allow
+  NetworkACLSubnetARuleToOutside:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref NetworkACLSubnetA
+      Egress: true #Outbound
+      RuleNumber: 110
+      CidrBlock: 0.0.0.0/0
+      Icmp:
+        Code: -1
+        Type: -1
+      Protocol: -1
+      RuleAction: allow
+
+  NetworkACLSubnetB:
+    DependsOn: ConfigureLambda
+    Type: AWS::EC2::NetworkAcl
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: SubnetB
+  NetworkACLSubnetAssociationSubnetB:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId: !Ref NetworkACLSubnetB
+      SubnetId: !Ref SubnetB
+  NetworkACLSubnetBRuleFromSubnetA:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref NetworkACLSubnetB
+      Egress: false #Inbound
+      RuleNumber: 100
+      CidrBlock: !Ref SubnetACIDR
+      Icmp:
+        Code: -1
+        Type: -1
+      Protocol: -1
+      RuleAction: allow
+  NetworkACLSubnetBRuleFromSubnetC:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref NetworkACLSubnetB
+      Egress: false #Inbound
+      RuleNumber: 110
+      CidrBlock: !Ref SubnetCCIDR
+      Icmp:
+        Code: -1
+        Type: -1
+      Protocol: -1
+      RuleAction: allow
+  NetworkACLSubnetBRuleToSubnetA:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref NetworkACLSubnetB
+      Egress: true #Outbound
+      RuleNumber: 100
+      CidrBlock: !Ref SubnetACIDR
+      Icmp:
+        Code: -1
+        Type: -1
+      Protocol: -1
+      RuleAction: allow
+  NetworkACLSubnetBRuleToSubnetC:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref NetworkACLSubnetB
+      Egress: true #Outbound
+      RuleNumber: 110
+      CidrBlock: !Ref SubnetCCIDR
+      Icmp:
+        Code: -1
+        Type: -1
+      Protocol: -1
+      RuleAction: allow
+
+  NetworkACLSubnetC:
+    DependsOn: ConfigureLambda
+    Type: AWS::EC2::NetworkAcl
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: SubnetC
+  NetworkACLSubnetAssociationSubnetC:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId: !Ref NetworkACLSubnetC
+      SubnetId: !Ref SubnetC
+  NetworkACLSubnetCRuleFromSubnetB:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref NetworkACLSubnetC
+      Egress: false #Inbound
+      RuleNumber: 100
+      CidrBlock: !Ref SubnetBCIDR
+      Icmp:
+        Code: -1
+        Type: -1
+      Protocol: -1
+      RuleAction: allow
+  NetworkACLSubnetCRuleFromSubnetD:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref NetworkACLSubnetC
+      Egress: false #Inbound
+      RuleNumber: 110
+      CidrBlock: !Ref SubnetDCIDR
+      Icmp:
+        Code: -1
+        Type: -1
+      Protocol: -1
+      RuleAction: allow
+  NetworkACLSubnetCRuleToSubnetB:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref NetworkACLSubnetC
+      Egress: true #Outbound
+      RuleNumber: 100
+      CidrBlock: !Ref SubnetBCIDR
+      Icmp:
+        Code: -1
+        Type: -1
+      Protocol: -1
+      RuleAction: allow
+  NetworkACLSubnetCRuleToSubnetD:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref NetworkACLSubnetC
+      Egress: true #Outbound
+      RuleNumber: 110
+      CidrBlock: !Ref SubnetDCIDR
+      Icmp:
+        Code: -1
+        Type: -1
+      Protocol: -1
+      RuleAction: allow
+
+  NetworkACLSubnetD:
+    DependsOn: ConfigureLambda
+    Type: AWS::EC2::NetworkAcl
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: SubnetD
+  NetworkACLSubnetAssociationSubnetD:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId: !Ref NetworkACLSubnetD
+      SubnetId: !Ref SubnetD
+  NetworkACLSubnetDRuleFromSubnetC:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref NetworkACLSubnetD
+      Egress: false #Inbound
+      RuleNumber: 100
+      CidrBlock: !Ref SubnetCCIDR
+      Icmp:
+        Code: -1
+        Type: -1
+      Protocol: -1
+      RuleAction: allow
+  NetworkACLSubnetDRuleFromSubnetM:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref NetworkACLSubnetD
+      Egress: false #Inbound
+      RuleNumber: 110
+      CidrBlock: !Ref SubnetMCIDR
+      Icmp:
+        Code: -1
+        Type: -1
+      Protocol: -1
+      RuleAction: allow
+  NetworkACLSubnetDRuleToSubnetC:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref NetworkACLSubnetD
+      Egress: true #Outbound
+      RuleNumber: 100
+      CidrBlock: !Ref SubnetCCIDR
+      Icmp:
+        Code: -1
+        Type: -1
+      Protocol: -1
+      RuleAction: allow
+  NetworkACLSubnetDRuleToSubnetM:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref NetworkACLSubnetD
+      Egress: true #Outbound
+      RuleNumber: 110
+      CidrBlock: !Ref SubnetMCIDR
+      Icmp:
+        Code: -1
+        Type: -1
+      Protocol: -1
+      RuleAction: allow
+
+  NetworkACLSubnetM:
+    DependsOn: ConfigureLambda
+    Type: AWS::EC2::NetworkAcl
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: SubnetM
+  NetworkACLSubnetAssociationSubnetM:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId: !Ref NetworkACLSubnetM
+      SubnetId: !Ref SubnetM
+  NetworkACLSubnetMRuleFromSubnetD:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref NetworkACLSubnetM
+      Egress: false #Inbound
+      RuleNumber: 100
+      CidrBlock: !Ref SubnetDCIDR
+      Icmp:
+        Code: -1
+        Type: -1
+      Protocol: -1
+      RuleAction: allow
+  NetworkACLSubnetMRuleToSubnetD:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref NetworkACLSubnetM
+      Egress: true #Outbound
+      RuleNumber: 100
+      CidrBlock: !Ref SubnetDCIDR
+      Icmp:
+        Code: -1
+        Type: -1
+      Protocol: -1
+      RuleAction: allow
+
+  ExternalADCSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH access via port 22, HTTP with port 80, HTTPS
+        with port 443 and RDP via port 3389
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref SSHRestrictedCIDR
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: !Ref WebRestrictedCIDR
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: !Ref WebRestrictedCIDR
+        - IpProtocol: tcp
+          FromPort: 3389
+          ToPort: 3389
+          CidrIp: !Ref RDPRestrictedCIDR
+        - IpProtocol: "-1"
+          CidrIp: !Ref VPCCIDR
+  ExternalADCIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: "/"
+      Policies:
+        - PolicyName: Citrixnode
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Action:
+                  - ec2:DescribeInstances
+                  - ec2:DescribeNetworkInterfaces
+                  - ec2:DetachNetworkInterface
+                  - ec2:AttachNetworkInterface
+                  - ec2:UnassignPrivateIpAddresses
+                  - ec2:AssignPrivateIpAddresses
+                  - ec2:StartInstances
+                  - ec2:StopInstances
+                  - ec2:RebootInstances
+                  - "autoscaling:*"
+                  - "sns:*"
+                  - "sqs:*"
+                  - "iam:SimulatePrincipalPolicy"
+                  - "iam:GetRole"
+                Resource: "*"
+                Effect: Allow
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+  ExternalADCCitrixADCInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+        - !Ref ExternalADCIAMRole
+
+  ExternalADCPrimaryManagementENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref SubnetM
+      GroupSet:
+        - !Ref ExternalADCSecurityGroup
+      Description: ENI connected to Primary Management Subnet
+      PrivateIpAddress: !Ref AWS::NoValue
+  ExternalADCPrimaryClientENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref SubnetA
+      GroupSet:
+        - !Ref ExternalADCSecurityGroup
+      Description: ENI connected to Primary Client Subnet
+      PrivateIpAddress: !Ref AWS::NoValue
+      SecondaryPrivateIpAddressCount: 1 # This secondary IP migrates after failover
+  ExternalADCPrimaryServerENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref SubnetB
+      GroupSet:
+        - !Ref ExternalADCSecurityGroup
+      Description: ENI connected to Primary Server Subnet
+      PrivateIpAddress: !Ref AWS::NoValue
+      SecondaryPrivateIpAddressCount: 1 # This secondary IP migrates after failover
+  ExternalADCPrimaryClientEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+  ExternalADCPrimaryClientEIPAssociation:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      NetworkInterfaceId: !Ref ExternalADCPrimaryClientENI
+      PrivateIpAddress: !Select
+        - 0
+        - !GetAtt ExternalADCPrimaryClientENI.SecondaryPrivateIpAddresses # Associate EIP-VIP to first Secondary IP of Client ENI
+      AllocationId: !GetAtt ExternalADCPrimaryClientEIP.AllocationId
+
+  ExternalADCPrimaryADCInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      Tags:
+        - Key: Name
+          Value: ExternalADC-PrimaryCitrixADC
+      UserData:
+        Fn::Base64:
+          Fn::Join:
+            - "\n"
+            - - Fn::Join:
+                  - ""
+                  - - HAPeerIP=
+                    - !GetAtt ExternalADCSecondaryManagementENI.PrimaryPrivateIpAddress
+              - Fn::Join:
+                  - ""
+                  - - PublishCloudwatchMetrics=
+                    - !Ref PublishCloudwatchMetrics
+      ImageId: !If
+        - UseCitrixADCImageID
+        - !Ref CitrixADCImageID
+        - !FindInMap
+          - AWSAMIRegionMap
+          - !Ref AWS::Region
+          - CITRIXADC
+      KeyName: !Ref KeyPairName
+      Tenancy: !Ref VPCTenancy
+      IamInstanceProfile: !Ref ExternalADCCitrixADCInstanceProfile
+      InstanceType: !Ref CitrixADCInstanceType
+      NetworkInterfaces:
+        - DeviceIndex: "0"
+          NetworkInterfaceId: !Ref ExternalADCPrimaryManagementENI
+        - DeviceIndex: "1"
+          NetworkInterfaceId: !Ref ExternalADCPrimaryClientENI
+        - DeviceIndex: "2"
+          NetworkInterfaceId: !Ref ExternalADCPrimaryServerENI
+
+  ExternalADCSecondaryManagementENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref SubnetM
+      GroupSet:
+        - !Ref ExternalADCSecurityGroup
+      Description: ENI connected to Secondary Management Subnet
+      PrivateIpAddress: !Ref AWS::NoValue
+  ExternalADCSecondaryClientENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref SubnetA
+      GroupSet:
+        - !Ref ExternalADCSecurityGroup
+      Description: ENI connected to Secondary Client Subnet
+      PrivateIpAddress: !Ref AWS::NoValue
+  ExternalADCSecondaryServerENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref SubnetB
+      GroupSet:
+        - !Ref ExternalADCSecurityGroup
+      Description: ENI connected to Secondary Server Subnet
+      PrivateIpAddress: !Ref AWS::NoValue
+
+  ExternalADCSecondaryADCInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      Tags:
+        - Key: Name
+          Value: ExternalADC-SecondaryCitrixADC
+      UserData:
+        Fn::Base64:
+          Fn::Join:
+            - "\n"
+            - - Fn::Join:
+                  - ""
+                  - - HAPeerIP=
+                    - !GetAtt ExternalADCPrimaryManagementENI.PrimaryPrivateIpAddress
+              - Fn::Join:
+                  - ""
+                  - - HAPeerInstanceId=
+                    - !Ref ExternalADCPrimaryADCInstance
+              - Fn::Join:
+                  - ""
+                  - - PublishCloudwatchMetrics=
+                    - !Ref PublishCloudwatchMetrics
+      ImageId: !If
+        - UseCitrixADCImageID
+        - !Ref CitrixADCImageID
+        - !FindInMap
+          - AWSAMIRegionMap
+          - !Ref AWS::Region
+          - CITRIXADC
+      KeyName: !Ref KeyPairName
+      Tenancy: !Ref VPCTenancy
+      IamInstanceProfile: !Ref ExternalADCCitrixADCInstanceProfile
+      InstanceType: !Ref CitrixADCInstanceType
+      NetworkInterfaces:
+        - DeviceIndex: "0"
+          NetworkInterfaceId: !Ref ExternalADCSecondaryManagementENI
+        - DeviceIndex: "1"
+          NetworkInterfaceId: !Ref ExternalADCSecondaryClientENI
+        - DeviceIndex: "2"
+          NetworkInterfaceId: !Ref ExternalADCSecondaryServerENI
+
+  InternalADCSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH access via port 22, HTTP with port 80, HTTPS
+        with port 443 and RDP via port 3389
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref SSHRestrictedCIDR
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: !Ref WebRestrictedCIDR
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: !Ref WebRestrictedCIDR
+        - IpProtocol: tcp
+          FromPort: 3389
+          ToPort: 3389
+          CidrIp: !Ref RDPRestrictedCIDR
+        - IpProtocol: "-1"
+          CidrIp: !Ref VPCCIDR
+
+  InternalADCIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: "/"
+      Policies:
+        - PolicyName: Citrixnode
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Action:
+                  - ec2:DescribeInstances
+                  - ec2:DescribeNetworkInterfaces
+                  - ec2:DetachNetworkInterface
+                  - ec2:AttachNetworkInterface
+                  - ec2:UnassignPrivateIpAddresses
+                  - ec2:AssignPrivateIpAddresses
+                  - ec2:StartInstances
+                  - ec2:StopInstances
+                  - ec2:RebootInstances
+                  - "autoscaling:*"
+                  - "sns:*"
+                  - "sqs:*"
+                  - "iam:SimulatePrincipalPolicy"
+                  - "iam:GetRole"
+                Resource: "*"
+                Effect: Allow
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+  InternalADCCitrixADCInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+        - !Ref InternalADCIAMRole
+
+  InternalADCPrimaryManagementENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref SubnetM
+      GroupSet:
+        - !Ref InternalADCSecurityGroup
+      Description: ENI connected to Primary Management Subnet
+      PrivateIpAddress: !Ref AWS::NoValue
+  InternalADCPrimaryClientENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref SubnetC
+      GroupSet:
+        - !Ref InternalADCSecurityGroup
+      Description: ENI connected to Primary Client Subnet
+      PrivateIpAddress: !Ref AWS::NoValue
+      SecondaryPrivateIpAddressCount: 1 # This secondary IP migrates after failover
+  InternalADCPrimaryServerENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref SubnetD
+      GroupSet:
+        - !Ref InternalADCSecurityGroup
+      Description: ENI connected to Primary Server Subnet
+      PrivateIpAddress: !Ref AWS::NoValue
+      SecondaryPrivateIpAddressCount: 1 # This secondary IP migrates after failover
+
+  InternalADCPrimaryADCInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      Tags:
+        - Key: Name
+          Value: InternalADC-PrimaryCitrixADC
+      UserData:
+        Fn::Base64:
+          Fn::Join:
+            - "\n"
+            - - Fn::Join:
+                  - ""
+                  - - HAPeerIP=
+                    - !GetAtt InternalADCSecondaryManagementENI.PrimaryPrivateIpAddress
+              - Fn::Join:
+                  - ""
+                  - - PublishCloudwatchMetrics=
+                    - !Ref PublishCloudwatchMetrics
+      ImageId: !If
+        - UseCitrixADCImageID
+        - !Ref CitrixADCImageID
+        - !FindInMap
+          - AWSAMIRegionMap
+          - !Ref AWS::Region
+          - CITRIXADC
+      KeyName: !Ref KeyPairName
+      Tenancy: !Ref VPCTenancy
+      IamInstanceProfile: !Ref InternalADCCitrixADCInstanceProfile
+      InstanceType: !Ref CitrixADCInstanceType
+      NetworkInterfaces:
+        - DeviceIndex: "0"
+          NetworkInterfaceId: !Ref InternalADCPrimaryManagementENI
+        - DeviceIndex: "1"
+          NetworkInterfaceId: !Ref InternalADCPrimaryClientENI
+        - DeviceIndex: "2"
+          NetworkInterfaceId: !Ref InternalADCPrimaryServerENI
+
+  InternalADCSecondaryManagementENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref SubnetM
+      GroupSet:
+        - !Ref InternalADCSecurityGroup
+      Description: ENI connected to Secondary Management Subnet
+      PrivateIpAddress: !Ref AWS::NoValue
+  InternalADCSecondaryClientENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref SubnetC
+      GroupSet:
+        - !Ref InternalADCSecurityGroup
+      Description: ENI connected to Secondary Client Subnet
+      PrivateIpAddress: !Ref AWS::NoValue
+  InternalADCSecondaryServerENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref SubnetD
+      GroupSet:
+        - !Ref InternalADCSecurityGroup
+      Description: ENI connected to Secondary Server Subnet
+      PrivateIpAddress: !Ref AWS::NoValue
+
+  InternalADCSecondaryADCInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      Tags:
+        - Key: Name
+          Value: InternalADC-SecondaryCitrixADC
+      UserData:
+        Fn::Base64:
+          Fn::Join:
+            - "\n"
+            - - Fn::Join:
+                  - ""
+                  - - HAPeerIP=
+                    - !GetAtt InternalADCPrimaryManagementENI.PrimaryPrivateIpAddress
+              - Fn::Join:
+                  - ""
+                  - - HAPeerInstanceId=
+                    - !Ref InternalADCPrimaryADCInstance
+              - Fn::Join:
+                  - ""
+                  - - PublishCloudwatchMetrics=
+                    - !Ref PublishCloudwatchMetrics
+      ImageId: !If
+        - UseCitrixADCImageID
+        - !Ref CitrixADCImageID
+        - !FindInMap
+          - AWSAMIRegionMap
+          - !Ref AWS::Region
+          - CITRIXADC
+      KeyName: !Ref KeyPairName
+      Tenancy: !Ref VPCTenancy
+      IamInstanceProfile: !Ref InternalADCCitrixADCInstanceProfile
+      InstanceType: !Ref CitrixADCInstanceType
+      NetworkInterfaces:
+        - DeviceIndex: "0"
+          NetworkInterfaceId: !Ref InternalADCSecondaryManagementENI
+        - DeviceIndex: "1"
+          NetworkInterfaceId: !Ref InternalADCSecondaryClientENI
+        - DeviceIndex: "2"
+          NetworkInterfaceId: !Ref InternalADCSecondaryServerENI
+
+  LambdaGetGatewayIPExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !If
+                  - USGovRegion
+                  - arn:aws-us-gov:logs:*:*:*
+                  - arn:aws:logs:*:*:*
+
+  GetGatewayIPFromCIDR:
+    DependsOn: EndpointS3
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: Return Subnet default gateway IP from its CIDR
+      Handler: index.handler
+      MemorySize: 128
+      Role: !GetAtt LambdaGetGatewayIPExecutionRole.Arn
+      Runtime: "python3.6"
+      Timeout: 30
+      Code:
+        ZipFile: |
+          import json
+          import cfnresponse
+          import logging
+          import ipaddress
+          def handler(event, context):
+            response_data = {}
+            response_status = cfnresponse.FAILED
+            logging.info('Received event: {}'.format(json.dumps(event)))
+            if event['RequestType'] == 'Delete':
+              response_status = cfnresponse.SUCCESS
+              cfnresponse.send(event, context, response_status, response_data)
+            else:
+              try:
+                response_data['SubnetBGatewayIP'] = [str(ip) for ip in ipaddress.IPv4Network(event['ResourceProperties']['SubnetBCIDR'])][1]
+                response_data['SubnetCGatewayIP'] = [str(ip) for ip in ipaddress.IPv4Network(event['ResourceProperties']['SubnetCCIDR'])][1]
+                response_status = cfnresponse.SUCCESS
+              except Exception as e:
+                logging.error('failed to get default gateway IP: {}'.format(str(e)))
+                response_status = cfnresponse.FAILED
+              finally:
+                cfnresponse.send(event, context, response_status, response_data)
+
+  CalculateGatewayIP:
+    Type: Custom::CIDR2GatewayIP
+    Properties:
+      ServiceToken: !GetAtt GetGatewayIPFromCIDR.Arn
+      SubnetBCIDR: !Ref SubnetBCIDR
+      SubnetCCIDR: !Ref SubnetCCIDR
+
+  IPSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: IPS Security Group
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: "-1"
+          CidrIp: !Ref VPCCIDR
+      SecurityGroupEgress:
+        - IpProtocol: "-1"
+          CidrIp: !Ref VPCCIDR
+
+  UbuntuIPSManagementENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref SubnetM
+      GroupSet:
+        - !Ref IPSSecurityGroup
+      Description: ENI connected to Management Subnet
+      PrivateIpAddress: !Ref AWS::NoValue
+  UbuntuIPSClientENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref SubnetB
+      GroupSet:
+        - !Ref IPSSecurityGroup
+      Description: ENI connected to Client Subnet
+      PrivateIpAddress: !Ref AWS::NoValue
+  UbuntuIPSServerENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref SubnetC
+      GroupSet:
+        - !Ref IPSSecurityGroup
+      Description: ENI connected to Server Subnet
+      PrivateIpAddress: !Ref AWS::NoValue
+
+  UbuntuIPSInstance:
+    DependsOn: CalculateGatewayIP
+    Type: AWS::EC2::Instance
+    Properties:
+      Tags:
+        - Key: Name
+          Value: IPS
+      UserData:
+        Fn::Base64: !Sub |
+          #cloud-config
+          write_files:
+
+          - path: /etc/network/interfaces
+            permissions: \"0644\"
+            owner: root:root
+            content: |
+                auto lo
+                iface lo inet loopback
+
+                auto eth0
+                iface eth0 inet dhcp
+
+                auto eth1
+                iface eth1 inet dhcp
+                  
+
+                auto eth2
+                iface eth2 inet dhcp
+
+                up route add -net ${SubnetDCIDR} gw ${CalculateGatewayIP.SubnetCGatewayIP}
+                up route add -net ${SubnetACIDR} gw ${CalculateGatewayIP.SubnetBGatewayIP}
+
+          - path: /etc/sysctl.conf
+            permissions: \"0644\"
+            owner: root:root
+            content: |
+                net.ipv4.ip_forward=1
+
+          runcmd:
+            - service networking restart
+            - sysctl --system
+      ImageId: !FindInMap
+        - AWSAMIRegionMap
+        - !Ref AWS::Region
+        - UbuntuIPS
+      KeyName: !Ref KeyPairName
+      Tenancy: !Ref VPCTenancy
+      InstanceType: !FindInMap
+        - AWSInstanceTypeRegionMap
+        - !Ref AWS::Region
+        - UbuntuIPS
+      NetworkInterfaces:
+        - DeviceIndex: "0"
+          NetworkInterfaceId: !Ref UbuntuIPSManagementENI
+        - DeviceIndex: "1"
+          NetworkInterfaceId: !Ref UbuntuIPSClientENI
+        - DeviceIndex: "2"
+          NetworkInterfaceId: !Ref UbuntuIPSServerENI
+
+  UbuntuJumpBoxSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: UbuntuJumpBox Security Group
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: "-1"
+          CidrIp: !Ref VPCCIDR
+      SecurityGroupEgress:
+        - IpProtocol: "-1"
+          CidrIp: !Ref VPCCIDR
+
+  UbuntuJumpBoxManagementENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref SubnetD
+      GroupSet:
+        - !Ref UbuntuJumpBoxSecurityGroup
+      Description: ENI connected to Management Subnet
+      PrivateIpAddress: !Ref AWS::NoValue
+
+  UbuntuJumpboxInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      Tags:
+        - Key: Name
+          Value: UbuntuJumpBox
+      ImageId: !FindInMap
+        - AWSAMIRegionMap
+        - !Ref AWS::Region
+        - UbuntuJumpbox
+      KeyName: !Ref KeyPairName
+      Tenancy: !Ref VPCTenancy
+      InstanceType: !FindInMap
+        - AWSInstanceTypeRegionMap
+        - !Ref AWS::Region
+        - UbuntuJumpbox
+      NetworkInterfaces:
+        - DeviceIndex: "0"
+          NetworkInterfaceId: !Ref UbuntuJumpBoxManagementENI
+
+  WindowsJumpBoxSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: WindowsJumpBox Security Group
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: "-1"
+          CidrIp: !Ref VPCCIDR
+      SecurityGroupEgress:
+        - IpProtocol: "-1"
+          CidrIp: !Ref VPCCIDR
+
+  WindowsJumpBoxManagementENI:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref SubnetD
+      GroupSet:
+        - !Ref WindowsJumpBoxSecurityGroup
+      Description: ENI connected to Management Subnet
+      PrivateIpAddress: !Ref AWS::NoValue
+
+  WindowsJumpboxInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      Tags:
+        - Key: Name
+          Value: WindowsJumpBox
+      ImageId: !FindInMap
+        - AWSAMIRegionMap
+        - !Ref AWS::Region
+        - WindowsJumpbox
+      KeyName: !Ref KeyPairName
+      Tenancy: !Ref VPCTenancy
+      InstanceType: !FindInMap
+        - AWSInstanceTypeRegionMap
+        - !Ref AWS::Region
+        - WindowsJumpbox
+      NetworkInterfaces:
+        - DeviceIndex: "0"
+          NetworkInterfaceId: !Ref WindowsJumpBoxManagementENI
+
+  EndpointS3:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcEndpointType: Gateway
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.s3"
+      VpcId: !Ref VPC
+      RouteTableIds:
+        - !Ref PrivateSubnetMRouteTable
+
+  LambdaZipsBucket:
+    Type: AWS::S3::Bucket
+  CopyZips:
+    Type: Custom::CopyZips
+    Properties:
+      ServiceToken: !GetAtt CopyZipsFunction.Arn
+      DestBucket: !Ref LambdaZipsBucket
+      SourceBucket: citrixadc-automation
+      Prefix: ""
+      Objects:
+        - lambda-citrixadc-awscft.zip
+  CopyZipsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns: !If
+        - USGovRegion
+        - - arn:aws-us-gov:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Path: /
+      Policies:
+        - PolicyName: lambda-copier
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource: !If
+                  - USGovRegion
+                  - - arn:aws-us-gov:s3:::citrixadc-automation/lambda-citrixadc-awscft.zip
+                  - - arn:aws:s3:::citrixadc-automation/lambda-citrixadc-awscft.zip
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:DeleteObject
+                Resource: !If
+                  - USGovRegion
+                  - - !Sub "arn:aws-us-gov:s3:::${LambdaZipsBucket}/lambda-citrixadc-awscft.zip"
+                  - - !Sub "arn:aws:s3:::${LambdaZipsBucket}/lambda-citrixadc-awscft.zip"
+  CopyZipsFunction:
+    DependsOn: EndpointS3
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: Copies objects from a source S3 bucket to a destination
+      Handler: index.handler
+      Runtime: python2.7
+      Role: !GetAtt CopyZipsRole.Arn
+      Timeout: 240
+      Code:
+        ZipFile: |
+          import json
+          import logging
+          import threading
+          import boto3
+          import cfnresponse
+          def copy_objects(source_bucket, dest_bucket, prefix, objects):
+              s3 = boto3.client('s3')
+              for o in objects:
+                  key = prefix + o
+                  copy_source = {
+                      'Bucket': source_bucket,
+                      'Key': key
+                  }
+                  print('copy_source: %s' % copy_source)
+                  print('dest_bucket = %s'%dest_bucket)
+                  print('key = %s' %key)
+                  s3.copy_object(CopySource=copy_source, Bucket=dest_bucket,
+                        Key=key)
+          def delete_objects(bucket, prefix, objects):
+              s3 = boto3.client('s3')
+              objects = {'Objects': [{'Key': prefix + o} for o in objects]}
+              s3.delete_objects(Bucket=bucket, Delete=objects)
+          def timeout(event, context):
+              logging.error('Execution is about to time out, sending failure response to CloudFormation')
+              cfnresponse.send(event, context, cfnresponse.FAILED, {}, None)
+          def handler(event, context):
+              # make sure we send a failure to CloudFormation if the function
+              # is going to timeout
+              timer = threading.Timer((context.get_remaining_time_in_millis()
+                        / 1000.00) - 0.5, timeout, args=[event, context])
+              timer.start()
+              print('Received event: %s' % json.dumps(event))
+              status = cfnresponse.SUCCESS
+              try:
+                  source_bucket = event['ResourceProperties']['SourceBucket']
+                  dest_bucket = event['ResourceProperties']['DestBucket']
+                  prefix = event['ResourceProperties']['Prefix']
+                  objects = event['ResourceProperties']['Objects']
+                  if event['RequestType'] == 'Delete':
+                      delete_objects(dest_bucket, prefix, objects)
+                  else:
+                      copy_objects(source_bucket, dest_bucket, prefix, objects)
+              except Exception as e:
+                  logging.error('Exception: %s' % e, exc_info=True)
+                  status = cfnresponse.FAILED
+              finally:
+                  timer.cancel()
+                  cfnresponse.send(event, context, status, {}, None)
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName} LambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: LambdaLogtoCloudWatch
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                  - "logs:CreateExportTask"
+                  - "logs:DescribeExportTask"
+                Resource: !If
+                  - USGovRegion
+                  - "arn:aws-us-gov:logs:*:*:*"
+                  - "arn:aws:logs:*:*:*"
+        - PolicyName: LambdaAllowReadEC2
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Action:
+                  - "ec2:DescribeInstances"
+                  - "ec2:DescribeNetworkInterfaces"
+                  - "ec2:DescribeSubnets"
+                  - "ec2:DescribeVpcs"
+                  - "ec2:DescribeAvailabilityZones"
+                  - "ec2:DescribeInstanceStatus"
+                  - "ec2:DescribeSecurityGroups"
+                Resource: "*"
+                Effect: Allow
+        - PolicyName: lambdaallowvpcaccessexecution
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Action:
+                  - "ec2:CreateNetworkInterface"
+                  - "ec2:DeleteNetworkInterface"
+                  - "ec2:AttachNetworkInterface"
+                  - "ec2:DetachNetworkInterface"
+                  - "ec2:ModifyNetworkInterfaceAttribute"
+                  - "ec2:ResetNetworkInterfaceAttribute"
+                Resource: "*"
+                Effect: Allow
+  ConfigureSCCAFunction:
+    DependsOn: CopyZips
+    Type: AWS::Lambda::Function
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName} LambdaFunction
+      Code:
+        S3Bucket: !Ref LambdaZipsBucket
+        S3Key: lambda-citrixadc-awscft.zip
+      Handler: lambda-scca.lambda_handler
+      Runtime: python3.6
+      Timeout: 900
+      Role: !GetAtt LambdaExecutionRole.Arn
+      VpcConfig:
+        SubnetIds:
+          - !Ref SubnetM
+        SecurityGroupIds:
+          - !Ref ExternalADCSecurityGroup
+          - !Ref InternalADCSecurityGroup
+  ConfigureLambda:
+    DependsOn:
+      - EndpointS3
+      - PrivateSubnetMRouteTableAssociation
+    Type: Custom::LambdaSCCA
+    Properties:
+      ServiceToken: !GetAtt ConfigureSCCAFunction.Arn
+      ExternalADCInstanceID: !Ref ExternalADCPrimaryADCInstance
+      ExternalADCNSIP: !GetAtt ExternalADCPrimaryManagementENI.PrimaryPrivateIpAddress
+      ExternalADCVIP: !Select
+        - 0
+        - !GetAtt ExternalADCPrimaryClientENI.SecondaryPrivateIpAddresses
+          #ExternalADCSNIP: !Select
+          #- 0
+          #- !GetAtt ExternalADCPrimaryServerENI.SecondaryPrivateIpAddresses
+      ExternalADCManagementSubnetCIDR: !Ref SubnetMCIDR
+      ExternalADCClientSubnetCIDR: !Ref SubnetACIDR
+      ExternalADCServerSubnetCIDR: !Ref SubnetBCIDR
+
+      InternalADCInstanceID: !Ref InternalADCPrimaryADCInstance
+      InternalADCNSIP: !GetAtt InternalADCPrimaryManagementENI.PrimaryPrivateIpAddress
+      InternalADCVIP: !Select
+        - 0
+        - !GetAtt InternalADCPrimaryClientENI.SecondaryPrivateIpAddresses
+          #InternalADCSNIP: !Select
+          #- 0
+          #- !GetAtt InternalADCPrimaryServerENI.SecondaryPrivateIpAddresses
+      InternalADCManagementSubnetCIDR: !Ref SubnetMCIDR
+      InternalADCClientSubnetCIDR: !Ref SubnetCCIDR
+      #InternalADCServerSubnetCIDR: !Ref SubnetDCIDR
+      UbuntuJumpboxManagementIP: !GetAtt UbuntuJumpBoxManagementENI.PrimaryPrivateIpAddress
+      WindowsJumpboxManagementIP: !GetAtt WindowsJumpBoxManagementENI.PrimaryPrivateIpAddress
+
+Outputs:
+  VPCID:
+    Description: VPC ID
+    Value: !Ref VPC
+  AdminPublicIP:
+    Description: Public IP for Admin for SSH and RDP access
+    Value: !Ref ExternalADCPrimaryClientEIP
+  ExternalADCInstanceID:
+    Description: External ADC Instance ID
+    Value: !Ref ExternalADCPrimaryADCInstance
+  ExternalADCNSIP:
+    Description: External ADC Management side Private IP (NSIP)
+    Value: !GetAtt ExternalADCPrimaryManagementENI.PrimaryPrivateIpAddress
+  ExternalADCVIP:
+    Description: External ADC Client side Private IP (VIP)
+    Value: !Select
+      - 0
+      - !GetAtt ExternalADCPrimaryClientENI.SecondaryPrivateIpAddresses
+  ExternalADCSNIP:
+    Description: External ADC Server side Private IP (SNIP)
+    Value: !Select
+      - 0
+      - !GetAtt ExternalADCPrimaryServerENI.SecondaryPrivateIpAddresses
+  InternalADCInstanceID:
+    Description: Internal ADC Instance ID
+    Value: !Ref InternalADCPrimaryADCInstance
+  InternalADCNSIP:
+    Description: Internal ADC Management side Private IP (NSIP)
+    Value: !GetAtt InternalADCPrimaryManagementENI.PrimaryPrivateIpAddress
+  InternalADCVIP:
+    Description: Internal ADC Client side Private IP (VIP)
+    Value: !Select
+      - 0
+      - !GetAtt InternalADCPrimaryClientENI.SecondaryPrivateIpAddresses
+  InternalADCSNIP:
+    Description: Internal ADC Server side Private IP (SNIP)
+    Value: !Select
+      - 0
+      - !GetAtt InternalADCPrimaryServerENI.SecondaryPrivateIpAddresses
+  IPSManagementIP:
+    Description: IPS VM Management Private IP
+    Value: !GetAtt UbuntuIPSManagementENI.PrimaryPrivateIpAddress
+
+Mappings:
+  AWSAMIRegionMap:
+    AMI:
+      UbuntuIPS: Ubuntu 16.04 LTS - Xenial (HVM)
+      UbuntuJumpbox: Ubuntu 16.04 LTS - Xenial (HVM) 20191113 (Nov 14, 2019)
+      WindowsJumpbox: Microsoft Windows Server 2016 Base 2020.05.13 (May 20, 2020)
+      CITRIXADC: Citrix NetScaler and CloudBridge Connector 13.0-41.20-64-63425ded-82f0-4b54-8cdd-6ec8b94bd4f8-ami-07ddf840261f0d4b8.4
+    us-gov-west-1:
+      UbuntuIPS: ami-64c1e205
+      UbuntuJumpbox: ami-64c1e205
+      WindowsJumpbox: ami-94ae88f5
+      CITRIXADC: ami-620b2b03
+    us-gov-east-1:
+      UbuntuIPS: ami-0c75977d
+      UbuntuJumpbox: ami-0c75977d
+      WindowsJumpbox: ami- #FIXME
+      CITRIXADC: ami-5c62802d
+    us-east-2: # US East (Ohio)
+      CITRIXADC: ami-0e8e26c508fa94732
+      UbuntuIPS: ami-0a16ffe32a92704ea
+      UbuntuJumpbox: ami-0a16ffe32a92704ea
+      WindowsJumpbox: ami-0a16ffe32a92704ea
+    us-east-1: # US East (N. Virginia)
+      CITRIXADC: ami-0bb96d1f8f79db909
+      UbuntuIPS: ami-0c435d654482161c5
+      UbuntuJumpbox: ami-0c435d654482161c5
+      WindowsJumpbox: ami-0cc5ea3dde5301489
+    us-west-1: # US West (N. California)
+      CITRIXADC: ami-0707f52c208d83427
+      UbuntuIPS: ami-05add91e3c9ec59da
+      UbuntuJumpbox: ami-05add91e3c9ec59da
+      WindowsJumpbox: ami-0aa89f1b833336bf6
+    us-west-2: # US West (Oregon)
+      CITRIXADC: ami-0503d15aed657c87d
+      UbuntuIPS: ami-09eb6a1f3d27274e5
+      UbuntuJumpbox: ami-09eb6a1f3d27274e5
+      WindowsJumpbox: ami-0f9cc35d712b86a4f
+    ap-south-1: # Asia Pacific (Mumbai)
+      CITRIXADC: ami-027978a22dc893058
+      UbuntuIPS: ami-063ff8d1f0a79750e
+      UbuntuJumpbox: ami-063ff8d1f0a79750e
+      WindowsJumpbox: ami-0996674586963828d
+    ap-northeast-2: # Asia Pacific (Seoul)
+      CITRIXADC: ami-0ad520c016e96f260
+      UbuntuIPS: ami-0a7406b13850d25a3
+      UbuntuJumpbox: ami-0a7406b13850d25a3
+      WindowsJumpbox: ami-0515c11fbe1299f0a
+    ap-southeast-1: # Asia Pacific (Singapore)
+      CITRIXADC: ami-0316840d86abe4e5e
+      UbuntuIPS: ami-0e9458776a82df380
+      UbuntuJumpbox: ami-0e9458776a82df380
+      WindowsJumpbox: ami-0c9be38028c474d31
+    ap-southeast-2: # Asia Pacific (Sydney)
+      CITRIXADC: ami-02098e6dfe08d9299
+      UbuntuIPS: ami-0755b008a8f50c244
+      UbuntuJumpbox: ami-0755b008a8f50c244
+      WindowsJumpbox: ami-0659baaaa394eba5e
+    ap-northeast-1: # Asia Pacific (Tokyo)
+      CITRIXADC: ami-0a5d628c2e1ea45e9
+      UbuntuIPS: ami-0eb22c41190a92715
+      UbuntuJumpbox: ami-0eb22c41190a92715
+      WindowsJumpbox: ami-0cd7a835d20a5fa3e
+    ca-central-1: # Canada (Central)
+      CITRIXADC: ami-02cbae7662e592d24
+      UbuntuIPS: ami-0450191fe0a40157a
+      UbuntuJumpbox: ami-0450191fe0a40157a
+      WindowsJumpbox: ami-083db6415ff4ab7b1
+    eu-central-1: # Europe (Frankfurt)
+      CITRIXADC: ami-05d81856537a0cfc2
+      UbuntuIPS: ami-01104de0939b54ede
+      UbuntuJumpbox: ami-01104de0939b54ede
+      WindowsJumpbox: ami-065377970c7b7369b
+    eu-west-1: # Europe (Ireland)
+      CITRIXADC: ami-023da45cff4446484
+      UbuntuIPS: ami-02fcf12d5bd33ce51
+      UbuntuJumpbox: ami-02fcf12d5bd33ce51
+      WindowsJumpbox: ami-0e59f5ff8749f81c8
+    eu-west-2: # Europe (London)
+      CITRIXADC: ami-037b51b95111f4231
+      UbuntuIPS: ami-049a0a96d52cc48ee
+      UbuntuJumpbox: ami-049a0a96d52cc48ee
+      WindowsJumpbox: ami-05cf35bf39c3c0d6d
+    eu-west-3: # Europe (Paris)
+      CITRIXADC: ami-0bd4c025bd6afab4a
+      UbuntuIPS: ami-0aae3c0488ec10eef
+      UbuntuJumpbox: ami-0aae3c0488ec10eef
+      WindowsJumpbox: ami-08f9a552e55285f32
+    eu-north-1: # Europe (Stockholm)
+      CITRIXADC: ami-01672d9e4fd60f85d
+      UbuntuIPS: ami-0cf17a8fcfe3ab8f8
+      UbuntuJumpbox: ami-0cf17a8fcfe3ab8f8
+      WindowsJumpbox: ami-0f9cfb4c07508873c
+    sa-east-1: # South America (São Paulo)
+      CITRIXADC: ami-0c66fc6fff94c64b9
+      UbuntuIPS: ami-0ca09aac17fa2c7f8
+      UbuntuJumpbox: ami-0ca09aac17fa2c7f8
+      WindowsJumpbox: ami-02d888aa9faa1017b
+  AWSInstanceTypeRegionMap:
+    us-gov-west-1:
+      UbuntuIPS: m3.large
+      UbuntuJumpbox: m3.large
+      WindowsJumpbox: t2.micro
+      CITRIXADC: m4.xlarge
+    us-gov-east-1:
+      UbuntuIPS: m3.large
+      UbuntuJumpbox: m3.large
+      WindowsJumpbox: t2.nano
+      CITRIXADC: m4.xlarge
+    us-east-2: # US East (Ohio)
+      UbuntuIPS: t2.small
+      UbuntuJumpbox: t2.micro
+      WindowsJumpbox: t2.micro
+      CITRIXADC: m4.xlarge
+    us-east-1: # US East (N. Virginia)
+      UbuntuIPS: t2.small
+      UbuntuJumpbox: t2.micro
+      WindowsJumpbox: t2.micro
+      CITRIXADC: m4.xlarge
+    us-west-1: # US West (N. California)
+      UbuntuIPS: t2.small
+      UbuntuJumpbox: t2.micro
+      WindowsJumpbox: t2.micro
+      CITRIXADC: m4.xlarge
+    us-west-2: # US West (Oregon)
+      UbuntuIPS: t2.small
+      UbuntuJumpbox: t2.micro
+      WindowsJumpbox: t2.micro
+      CITRIXADC: m4.xlarge
+    ap-south-1: # Asia Pacific (Mumbai)
+      UbuntuIPS: t2.small
+      UbuntuJumpbox: t2.micro
+      WindowsJumpbox: t2.micro
+      CITRIXADC: m4.xlarge
+    ap-northeast-2: # Asia Pacific (Seoul)
+      UbuntuIPS: t2.small
+      UbuntuJumpbox: t2.micro
+      WindowsJumpbox: t2.micro
+      CITRIXADC: m4.xlarge
+    ap-southeast-1: # Asia Pacific (Singapore)
+      UbuntuIPS: t2.small
+      UbuntuJumpbox: t2.micro
+      WindowsJumpbox: t2.micro
+      CITRIXADC: m4.xlarge
+    ap-southeast-2: # Asia Pacific (Sydney)
+      UbuntuIPS: t2.small
+      UbuntuJumpbox: t2.micro
+      WindowsJumpbox: t2.micro
+      CITRIXADC: m4.xlarge
+    ap-northeast-1: # Asia Pacific (Tokyo)
+      UbuntuIPS: t2.small
+      UbuntuJumpbox: t2.micro
+      WindowsJumpbox: t2.micro
+      CITRIXADC: m4.xlarge
+    ca-central-1: # Canada (Central)
+      UbuntuIPS: t2.small
+      UbuntuJumpbox: t2.micro
+      WindowsJumpbox: t2.micro
+      CITRIXADC: m4.xlarge
+    eu-central-1: # Europe (Frankfurt)
+      UbuntuIPS: t2.small
+      UbuntuJumpbox: t2.micro
+      WindowsJumpbox: t2.micro
+      CITRIXADC: m4.xlarge
+    eu-west-1: # Europe (Ireland)
+      UbuntuIPS: t2.small
+      UbuntuJumpbox: t2.micro
+      WindowsJumpbox: t2.micro
+      CITRIXADC: m4.xlarge
+    eu-west-2: # Europe (London)
+      UbuntuIPS: t2.small
+      UbuntuJumpbox: t2.micro
+      WindowsJumpbox: t2.micro
+      CITRIXADC: m4.xlarge
+    eu-west-3: # Europe (Paris)
+      UbuntuIPS: t2.small
+      UbuntuJumpbox: t2.micro
+      WindowsJumpbox: t2.micro
+      CITRIXADC: m4.xlarge
+    eu-north-1: # Europe (Stockholm)
+      UbuntuIPS: t2.small
+      UbuntuJumpbox: t2.micro
+      WindowsJumpbox: t2.micro
+      CITRIXADC: m4.xlarge
+    sa-east-1: # South America (São Paulo)
+      UbuntuIPS: t2.small
+      UbuntuJumpbox: t2.micro
+      WindowsJumpbox: t2.micro
+      CITRIXADC: m4.xlarge
