@@ -1,0 +1,155 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Outputs:
+  PooledLicenseRole:
+    Description: ''
+    Export:
+      Name: !Sub '${AWS::StackName}-PooledLicenseRole'
+    Value: !Sub 'https://console.aws.amazon.com/iam/home#/roles/${PooledLicenseRole}'
+Parameters:
+  ADCInstanceID:
+    Description: ''
+    Type: String
+  ADMIP:
+    AllowedPattern: ()|(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
+    ConstraintDescription: Must be a valid IP of the form x.x.x.x
+    Default: ''
+    Description: ''
+    Type: String
+  Bandwidth:
+    Description: 'Should be multile of 10 Mbps. Initial bandwidth of the license in
+      Mbps to be allocated after BYOL ADC is created. '
+    Type: Number
+  LicensingMode:
+    AllowedValues:
+      - ''
+      - Pooled-Licensing
+      - CICO-Licensing
+      - CPU-Licensing
+    Default: ''
+    Description: ''
+    Type: String
+  ManagementPrivateIP:
+    AllowedPattern: ()|(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
+    ConstraintDescription: Must be a valid IP of the form x.x.x.x
+    Default: ''
+    Description: ''
+    Type: String
+  ManagementPrivateSubnetID:
+    Description: ''
+    Type: AWS::EC2::Subnet::Id
+  ManagementSecurityGroupID:
+    Description: ''
+    Type: AWS::EC2::SecurityGroup::Id
+  Platform:
+    AllowedValues:
+      - ''
+      - VPX-10
+      - VPX-25
+      - VPX-200
+      - VPX-1000
+      - VPX-3000
+      - VPX-5000
+      - VPX-8000
+      - VPX-10G
+      - VPX-15G
+      - VPX-25G
+      - VPX-40G
+      - VPX-100G
+    Default: ''
+    Description: ''
+    Type: String
+  PooledEdition:
+    AllowedValues:
+      - ''
+      - Standard
+      - Advanced
+      - Premium
+    Default: ''
+    Description: ''
+    Type: String
+  S3BucketName:
+    AllowedPattern: ()|^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
+    Description: ''
+    Type: String
+  S3Key:
+    Description: ''
+    Type: String
+  VCPUEdition:
+    AllowedValues:
+      - ''
+      - Standard
+      - Advanced
+      - Premium
+    Default: ''
+    Description: ''
+    Type: String
+Resources:
+  AllocatePooledLicense:
+    Properties:
+      ADCInstanceID: !Ref 'ADCInstanceID'
+      ADCPrivateNSIP: !Ref 'ManagementPrivateIP'
+      ADMIP: !Ref 'ADMIP'
+      Bandwidth: !Ref 'Bandwidth'
+      LicensingMode: !Ref 'LicensingMode'
+      Platform: !Ref 'Platform'
+      PooledEdition: !Ref 'PooledEdition'
+      ServiceToken: !GetAtt 'PooledLicenseFunction.Arn'
+      VCPUEdition: !Ref 'VCPUEdition'
+    Type: AWS::CloudFormation::CustomResource
+  PooledLicenseFunction:
+    Properties:
+      Code:
+        S3Bucket: !Ref 'S3BucketName'
+        S3Key: !Ref 'S3Key'
+      Description: PooledLicenseFunction
+      Handler: lambda_pooled_license.lambda_handler
+      Role: !GetAtt 'PooledLicenseRole.Arn'
+      Runtime: python3.6
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-PooledLicenseFunction'
+      Timeout: 900
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref 'ManagementSecurityGroupID'
+        SubnetIds:
+          - !Ref 'ManagementPrivateSubnetID'
+    Type: AWS::Lambda::Function
+  PooledLicenseRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+        Version: '2012-10-17'
+      Description: ''
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Path: /
+      Policies:
+        - PolicyDocument:
+            Statement:
+              - Action:
+                  - ec2:DescribeInstances
+                  - ec2:DescribeNetworkInterfaces
+                  - ec2:DescribeSubnets
+                  - ec2:DescribeVpcs
+                  - ec2:DescribeAvailabilityZones
+                  - ec2:DescribeInstanceStatus
+                  - ec2:CreateNetworkInterface
+                  - ec2:DeleteNetworkInterface
+                  - ec2:AttachNetworkInterface
+                  - ec2:DetachNetworkInterface
+                  - ec2:ModifyNetworkInterfaceAttribute
+                  - ec2:ResetNetworkInterfaceAttribute
+                  - ec2:AssignPrivateIpAddresses
+                  - ec2:UnassignPrivateIpAddresses
+                Effect: Allow
+                Resource: '*'
+            Version: '2012-10-17'
+          PolicyName: citrixadc-lambda-policy
+    Type: AWS::IAM::Role

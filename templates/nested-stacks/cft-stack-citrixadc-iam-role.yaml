@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Outputs:
+  CitrixADCIAMRole:
+    Description: Citrix ADC IAM Role
+    Export:
+      Name: !Sub '${AWS::StackName}-CitrixADCIAMRole'
+    Value: !Sub 'https://console.aws.amazon.com/iam/home#/roles/${CitrixADCIAMRole}'
+  CitrixADCInstanceProfile:
+    Description: Citrix ADC IAM Instance Profile
+    Export:
+      Name: !Sub '${AWS::StackName}-CitrixADCInstanceProfile'
+    Value: !Ref 'CitrixADCInstanceProfile'
+Resources:
+  CitrixADCIAMRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+        Version: '2012-10-17'
+      Description: Citrix ADC IAM Role
+      Path: /
+      Policies:
+        - PolicyDocument:
+            Statement:
+              - Action:
+                  - ec2:DescribeInstances
+                  - ec2:DescribeNetworkInterfaces
+                  - ec2:DetachNetworkInterface
+                  - ec2:AttachNetworkInterface
+                  - ec2:StartInstances
+                  - ec2:StopInstances
+                  - ec2:RebootInstances
+                  - ec2:DescribeAddresses
+                  - ec2:AssociateAddress
+                  - ec2:DisassociateAddress
+                  - autoscaling:*
+                  - sns:CreateTopic
+                  - sns:DeleteTopic
+                  - sns:ListTopics
+                  - sns:Subscribe
+                  - sqs:CreateQueue
+                  - sqs:ListQueues
+                  - sqs:DeleteMessage
+                  - sqs:GetQueueAttributes
+                  - sqs:SetQueueAttributes
+                  - iam:SimulatePrincipalPolicy
+                  - iam:GetRole
+                  - ec2:UnassignPrivateIpAddresses
+                  - ec2:AssignPrivateIpAddresses
+                Effect: Allow
+                Resource: '*'
+            Version: '2012-10-17'
+          PolicyName: Citrixadc-instance-policy
+    Type: AWS::IAM::Role
+  CitrixADCInstanceProfile:
+    Properties:
+      Path: /
+      Roles:
+        - !Ref 'CitrixADCIAMRole'
+    Type: AWS::IAM::InstanceProfile

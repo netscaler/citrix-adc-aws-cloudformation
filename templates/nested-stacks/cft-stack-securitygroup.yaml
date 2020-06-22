@@ -1,0 +1,163 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Outputs:
+  ClientSG:
+    Description: ''
+    Export:
+      Name: !Sub '${AWS::StackName}-ClientSG'
+    Value: !Ref 'ClientSG'
+  GetVPCCIDRRole:
+    Description: ''
+    Export:
+      Name: !Sub '${AWS::StackName}-GetVPCCIDRRole'
+    Value: !Sub 'https://console.aws.amazon.com/iam/home#/roles/${GetVPCCIDRRole}'
+  ManagementSG:
+    Description: ''
+    Export:
+      Name: !Sub '${AWS::StackName}-ManagementSG'
+    Value: !Ref 'ManagementSG'
+  ServerSG:
+    Description: ''
+    Export:
+      Name: !Sub '${AWS::StackName}-ServerSG'
+    Value: !Ref 'ServerSG'
+Parameters:
+  RestrictedSSHCIDR:
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x
+    Description: Must be a valid IP CIDR range of the form x.x.x.x/x
+    Type: String
+  RestrictedWebAppCIDR:
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x
+    Description: Must be a valid IP CIDR range of the form x.x.x.x/x
+    Type: String
+  VPCID:
+    Description: ''
+    Type: AWS::EC2::VPC::Id
+Resources:
+  ClientSG:
+    Properties:
+      GroupDescription: ClientSG
+      GroupName: !Sub '${AWS::StackName}-ClientSG'
+      SecurityGroupIngress:
+        - CidrIp: !Ref 'RestrictedWebAppCIDR'
+          Description: HTTP
+          FromPort: 80
+          IpProtocol: tcp
+          ToPort: 80
+        - CidrIp: !Ref 'RestrictedWebAppCIDR'
+          Description: HTTPS
+          FromPort: 443
+          IpProtocol: tcp
+          ToPort: 443
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-ClientSG'
+      VpcId: !Ref 'VPCID'
+    Type: AWS::EC2::SecurityGroup
+  GetVPCCIDR:
+    Properties:
+      ServiceToken: !GetAtt 'GetVPCCIDRFunction.Arn'
+      VPCID: !Ref 'VPCID'
+    Type: AWS::CloudFormation::CustomResource
+  GetVPCCIDRFunction:
+    Properties:
+      Code:
+        ZipFile: |-
+          import json
+          import cfnresponse
+          import logging
+          import boto3
+          def handler(event, context):
+              response_data = {}
+              response_status = cfnresponse.FAILED
+              logging.info('Received event: {}'.format(json.dumps(event)))
+              if event['RequestType'] == 'Delete':
+                  response_status = cfnresponse.SUCCESS
+                  cfnresponse.send(event, context, response_status, response_data)
+              else:
+                  try:
+                      client = boto3.client('ec2')
+                      response = client.describe_vpcs(VpcIds=[event['ResourceProperties']['VPCID']])
+                      response_data['VPCCIDR'] = response['Vpcs'][0]['CidrBlock']
+                      response_status = cfnresponse.SUCCESS
+                  except Exception as e:
+                      logging.error('failed to get default gateway IP: {}'.format(str(e)))
+                      response_status = cfnresponse.FAILED
+                  finally:
+                      cfnresponse.send(event, context, response_status, response_data)
+      Description: GetVPCCIDRFunction
+      Handler: index.handler
+      Role: !GetAtt 'GetVPCCIDRRole.Arn'
+      Runtime: python3.6
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-GetVPCCIDRFunction'
+      Timeout: 30
+    Type: AWS::Lambda::Function
+  GetVPCCIDRRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+        Version: '2012-10-17'
+      Description: ''
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Path: /
+      Policies:
+        - PolicyDocument:
+            Statement:
+              - Action:
+                  - ec2:DescribeVpcs
+                Effect: Allow
+                Resource: '*'
+            Version: '2012-10-17'
+          PolicyName: get-vpccidr
+    Type: AWS::IAM::Role
+  ManagementSG:
+    Properties:
+      GroupDescription: ManagementSG
+      GroupName: !Sub '${AWS::StackName}-ManagementSG'
+      SecurityGroupIngress:
+        - CidrIp: !GetAtt 'GetVPCCIDR.VPCCIDR'
+          Description: Allow ALL within VPC
+          IpProtocol: '-1'
+        - CidrIp: !Ref 'RestrictedSSHCIDR'
+          Description: SSH
+          FromPort: 22
+          IpProtocol: tcp
+          ToPort: 22
+        - CidrIp: !Ref 'RestrictedWebAppCIDR'
+          Description: HTTP
+          FromPort: 80
+          IpProtocol: tcp
+          ToPort: 80
+        - CidrIp: !Ref 'RestrictedWebAppCIDR'
+          Description: HTTPS
+          FromPort: 443
+          IpProtocol: tcp
+          ToPort: 443
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-ManagementSG'
+      VpcId: !Ref 'VPCID'
+    Type: AWS::EC2::SecurityGroup
+  ServerSG:
+    Properties:
+      GroupDescription: ServerSG
+      GroupName: !Sub '${AWS::StackName}-ServerSG'
+      SecurityGroupIngress:
+        - CidrIp: !GetAtt 'GetVPCCIDR.VPCCIDR'
+          Description: Allow ALL within VPC
+          IpProtocol: '-1'
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-ServerSG'
+      VpcId: !Ref 'VPCID'
+    Type: AWS::EC2::SecurityGroup

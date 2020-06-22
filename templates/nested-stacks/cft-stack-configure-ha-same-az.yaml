@@ -1,0 +1,105 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Outputs:
+  LambdaConfigureHASameAZRole:
+    Description: ''
+    Export:
+      Name: !Sub '${AWS::StackName}-LambdaConfigureHASameAZRole'
+    Value: !Sub 'https://console.aws.amazon.com/iam/home#/roles/${LambdaConfigureHASameAZRole}'
+Parameters:
+  ManagementPrivateSubnetID:
+    Description: ''
+    Type: AWS::EC2::Subnet::Id
+  ManagementSecurityGroupID:
+    Description: ''
+    Type: AWS::EC2::SecurityGroup::Id
+  PrimaryInstanceID:
+    Description: ''
+    Type: String
+  PrimaryManagementPrivateIP:
+    AllowedPattern: ()|(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
+    ConstraintDescription: Must be a valid IP of the form x.x.x.x
+    Default: ''
+    Description: ''
+    Type: String
+  S3BucketName:
+    AllowedPattern: ()|^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
+    Description: ''
+    Type: String
+  S3Key:
+    Description: ''
+    Type: String
+  SecondaryInstanceID:
+    Description: ''
+    Type: String
+  SecondaryManagementPrivateIP:
+    AllowedPattern: ()|(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
+    ConstraintDescription: Must be a valid IP of the form x.x.x.x
+    Default: ''
+    Description: ''
+    Type: String
+Resources:
+  ConfigureHASameAZFunction:
+    Properties:
+      Code:
+        S3Bucket: !Ref 'S3BucketName'
+        S3Key: !Ref 'S3Key'
+      Description: ConfigureHASameAZFunction
+      Handler: lambda_ha_same_az.lambda_handler
+      Role: !GetAtt 'LambdaConfigureHASameAZRole.Arn'
+      Runtime: python3.6
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-ConfigureHASameAZFunction'
+      Timeout: 900
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref 'ManagementSecurityGroupID'
+        SubnetIds:
+          - !Ref 'ManagementPrivateSubnetID'
+    Type: AWS::Lambda::Function
+  ConfigureLambda:
+    Properties:
+      PrimaryADCInstanceID: !Ref 'PrimaryInstanceID'
+      PrimaryADCPrivateNSIP: !Ref 'PrimaryManagementPrivateIP'
+      SecondaryADCInstanceID: !Ref 'SecondaryInstanceID'
+      SecondaryADCPrivateNSIP: !Ref 'SecondaryManagementPrivateIP'
+      ServiceToken: !GetAtt 'ConfigureHASameAZFunction.Arn'
+    Type: AWS::CloudFormation::CustomResource
+  LambdaConfigureHASameAZRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+        Version: '2012-10-17'
+      Description: ''
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Path: /
+      Policies:
+        - PolicyDocument:
+            Statement:
+              - Action:
+                  - ec2:DescribeInstances
+                  - ec2:DescribeNetworkInterfaces
+                  - ec2:DescribeSubnets
+                  - ec2:DescribeVpcs
+                  - ec2:DescribeAvailabilityZones
+                  - ec2:DescribeInstanceStatus
+                  - ec2:CreateNetworkInterface
+                  - ec2:DeleteNetworkInterface
+                  - ec2:AttachNetworkInterface
+                  - ec2:DetachNetworkInterface
+                  - ec2:ModifyNetworkInterfaceAttribute
+                  - ec2:ResetNetworkInterfaceAttribute
+                  - ec2:AssignPrivateIpAddresses
+                  - ec2:UnassignPrivateIpAddresses
+                Effect: Allow
+                Resource: '*'
+            Version: '2012-10-17'
+          PolicyName: citrixadc-lambda-policy
+    Type: AWS::IAM::Role
