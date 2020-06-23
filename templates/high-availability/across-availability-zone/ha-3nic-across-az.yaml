@@ -91,7 +91,8 @@ Metadata:
       PrimaryClientPrivateIP:
         default: Primary Client Private IP (VIP)
       PrimaryClientPublicSubnetID:
-        default: Subnet ID associated with Primary ADC Client interface
+        default: Subnet ID associated with Primary ADC Client interface (Traffic coming
+          from `client` to the `ADC VIP`)
       PrimaryManagementPrivateIP:
         default: Primary Management Private IP (NSIP)
       PrimaryManagementPrivateSubnetID:
@@ -99,7 +100,8 @@ Metadata:
       PrimaryServerPrivateIP:
         default: Primary Server Private IP (SNIP)
       PrimaryServerPrivateSubnetID:
-        default: Subnet ID associated with Primary ADC Server interface
+        default: Subnet ID associated with Primary ADC Server interface (Traffic leaving
+          from the `ADC SNIP` to the `backend`)
       PublishCloudwatchMetrics:
         default: Publish custom metrics to CloudWatch?
       RestrictedSSHCIDR:
@@ -109,7 +111,8 @@ Metadata:
       SecondaryClientPrivateIP:
         default: Secondary Client Private IP (VIP)
       SecondaryClientPublicSubnetID:
-        default: Subnet ID associated with Secondary ADC Client interface
+        default: Subnet ID associated with Secondary ADC Client interface (Traffic
+          coming from `client` to the `ADC VIP`)
       SecondaryManagementPrivateIP:
         default: Secondary Management Private IP (NSIP)
       SecondaryManagementPrivateSubnetID:
@@ -117,7 +120,8 @@ Metadata:
       SecondaryServerPrivateIP:
         default: Secondary Server Private IP (SNIP)
       SecondaryServerPrivateSubnetID:
-        default: Subnet ID associated with Secondary ADC Server interface
+        default: Subnet ID associated with Secondary ADC Server interface (Traffic
+          leaving from the `ADC SNIP` to the `backend`)
       VCPUEdition:
         default: CPU-Licensing Edition (Select this if the above LicensingMode is
           `CPU-Licensing`)
@@ -195,8 +199,6 @@ Parameters:
   ADCProductVersion:
     AllowedValues:
       - '13.0'
-      - '12.1'
-      - '12.0'
     Default: '13.0'
     Description: ''
     Type: String
@@ -207,12 +209,13 @@ Parameters:
     Description: ''
     Type: String
   Bandwidth:
+    Default: 0
     Description: 'Should be multile of 10 Mbps. Initial bandwidth of the license in
       Mbps to be allocated after BYOL ADC is created. '
     Type: Number
   CitrixADCImageID:
-    Description: If left empty, `Citrix ADC VPC - Customer Licensed` (https://aws.amazon.com/marketplace/pp/B00AA01BOE)
-      is provisioned by default.
+    Description: If left empty, the latest AMI for the above selected Citrix ADC Product
+      Name and Version will be provisioned.
     Type: String
   CitrixADCInstanceType:
     AllowedValues:
