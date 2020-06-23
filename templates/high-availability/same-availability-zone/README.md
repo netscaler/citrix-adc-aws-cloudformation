@@ -1,6 +1,6 @@
 ## CloudFormation Template description
 
-This template provisions two Citrix ADC VPX in two different AWS Availability Zones and configures them as High-Availabile. This template also gives an option to allocate Pooled License to Citrix ADCs while provisioning.
+This template provisions two Citrix ADC VPX in the same AWS Availability Zone and configures them as High-Availabile. This template also gives an option to allocate Pooled License to Citrix ADCs while provisioning.
 This template:
 - Provisions two CitrixADC and configure them in HA mode
 - After deployment, each CitrixADC instance will have
@@ -24,6 +24,10 @@ The CloudFormation template requires sufficient IAM previliges to create IAM rol
 - 3 unallocated EIPs
 - EC2 KeyPair
 
+### VPC pre-requisite
+> The resources in Management Subnet must be reachable to the below AWS endpoints - 
+- `ec2.amazonaws.com`
+- `s3.amazonaws.com`
 
 ## Network architecture
 ![Citrix HA Same AZ Private IP Migration](./citrix-adc-ha-same-zone-architecture.png)

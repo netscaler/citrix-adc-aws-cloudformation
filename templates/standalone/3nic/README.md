@@ -1,7 +1,6 @@
 ## CloudFormation Template description
 
-This template provisions two Citrix ADC VPX in two different AWS Availability Zones and configures them as High-Availabile. This template also gives an option to allocate Pooled License to Citrix ADCs while provisioning.
-This template   Launches required number of Citrix ADCs. By default Customer Licensed (BYOL) ADC will be launched with 3 ENIs associated to 3 VPC subnets (Management, Client, Server).
+This template provisions a Citrix ADC VPX in AWS. This template also gives an option to allocate Pooled License to Citrix ADCs while provisioning.
 
 This template provisions a 3nic Citrix ADC VPX.
 This template also gives an option to allocate Pooled License to Citrix ADCs while provisioning.
@@ -29,6 +28,10 @@ The CloudFormation template requires sufficient IAM previliges to create IAM rol
 - 1 unallocated EIP
 - EC2 KeyPair
 
+### VPC pre-requisite
+> The resources in Management Subnet must be reachable to the below AWS endpoints - 
+- `ec2.amazonaws.com`
+- `s3.amazonaws.com`
 
 
 ## Quick Launch Links
