@@ -90,6 +90,7 @@
             ]
         }
     },
+    "Description": "This template provisions two Citrix ADC VPX in two different AWS Availability Zones and configures them as High-Availabile. This template also gives an option to allocate Pooled License to Citrix ADCs while provisioning.",
     "Mappings": {
         "AWSAMIRegionMap": {
             "AMI": {

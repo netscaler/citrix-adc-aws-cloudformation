@@ -15,10 +15,12 @@ Conditions:
     - !Equals
       - !Ref 'ServerPrivateIP'
       - ''
+Description: This template provisions a Citrix ADC VPX in AWS. This template also
+  gives an option to allocate Pooled License to Citrix ADCs while provisioning.
 Mappings:
   AWSAMIRegionMap:
     AMI:
-      CITRIXADC: Citrix NetScaler
+      CITRIXADC: Citrix ADC VPX
     ap-east-1:
       CITRIXADC: ami-0b44e0d299d3b3a33
     ap-northeast-1:
@@ -93,7 +95,8 @@ Metadata:
       ClientPrivateIP:
         default: Client Private IP (VIP)
       ClientPublicSubnetID:
-        default: Subnet ID associated with Citrix ADC Client interface (Traffic coming from `client` to the `ADC VIP`)
+        default: Subnet ID associated with Citrix ADC Client interface (Traffic coming
+          from `client` to the `ADC VIP`)
       KeyPairName:
         default: Keypair to associate to ADCs
       ManagementENIEIP:
@@ -111,7 +114,8 @@ Metadata:
       ServerPrivateIP:
         default: Server Private IP (SNIP)
       ServerPrivateSubnetID:
-        default: Subnet ID associated with Citrix ADC Server interface (Traffic leaving from the `ADC SNIP` to the `backend`)
+        default: Subnet ID associated with Citrix ADC Server interface (Traffic leaving
+          from the `ADC SNIP` to the `backend`)
       VPCID:
         default: VPC ID to deploy the resources
       VPCTenancy:
@@ -121,7 +125,7 @@ Outputs:
     Description: Citrix ADC IAM Role
     Export:
       Name: !Sub '${AWS::StackName}-CitrixADCIAMRole'
-    Value: !GetAtt 'CitrixADCIAMRole.Arn'
+    Value: !Sub 'https://console.aws.amazon.com/iam/home#/roles/${CitrixADCIAMRole}'
   CitrixADCInstanceID:
     Description: Citrix ADC Instance ID
     Export:
@@ -131,7 +135,7 @@ Outputs:
     Description: Citrix ADC IAM Instance Profile
     Export:
       Name: !Sub '${AWS::StackName}-CitrixADCInstanceProfile'
-    Value: !GetAtt 'CitrixADCInstanceProfile.Arn'
+    Value: !Ref 'CitrixADCInstanceProfile'
   ClientPrivateIP:
     Description: ADC Client Private IP (VIP)
     Export:
@@ -325,15 +329,15 @@ Resources:
                 Effect: Allow
                 Resource: '*'
             Version: '2012-10-17'
-          PolicyName: Citrixnode
+          PolicyName: Citrixadc-instance-policy
     Type: AWS::IAM::Role
   CitrixADCInstance:
     Properties:
       IamInstanceProfile: !Ref 'CitrixADCInstanceProfile'
       ImageId: !FindInMap
-          - AWSAMIRegionMap
-          - !Ref 'AWS::Region'
-          - CITRIXADC
+        - AWSAMIRegionMap
+        - !Ref 'AWS::Region'
+        - CITRIXADC
       InstanceType: !Ref 'CitrixADCInstanceType'
       KeyName: !Ref 'KeyPairName'
       NetworkInterfaces:
@@ -365,7 +369,6 @@ Resources:
         - UseClientPrivateIP
         - !Ref 'ClientPrivateIP'
         - !Ref 'AWS::NoValue'
-      SecondaryPrivateIpAddressCount: 0
       SubnetId: !Ref 'ClientPublicSubnetID'
       Tags:
         - Key: Name
@@ -408,7 +411,6 @@ Resources:
         - UseManagementPrivateIP
         - !Ref 'ManagementPrivateIP'
         - !Ref 'AWS::NoValue'
-      SecondaryPrivateIpAddressCount: 0
       SubnetId: !Ref 'ManagementPrivateSubnetID'
       Tags:
         - Key: Name
@@ -455,10 +457,8 @@ Resources:
         - UseServerPrivateIP
         - !Ref 'ServerPrivateIP'
         - !Ref 'AWS::NoValue'
-      SecondaryPrivateIpAddressCount: 0
       SubnetId: !Ref 'ServerPrivateSubnetID'
       Tags:
         - Key: Name
           Value: !Sub '${AWS::StackName}-ServerENI'
     Type: AWS::EC2::NetworkInterface
-

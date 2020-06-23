@@ -46,6 +46,7 @@
             ]
         }
     },
+    "Description": "This template provisions a Citrix ADC VPX in AWS. This template also gives an option to allocate Pooled License to Citrix ADCs while provisioning.",
     "Mappings": {
         "AWSAMIRegionMap": {
             "AMI": {

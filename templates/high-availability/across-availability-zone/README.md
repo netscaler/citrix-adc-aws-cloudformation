@@ -41,6 +41,10 @@ The CloudFormation template requires sufficient IAM previliges to create IAM rol
 - 3 unallocated EIPs
 - EC2 KeyPair
 
+### VPC pre-requisite
+> The resources in Management Subnet must be reachable to the below AWS endpoints - 
+- `ec2.amazonaws.com`
+- `s3.amazonaws.com`
 
 ## Network architecture
 ![Citrix HA Across AZ](./citrix-adc-ha-architecture.png)
