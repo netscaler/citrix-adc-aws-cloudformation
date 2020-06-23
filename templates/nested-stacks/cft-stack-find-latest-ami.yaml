@@ -36,8 +36,6 @@ Parameters:
   ADCProductVersion:
     AllowedValues:
       - '13.0'
-      - '12.1'
-      - '12.0'
     Default: '13.0'
     Description: ''
     Type: String

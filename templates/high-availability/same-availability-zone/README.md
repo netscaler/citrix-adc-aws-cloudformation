@@ -26,7 +26,7 @@ The CloudFormation template requires sufficient IAM previliges to create IAM rol
 
 
 ## Network architecture
-![Citrix HA Same AZ Private IP Migration](https://docs.citrix.com/en-us/citrix-adc/media/aws-ha-pip-migration.png)
+![Citrix HA Same AZ Private IP Migration](./citrix-adc-ha-same-zone-architecture.png)
 
 
 ## Quick Launch Links
