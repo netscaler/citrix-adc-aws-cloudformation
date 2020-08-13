@@ -170,7 +170,7 @@ Parameters:
       - c5n.4xlarge
       - c5n.9xlarge
       - c5n.18xlarge
-    Default: m4.xlarge
+    Default: m5.xlarge
     Description: ''
     Type: String
   ClientENIEIP:
