@@ -2,6 +2,10 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: ---
 
 Parameters:
+  ADCCustomPassword:
+    Description: Strong password recommended
+    NoEcho: true
+    Type: String
   VPCCIDR:
     Description: VPC CIDR block.
     Type: String
@@ -123,6 +127,7 @@ Metadata:
           default: Citrix ADC Configuration
         Parameters:
           - CitrixADCImageID
+          - ADCCustomPassword
           - CitrixADCInstanceType
           - KeyPairName
           - VPCTenancy
@@ -144,6 +149,8 @@ Metadata:
           - SubnetMCIDR
 
     ParameterLabels:
+      ADCCustomPassword:
+        default: External and Internal Citrix ADC management login Password
       CitrixADCImageID:
         default: Citrix ADC AMI ID
       CitrixADCInstanceType:
@@ -1481,6 +1488,8 @@ Resources:
     Type: Custom::LambdaSCCA
     Properties:
       ServiceToken: !GetAtt ConfigureSCCAFunction.Arn
+      CustomExternalADCPassword: !Ref ADCCustomPassword
+      CustomInternalADCPassword: !Ref ADCCustomPassword
       ExternalADCInstanceID: !Ref ExternalADCPrimaryADCInstance
       ExternalADCNSIP: !GetAtt ExternalADCPrimaryManagementENI.PrimaryPrivateIpAddress
       ExternalADCVIP: !Select

@@ -1,25 +1,42 @@
-AWSTemplateFormatVersion: '2010-09-09'
-Conditions:
-  AssignEIP2ClientENI: !Equals
-    - !Ref 'ClientENIEIP'
-    - 'Yes'
-  AssignEIP2ManagementENI: !Equals
-    - !Ref 'ManagementENIEIP'
-    - 'Yes'
-  UseClientPrivateIP: !Not
-    - !Equals
-      - !Ref 'ClientPrivateIP'
-      - ''
-  UseManagementPrivateIP: !Not
-    - !Equals
-      - !Ref 'ManagementPrivateIP'
-      - ''
-  UseServerPrivateIP: !Not
-    - !Equals
-      - !Ref 'ServerPrivateIP'
-      - ''
 Metadata:
   AWS::CloudFormation::Interface:
+    ParameterLabels:
+      ManagementPrivateSubnetID:
+        default: Subnet ID associated with Citrix ADC Management interface
+      ClientPublicSubnetID:
+        default: Subnet ID associated with Citrix ADC Client interface
+      ServerPrivateSubnetID:
+        default: Subnet ID associated with Citrix ADC Client interface
+      VPCTenancy:
+        default: ''
+      CitrixADCInstanceType:
+        default: Citrix ADC instance type
+      KeyPairName:
+        default: Keypair to associate to ADCs
+      PublishCloudwatchMetrics:
+        default: Publish custom metrics to CloudWatch?
+      CitrixADCInstanceProfile:
+        default: IAM Instance Profile ARN associatd with Citrix ADC
+      ManagementSecurityGroupID:
+        default: Management Security Group ID
+      ClientSecurityGroupID:
+        default: Client Security Group ID
+      ServerSecurityGroupID:
+        default: Server Security Group ID
+      CitrixADCImageID:
+        default: Citrix ADC AMI ID
+      ClientENIEIP:
+        default: Should PublicIP(EIP) be assigned to client interfaces?
+      ManagementENIEIP:
+        default: Should PublicIP(EIP) be assigned to management interfaces?
+      ADCInstanceTagName:
+        default: ADC Instance Tag Name
+      ManagementPrivateIP:
+        default: Management Private IP (NSIP)
+      ClientPrivateIP:
+        default: Client Private IP (VIP)
+      ServerPrivateIP:
+        default: Server Private IP (SNIP)
     ParameterGroups:
       - Label:
           default: Network Configuration
@@ -48,88 +65,121 @@ Metadata:
           - ManagementPrivateIP
           - ClientPrivateIP
           - ServerPrivateIP
-    ParameterLabels:
-      ADCInstanceTagName:
-        default: ADC Instance Tag Name
-      CitrixADCImageID:
-        default: Citrix ADC AMI ID
-      CitrixADCInstanceProfile:
-        default: IAM Instance Profile ARN associatd with Citrix ADC
-      CitrixADCInstanceType:
-        default: Citrix ADC instance type
-      ClientENIEIP:
-        default: Should PublicIP(EIP) be assigned to client interfaces?
-      ClientPrivateIP:
-        default: Client Private IP (VIP)
-      ClientPublicSubnetID:
-        default: Subnet ID associated with Citrix ADC Client interface
-      ClientSecurityGroupID:
-        default: Client Security Group ID
-      KeyPairName:
-        default: Keypair to associate to ADCs
-      ManagementENIEIP:
-        default: Should PublicIP(EIP) be assigned to management interfaces?
-      ManagementPrivateIP:
-        default: Management Private IP (NSIP)
-      ManagementPrivateSubnetID:
-        default: Subnet ID associated with Citrix ADC Management interface
-      ManagementSecurityGroupID:
-        default: Management Security Group ID
-      PublishCloudwatchMetrics:
-        default: Publish custom metrics to CloudWatch?
-      ServerPrivateIP:
-        default: Server Private IP (SNIP)
-      ServerPrivateSubnetID:
-        default: Subnet ID associated with Citrix ADC Client interface
-      ServerSecurityGroupID:
-        default: Server Security Group ID
-      VPCTenancy:
-        default: ''
+Conditions:
+  AssignEIP2ManagementENI: !Equals
+    - !Ref 'ManagementENIEIP'
+    - 'Yes'
+  AssignEIP2ClientENI: !Equals
+    - !Ref 'ClientENIEIP'
+    - 'Yes'
+  UseManagementPrivateIP: !Not
+    - !Equals
+      - !Ref 'ManagementPrivateIP'
+      - ''
+  UseClientPrivateIP: !Not
+    - !Equals
+      - !Ref 'ClientPrivateIP'
+      - ''
+  UseServerPrivateIP: !Not
+    - !Equals
+      - !Ref 'ServerPrivateIP'
+      - ''
 Outputs:
-  CitrixADCInstanceID:
-    Description: Citrix ADC Instance ID
-    Export:
-      Name: !Sub '${AWS::StackName}-CitrixADCInstanceID'
-    Value: !Ref 'CitrixADCInstance'
-  ClientEIP:
-    Condition: AssignEIP2ClientENI
-    Description: ''
-    Export:
-      Name: !Sub '${AWS::StackName}-ClientEIP'
-    Value: !Ref 'ClientEIP'
-  ClientPrivateIP:
-    Description: ADC Client Private IP (VIP)
-    Export:
-      Name: !Sub '${AWS::StackName}-ClientPrivateIP'
-    Value: !GetAtt 'ClientENI.PrimaryPrivateIpAddress'
-  ManagementEIP:
-    Condition: AssignEIP2ManagementENI
-    Description: ''
-    Export:
-      Name: !Sub '${AWS::StackName}-ManagementEIP'
-    Value: !Ref 'ManagementEIP'
   ManagementPrivateIP:
     Description: ADC Management Private IP (NSIP)
     Export:
       Name: !Sub '${AWS::StackName}-ManagementPrivateIP'
     Value: !GetAtt 'ManagementENI.PrimaryPrivateIpAddress'
+  ClientPrivateIP:
+    Description: ADC Client Private IP (VIP)
+    Export:
+      Name: !Sub '${AWS::StackName}-ClientPrivateIP'
+    Value: !GetAtt 'ClientENI.PrimaryPrivateIpAddress'
   ServerPrivateIP:
     Description: ADC Server Private IP (SNIP)
     Export:
       Name: !Sub '${AWS::StackName}-ServerPrivateIP'
     Value: !GetAtt 'ServerENI.PrimaryPrivateIpAddress'
+  CitrixADCInstanceID:
+    Description: Citrix ADC Instance ID
+    Export:
+      Name: !Sub '${AWS::StackName}-CitrixADCInstanceID'
+    Value: !Ref 'CitrixADCInstance'
+  ManagementEIP:
+    Description: ''
+    Export:
+      Name: !Sub '${AWS::StackName}-ManagementEIP'
+    Value: !Ref 'ManagementEIP'
+    Condition: AssignEIP2ManagementENI
+  ClientEIP:
+    Description: ''
+    Export:
+      Name: !Sub '${AWS::StackName}-ClientEIP'
+    Value: !Ref 'ClientEIP'
+    Condition: AssignEIP2ClientENI
 Parameters:
-  ADCInstanceTagName:
-    Description: ''
-    Type: String
   CitrixADCImageID:
-    Description: ''
     Type: String
-  CitrixADCInstanceProfile:
+    Description: ''
+  ManagementPrivateSubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: ''
+  ClientPublicSubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: ''
+  ServerPrivateSubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: ''
+  ManagementPrivateIP:
+    Type: String
     Default: ''
-    Description: ''
+    Description: If not specified, the private ip will be auto assigned
+    AllowedPattern: ()|(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
+    ConstraintDescription: Must be a valid IP of the form x.x.x.x
+  ClientPrivateIP:
     Type: String
+    Default: ''
+    Description: If not specified, the private ip will be auto assigned
+    AllowedPattern: ()|(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
+    ConstraintDescription: Must be a valid IP of the form x.x.x.x
+  ServerPrivateIP:
+    Type: String
+    Default: ''
+    Description: If not specified, the private ip will be auto assigned
+    AllowedPattern: ()|(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
+    ConstraintDescription: Must be a valid IP of the form x.x.x.x
+  ClientENIEIP:
+    Type: String
+    Description: ''
+    Default: 'No'
+    AllowedValues:
+      - 'No'
+      - 'Yes'
+  ManagementENIEIP:
+    Type: String
+    Description: ''
+    Default: 'No'
+    AllowedValues:
+      - 'No'
+      - 'Yes'
+  ADCInstanceTagName:
+    Type: String
+    Description: ''
+  KeyPairName:
+    Type: String
+    Description: ''
+    Default: ''
+  VPCTenancy:
+    Type: String
+    Description: ''
+    Default: default
+    AllowedValues:
+      - default
+      - dedicated
   CitrixADCInstanceType:
+    Type: String
+    Description: ''
+    Default: m5.xlarge
     AllowedValues:
       - t2.medium
       - t2.large
@@ -171,141 +221,28 @@ Parameters:
       - c5n.4xlarge
       - c5n.9xlarge
       - c5n.18xlarge
-    Default: m5.xlarge
-    Description: ''
+  CitrixADCInstanceProfile:
     Type: String
-  ClientENIEIP:
-    AllowedValues:
-      - 'No'
-      - 'Yes'
-    Default: 'No'
     Description: ''
-    Type: String
-  ClientPrivateIP:
-    AllowedPattern: ()|(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
-    ConstraintDescription: Must be a valid IP of the form x.x.x.x
     Default: ''
-    Description: If not specified, the private ip will be auto assigned
-    Type: String
-  ClientPublicSubnetID:
-    Description: ''
-    Type: AWS::EC2::Subnet::Id
-  ClientSecurityGroupID:
-    Description: ''
-    Type: AWS::EC2::SecurityGroup::Id
-  KeyPairName:
-    Description: ''
-    Type: AWS::EC2::KeyPair::KeyName
-  ManagementENIEIP:
-    AllowedValues:
-      - 'No'
-      - 'Yes'
-    Default: 'No'
-    Description: ''
-    Type: String
-  ManagementPrivateIP:
-    AllowedPattern: ()|(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
-    ConstraintDescription: Must be a valid IP of the form x.x.x.x
-    Default: ''
-    Description: If not specified, the private ip will be auto assigned
-    Type: String
-  ManagementPrivateSubnetID:
-    Description: ''
-    Type: AWS::EC2::Subnet::Id
   ManagementSecurityGroupID:
-    Description: ''
     Type: AWS::EC2::SecurityGroup::Id
+    Description: ''
+  ClientSecurityGroupID:
+    Type: AWS::EC2::SecurityGroup::Id
+    Description: ''
+  ServerSecurityGroupID:
+    Type: AWS::EC2::SecurityGroup::Id
+    Description: ''
   PublishCloudwatchMetrics:
+    Type: String
+    Description: ''
+    Default: 'Yes'
     AllowedValues:
       - 'No'
       - 'Yes'
-    Default: 'Yes'
-    Description: ''
-    Type: String
-  ServerPrivateIP:
-    AllowedPattern: ()|(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
-    ConstraintDescription: Must be a valid IP of the form x.x.x.x
-    Default: ''
-    Description: If not specified, the private ip will be auto assigned
-    Type: String
-  ServerPrivateSubnetID:
-    Description: ''
-    Type: AWS::EC2::Subnet::Id
-  ServerSecurityGroupID:
-    Description: ''
-    Type: AWS::EC2::SecurityGroup::Id
-  VPCTenancy:
-    AllowedValues:
-      - default
-      - dedicated
-    Default: default
-    Description: ''
-    Type: String
+AWSTemplateFormatVersion: '2010-09-09'
 Resources:
-  AssociateClientEIP2ENI:
-    Condition: AssignEIP2ClientENI
-    Properties:
-      AllocationId: !GetAtt 'ClientEIP.AllocationId'
-      NetworkInterfaceId: !Ref 'ClientENI'
-      PrivateIpAddress: !GetAtt 'ClientENI.PrimaryPrivateIpAddress'
-    Type: AWS::EC2::EIPAssociation
-  AssociateManagementEIP2ENI:
-    Condition: AssignEIP2ManagementENI
-    Properties:
-      AllocationId: !GetAtt 'ManagementEIP.AllocationId'
-      NetworkInterfaceId: !Ref 'ManagementENI'
-      PrivateIpAddress: !GetAtt 'ManagementENI.PrimaryPrivateIpAddress'
-    Type: AWS::EC2::EIPAssociation
-  CitrixADCInstance:
-    Properties:
-      IamInstanceProfile: !Ref 'CitrixADCInstanceProfile'
-      ImageId: !Ref 'CitrixADCImageID'
-      InstanceType: !Ref 'CitrixADCInstanceType'
-      KeyName: !Ref 'KeyPairName'
-      NetworkInterfaces:
-        - DeviceIndex: '0'
-          NetworkInterfaceId: !Ref 'ManagementENI'
-        - DeviceIndex: '1'
-          NetworkInterfaceId: !Ref 'ClientENI'
-        - DeviceIndex: '2'
-          NetworkInterfaceId: !Ref 'ServerENI'
-      Tags:
-        - Key: Name
-          Value: !Sub '${AWS::StackName}-${ADCInstanceTagName}-CitrixADCInstance'
-      Tenancy: !Ref 'VPCTenancy'
-      UserData: !Base64
-        Fn::Sub: PublishCloudwatchMetrics=${PublishCloudwatchMetrics}
-    Type: AWS::EC2::Instance
-  ClientEIP:
-    Condition: AssignEIP2ClientENI
-    Properties:
-      Domain: vpc
-      Tags:
-        - Key: Name
-          Value: !Sub '${AWS::StackName}-ClientEIP'
-    Type: AWS::EC2::EIP
-  ClientENI:
-    Properties:
-      Description: ADC Client Private IP (VIP)
-      GroupSet:
-        - !Ref 'ClientSecurityGroupID'
-      PrivateIpAddress: !If
-        - UseClientPrivateIP
-        - !Ref 'ClientPrivateIP'
-        - !Ref 'AWS::NoValue'
-      SubnetId: !Ref 'ClientPublicSubnetID'
-      Tags:
-        - Key: Name
-          Value: !Sub '${AWS::StackName}-ClientENI'
-    Type: AWS::EC2::NetworkInterface
-  ManagementEIP:
-    Condition: AssignEIP2ManagementENI
-    Properties:
-      Domain: vpc
-      Tags:
-        - Key: Name
-          Value: !Sub '${AWS::StackName}-ManagementEIP'
-    Type: AWS::EC2::EIP
   ManagementENI:
     Properties:
       Description: ADC Management Private IP (NSIP)
@@ -319,6 +256,20 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub '${AWS::StackName}-ManagementENI'
+    Type: AWS::EC2::NetworkInterface
+  ClientENI:
+    Properties:
+      Description: ADC Client Private IP (VIP)
+      GroupSet:
+        - !Ref 'ClientSecurityGroupID'
+      PrivateIpAddress: !If
+        - UseClientPrivateIP
+        - !Ref 'ClientPrivateIP'
+        - !Ref 'AWS::NoValue'
+      SubnetId: !Ref 'ClientPublicSubnetID'
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-ClientENI'
     Type: AWS::EC2::NetworkInterface
   ServerENI:
     Properties:
@@ -334,3 +285,55 @@ Resources:
         - Key: Name
           Value: !Sub '${AWS::StackName}-ServerENI'
     Type: AWS::EC2::NetworkInterface
+  CitrixADCInstance:
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-${ADCInstanceTagName}-CitrixADCInstance'
+      IamInstanceProfile: !Ref 'CitrixADCInstanceProfile'
+      ImageId: !Ref 'CitrixADCImageID'
+      InstanceType: !Ref 'CitrixADCInstanceType'
+      KeyName: !Ref 'KeyPairName'
+      NetworkInterfaces:
+        - DeviceIndex: '0'
+          NetworkInterfaceId: !Ref 'ManagementENI'
+        - DeviceIndex: '1'
+          NetworkInterfaceId: !Ref 'ClientENI'
+        - DeviceIndex: '2'
+          NetworkInterfaceId: !Ref 'ServerENI'
+      Tenancy: !Ref 'VPCTenancy'
+      UserData: !Base64
+        Fn::Sub: PublishCloudwatchMetrics=${PublishCloudwatchMetrics}
+    Type: AWS::EC2::Instance
+  ManagementEIP:
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-ManagementEIP'
+    Type: AWS::EC2::EIP
+    Condition: AssignEIP2ManagementENI
+    DependsOn: CitrixADCInstance
+  AssociateManagementEIP2ENI:
+    Properties:
+      AllocationId: !GetAtt 'ManagementEIP.AllocationId'
+      NetworkInterfaceId: !Ref 'ManagementENI'
+      PrivateIpAddress: !GetAtt 'ManagementENI.PrimaryPrivateIpAddress'
+    Type: AWS::EC2::EIPAssociation
+    Condition: AssignEIP2ManagementENI
+  ClientEIP:
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-ClientEIP'
+    Type: AWS::EC2::EIP
+    Condition: AssignEIP2ClientENI
+    DependsOn: CitrixADCInstance
+  AssociateClientEIP2ENI:
+    Properties:
+      AllocationId: !GetAtt 'ClientEIP.AllocationId'
+      NetworkInterfaceId: !Ref 'ClientENI'
+      PrivateIpAddress: !GetAtt 'ClientENI.PrimaryPrivateIpAddress'
+    Type: AWS::EC2::EIPAssociation
+    Condition: AssignEIP2ClientENI

@@ -1,67 +1,29 @@
-Conditions:
-  AssignClientEIP: !Equals
-    - !Ref 'ClientENIEIP'
-    - 'Yes'
 Outputs:
-  LambdaConfigureHASameAZRole:
+  ADCInitRole:
     Description: ''
     Export:
-      Name: !Sub '${AWS::StackName}-LambdaConfigureHASameAZRole'
-    Value: !Sub 'https://console.aws.amazon.com/iam/home#/roles/${LambdaConfigureHASameAZRole}'
-  ClientEIP:
-    Description: Client VIP Public IP
-    Export:
-      Name: !Sub '${AWS::StackName}-ClientEIP'
-    Value: !GetAtt 'ConfigureLambda.client_eip'
-    Condition: AssignClientEIP
-  FloatingVIP:
-    Description: floating VIP which migrates between primary and secondary ADCs upon
-      failover
-    Export:
-      Name: !Sub '${AWS::StackName}-FloatingVIP'
-    Value: !GetAtt 'ConfigureLambda.floating_vip'
-  FloatingSNIP:
-    Description: floating SNIP which migrates between primary and secondary ADCs upon
-      failover
-    Export:
-      Name: !Sub '${AWS::StackName}-FloatingSNIP'
-    Value: !GetAtt 'ConfigureLambda.floating_snip'
+      Name: !Sub '${AWS::StackName}-ADCInitRole'
+    Value: !Sub 'https://console.aws.amazon.com/iam/home#/roles/${ADCInitRole}'
 Parameters:
+  ADCInstanceID:
+    Type: String
+    Description: ''
   ADCCustomPassword:
     Type: String
     Description: Strong password recommended
     NoEcho: true
-  PrimaryInstanceID:
-    Type: String
-    Description: ''
-  PrimaryManagementPrivateIP:
+  ManagementPrivateIP:
     Type: String
     Default: ''
     Description: ''
     AllowedPattern: ()|(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
     ConstraintDescription: Must be a valid IP of the form x.x.x.x
-  ManagementPrivateSubnetID:
-    Type: AWS::EC2::Subnet::Id
-    Description: ''
   ManagementSecurityGroupID:
     Type: AWS::EC2::SecurityGroup::Id
     Description: ''
-  SecondaryInstanceID:
-    Type: String
+  ManagementPrivateSubnetID:
+    Type: AWS::EC2::Subnet::Id
     Description: ''
-  SecondaryManagementPrivateIP:
-    Type: String
-    Default: ''
-    Description: ''
-    AllowedPattern: ()|(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
-    ConstraintDescription: Must be a valid IP of the form x.x.x.x
-  ClientENIEIP:
-    Type: String
-    Description: ''
-    Default: 'Yes'
-    AllowedValues:
-      - 'No'
-      - 'Yes'
   S3BucketName:
     Type: String
     Description: ''
@@ -71,7 +33,7 @@ Parameters:
     Description: ''
 AWSTemplateFormatVersion: '2010-09-09'
 Resources:
-  LambdaConfigureHASameAZRole:
+  ADCInitRole:
     Properties:
       Description: ''
       Path: /
@@ -113,17 +75,17 @@ Resources:
               Service:
                 - lambda.amazonaws.com
     Type: AWS::IAM::Role
-  ConfigureHASameAZFunction:
+  ADCInitFunction:
     Properties:
       Tags:
         - Key: Name
-          Value: !Sub '${AWS::StackName}-ConfigureHASameAZFunction'
+          Value: !Sub '${AWS::StackName}-ADCInitFunction'
       Code:
         S3Bucket: !Ref 'S3BucketName'
         S3Key: !Ref 'S3Key'
-      Description: ConfigureHASameAZFunction
-      Handler: lambda_ha_same_az.lambda_handler
-      Role: !GetAtt 'LambdaConfigureHASameAZRole.Arn'
+      Description: ADCInitFunction
+      Handler: lambda_adc_init.lambda_handler
+      Role: !GetAtt 'ADCInitRole.Arn'
       Runtime: python3.6
       Timeout: 900
       VpcConfig:
@@ -132,13 +94,10 @@ Resources:
         SubnetIds:
           - !Ref 'ManagementPrivateSubnetID'
     Type: AWS::Lambda::Function
-  ConfigureLambda:
+  AllocateADCInit:
     Properties:
-      ServiceToken: !GetAtt 'ConfigureHASameAZFunction.Arn'
+      ServiceToken: !GetAtt 'ADCInitFunction.Arn'
+      ADCInstanceID: !Ref 'ADCInstanceID'
+      ADCPrivateNSIP: !Ref 'ManagementPrivateIP'
       CustomADCPassword: !Ref 'ADCCustomPassword'
-      PrimaryADCInstanceID: !Ref 'PrimaryInstanceID'
-      PrimaryADCPrivateNSIP: !Ref 'PrimaryManagementPrivateIP'
-      SecondaryADCInstanceID: !Ref 'SecondaryInstanceID'
-      SecondaryADCPrivateNSIP: !Ref 'SecondaryManagementPrivateIP'
-      ClientENIEIP: !Ref 'ClientENIEIP'
     Type: AWS::CloudFormation::CustomResource
