@@ -1,4 +1,3 @@
-AWSTemplateFormatVersion: '2010-09-09'
 Outputs:
   CitrixADCIAMRole:
     Description: Citrix ADC IAM Role
@@ -10,22 +9,16 @@ Outputs:
     Export:
       Name: !Sub '${AWS::StackName}-CitrixADCInstanceProfile'
     Value: !Ref 'CitrixADCInstanceProfile'
+AWSTemplateFormatVersion: '2010-09-09'
 Resources:
   CitrixADCIAMRole:
     Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-          - Action:
-              - sts:AssumeRole
-            Effect: Allow
-            Principal:
-              Service:
-                - ec2.amazonaws.com
-        Version: '2012-10-17'
-      Description: Citrix ADC IAM Role
       Path: /
+      Description: Citrix ADC IAM Role
       Policies:
-        - PolicyDocument:
+        - PolicyName: Citrixadc-instance-policy
+          PolicyDocument:
+            Version: '2012-10-17'
             Statement:
               - Action:
                   - ec2:DescribeInstances
@@ -38,7 +31,6 @@ Resources:
                   - ec2:DescribeAddresses
                   - ec2:AssociateAddress
                   - ec2:DisassociateAddress
-                  - autoscaling:*
                   - sns:CreateTopic
                   - sns:DeleteTopic
                   - sns:ListTopics
@@ -52,10 +44,17 @@ Resources:
                   - iam:GetRole
                   - ec2:UnassignPrivateIpAddresses
                   - ec2:AssignPrivateIpAddresses
-                Effect: Allow
                 Resource: '*'
-            Version: '2012-10-17'
-          PolicyName: Citrixadc-instance-policy
+                Effect: Allow
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
     Type: AWS::IAM::Role
   CitrixADCInstanceProfile:
     Properties:

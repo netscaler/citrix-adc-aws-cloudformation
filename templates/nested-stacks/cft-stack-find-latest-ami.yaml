@@ -1,17 +1,19 @@
-AWSTemplateFormatVersion: '2010-09-09'
 Outputs:
-  LatestAMI:
-    Description: Latest AMI
-    Export:
-      Name: !Sub '${AWS::StackName}-LatestAMI'
-    Value: !GetAtt 'AMIInfo.LatestADCAMI'
   LatestAMILambdaRole:
     Description: ''
     Export:
       Name: !Sub '${AWS::StackName}-LatestAMILambdaRole'
     Value: !Sub 'https://console.aws.amazon.com/iam/home#/roles/${LatestAMILambdaRole}'
+  LatestAMI:
+    Description: Latest AMI
+    Export:
+      Name: !Sub '${AWS::StackName}-LatestAMI'
+    Value: !GetAtt 'AMIInfo.LatestADCAMI'
 Parameters:
   ADCProductName:
+    Type: String
+    Description: ''
+    Default: Citrix ADC VPX - Customer Licensed
     AllowedValues:
       - Citrix ADC VPX - Customer Licensed
       - Citrix ADC VPX Express - 20 Mbps
@@ -30,46 +32,29 @@ Parameters:
       - Citrix ADC VPX Advanced Edition - 1000 Mbps
       - Citrix ADC VPX Advanced Edition - 3Gbps
       - Citrix ADC VPX Advanced Edition - 5Gbps
-    Default: Citrix ADC VPX - Customer Licensed
-    Description: ''
-    Type: String
   ADCProductVersion:
+    Type: String
+    Description: ''
+    Default: '13.0'
     AllowedValues:
       - '13.0'
-    Default: '13.0'
-    Description: ''
-    Type: String
   S3BucketName:
+    Type: String
+    Description: ''
     AllowedPattern: ()|^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
-    Description: ''
-    Type: String
   S3Key:
-    Description: ''
     Type: String
+    Description: ''
+AWSTemplateFormatVersion: '2010-09-09'
 Resources:
-  AMIInfo:
-    Properties:
-      ADCProduct: !Ref 'ADCProductName'
-      ADCVersion: !Ref 'ADCProductVersion'
-      ServiceToken: !GetAtt 'AMIInfoFunction.Arn'
-    Type: AWS::CloudFormation::CustomResource
-  AMIInfoFunction:
-    Properties:
-      Code:
-        S3Bucket: !Ref 'S3BucketName'
-        S3Key: !Ref 'S3Key'
-      Description: AMIInfoFunction
-      Handler: lambda_get_latest_citrixadc_ami.lambda_handler
-      Role: !GetAtt 'LatestAMILambdaRole.Arn'
-      Runtime: python3.6
-      Tags:
-        - Key: Name
-          Value: !Sub '${AWS::StackName}-AMIInfoFunction'
-      Timeout: 30
-    Type: AWS::Lambda::Function
   LatestAMILambdaRole:
     Properties:
+      Path: /
+      Description: ''
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       AssumeRolePolicyDocument:
+        Version: '2012-10-17'
         Statement:
           - Action:
               - sts:AssumeRole
@@ -77,18 +62,33 @@ Resources:
             Principal:
               Service:
                 - lambda.amazonaws.com
-        Version: '2012-10-17'
-      Description: ''
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-      Path: /
       Policies:
-        - PolicyDocument:
+        - PolicyName: GetVPCCIDR
+          PolicyDocument:
+            Version: '2012-10-17'
             Statement:
               - Action:
                   - ec2:DescribeImages
-                Effect: Allow
                 Resource: '*'
-            Version: '2012-10-17'
-          PolicyName: GetVPCCIDR
+                Effect: Allow
     Type: AWS::IAM::Role
+  AMIInfoFunction:
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-AMIInfoFunction'
+      Code:
+        S3Bucket: !Ref 'S3BucketName'
+        S3Key: !Ref 'S3Key'
+      Description: AMIInfoFunction
+      Handler: lambda_get_latest_citrixadc_ami.lambda_handler
+      Role: !GetAtt 'LatestAMILambdaRole.Arn'
+      Runtime: python3.6
+      Timeout: 30
+    Type: AWS::Lambda::Function
+  AMIInfo:
+    Properties:
+      ServiceToken: !GetAtt 'AMIInfoFunction.Arn'
+      ADCProduct: !Ref 'ADCProductName'
+      ADCVersion: !Ref 'ADCProductVersion'
+    Type: AWS::CloudFormation::CustomResource

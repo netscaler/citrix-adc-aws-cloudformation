@@ -1,4 +1,3 @@
-AWSTemplateFormatVersion: '2010-09-09'
 Outputs:
   PooledLicenseRole:
     Description: ''
@@ -7,40 +6,55 @@ Outputs:
     Value: !Sub 'https://console.aws.amazon.com/iam/home#/roles/${PooledLicenseRole}'
 Parameters:
   ADCInstanceID:
-    Description: ''
     Type: String
-  ADMIP:
-    AllowedPattern: ()|(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
-    ConstraintDescription: Must be a valid IP of the form x.x.x.x
+    Description: ''
+  ADCCustomPassword:
+    Type: String
+    Description: Strong password recommended
+    NoEcho: true
+  ManagementPrivateIP:
+    Type: String
     Default: ''
     Description: ''
-    Type: String
-  Bandwidth:
-    Description: 'Should be multile of 10 Mbps. Initial bandwidth of the license in
-      Mbps to be allocated after BYOL ADC is created. '
-    Type: Number
+    AllowedPattern: ()|(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
+    ConstraintDescription: Must be a valid IP of the form x.x.x.x
+  ManagementSecurityGroupID:
+    Type: AWS::EC2::SecurityGroup::Id
+    Description: ''
+  ManagementPrivateSubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: ''
   LicensingMode:
+    Type: String
+    Description: ''
     AllowedValues:
       - ''
       - Pooled-Licensing
       - CICO-Licensing
       - CPU-Licensing
     Default: ''
-    Description: ''
+  ADMIP:
     Type: String
-  ManagementPrivateIP:
-    AllowedPattern: ()|(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
-    ConstraintDescription: Must be a valid IP of the form x.x.x.x
     Default: ''
     Description: ''
+    AllowedPattern: ()|(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
+    ConstraintDescription: Must be a valid IP of the form x.x.x.x
+  Bandwidth:
+    Type: Number
+    Description: 'Should be multile of 10 Mbps. Initial bandwidth of the license in
+      Mbps to be allocated after BYOL ADC is created. '
+  PooledEdition:
     Type: String
-  ManagementPrivateSubnetID:
     Description: ''
-    Type: AWS::EC2::Subnet::Id
-  ManagementSecurityGroupID:
-    Description: ''
-    Type: AWS::EC2::SecurityGroup::Id
+    AllowedValues:
+      - ''
+      - Standard
+      - Advanced
+      - Premium
+    Default: ''
   Platform:
+    Type: String
+    Description: ''
     AllowedValues:
       - ''
       - VPX-10
@@ -56,82 +70,34 @@ Parameters:
       - VPX-40G
       - VPX-100G
     Default: ''
-    Description: ''
-    Type: String
-  PooledEdition:
-    AllowedValues:
-      - ''
-      - Standard
-      - Advanced
-      - Premium
-    Default: ''
-    Description: ''
-    Type: String
-  S3BucketName:
-    AllowedPattern: ()|^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
-    Description: ''
-    Type: String
-  S3Key:
-    Description: ''
-    Type: String
   VCPUEdition:
+    Type: String
+    Description: ''
     AllowedValues:
       - ''
       - Standard
       - Advanced
       - Premium
     Default: ''
-    Description: ''
+  S3BucketName:
     Type: String
+    Description: ''
+    AllowedPattern: ()|^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
+  S3Key:
+    Type: String
+    Description: ''
+AWSTemplateFormatVersion: '2010-09-09'
 Resources:
-  AllocatePooledLicense:
-    Properties:
-      ADCInstanceID: !Ref 'ADCInstanceID'
-      ADCPrivateNSIP: !Ref 'ManagementPrivateIP'
-      ADMIP: !Ref 'ADMIP'
-      Bandwidth: !Ref 'Bandwidth'
-      LicensingMode: !Ref 'LicensingMode'
-      Platform: !Ref 'Platform'
-      PooledEdition: !Ref 'PooledEdition'
-      ServiceToken: !GetAtt 'PooledLicenseFunction.Arn'
-      VCPUEdition: !Ref 'VCPUEdition'
-    Type: AWS::CloudFormation::CustomResource
-  PooledLicenseFunction:
-    Properties:
-      Code:
-        S3Bucket: !Ref 'S3BucketName'
-        S3Key: !Ref 'S3Key'
-      Description: PooledLicenseFunction
-      Handler: lambda_pooled_license.lambda_handler
-      Role: !GetAtt 'PooledLicenseRole.Arn'
-      Runtime: python3.6
-      Tags:
-        - Key: Name
-          Value: !Sub '${AWS::StackName}-PooledLicenseFunction'
-      Timeout: 900
-      VpcConfig:
-        SecurityGroupIds:
-          - !Ref 'ManagementSecurityGroupID'
-        SubnetIds:
-          - !Ref 'ManagementPrivateSubnetID'
-    Type: AWS::Lambda::Function
   PooledLicenseRole:
     Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-          - Action:
-              - sts:AssumeRole
-            Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-        Version: '2012-10-17'
       Description: ''
+      Path: /
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-      Path: /
       Policies:
-        - PolicyDocument:
+        - PolicyName: citrixadc-lambda-policy
+          PolicyDocument:
+            Version: '2012-10-17'
             Statement:
               - Action:
                   - ec2:DescribeInstances
@@ -148,8 +114,51 @@ Resources:
                   - ec2:ResetNetworkInterfaceAttribute
                   - ec2:AssignPrivateIpAddresses
                   - ec2:UnassignPrivateIpAddresses
-                Effect: Allow
+                  - ec2:AllocateAddress
+                  - ec2:ReleaseAddress
+                  - ec2:AssociateAddress
+                  - ec2:DisassociateAddress
                 Resource: '*'
-            Version: '2012-10-17'
-          PolicyName: citrixadc-lambda-policy
+                Effect: Allow
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
     Type: AWS::IAM::Role
+  PooledLicenseFunction:
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-PooledLicenseFunction'
+      Code:
+        S3Bucket: !Ref 'S3BucketName'
+        S3Key: !Ref 'S3Key'
+      Description: PooledLicenseFunction
+      Handler: lambda_pooled_license.lambda_handler
+      Role: !GetAtt 'PooledLicenseRole.Arn'
+      Runtime: python3.6
+      Timeout: 900
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref 'ManagementSecurityGroupID'
+        SubnetIds:
+          - !Ref 'ManagementPrivateSubnetID'
+    Type: AWS::Lambda::Function
+  AllocatePooledLicense:
+    Properties:
+      ServiceToken: !GetAtt 'PooledLicenseFunction.Arn'
+      CustomADCPassword: !Ref 'ADCCustomPassword'
+      ADCInstanceID: !Ref 'ADCInstanceID'
+      ADCPrivateNSIP: !Ref 'ManagementPrivateIP'
+      ADMIP: !Ref 'ADMIP'
+      LicensingMode: !Ref 'LicensingMode'
+      Bandwidth: !Ref 'Bandwidth'
+      PooledEdition: !Ref 'PooledEdition'
+      Platform: !Ref 'Platform'
+      VCPUEdition: !Ref 'VCPUEdition'
+    Type: AWS::CloudFormation::CustomResource
