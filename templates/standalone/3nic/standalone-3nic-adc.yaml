@@ -258,7 +258,11 @@ Parameters:
       - c5n.18xlarge
   ADCCustomPassword:
     Type: String
-    Description: Strong password recommended
+    AllowedPattern: '[.\S]{8,15}'
+    ConstraintDescription: Password length must be minimum 8 and maximum 15 characters.
+      Whitespace characters not allowed.
+    Description: Strong password recommended. Password length must be minimum 8 and
+      maximum 15 characters. Whitespace characters not allowed.
     NoEcho: true
   KeyPairName:
     Description: ''
