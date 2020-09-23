@@ -1,0 +1,107 @@
+Outputs:
+  ADC1nicBootstrapRole:
+    Description: ''
+    Export:
+      Name: !Sub '${AWS::StackName}-ADC1nicBootstrapRole'
+    Value: !Sub 'https://console.aws.amazon.com/iam/home#/roles/${ADC1nicBootstrapRole}'
+Parameters:
+  ADCInstanceID:
+    Type: String
+    Description: ''
+  ADCCustomPassword:
+    Type: String
+    AllowedPattern: '[.\S]{8,15}'
+    ConstraintDescription: Password length must be minimum 8 and maximum 15 characters.
+      Whitespace characters not allowed.
+    Description: Strong password recommended. Password length must be minimum 8 and
+      maximum 15 characters. Whitespace characters not allowed.
+    NoEcho: true
+  ManagementPrivateIP:
+    Type: String
+    Default: ''
+    Description: ''
+    AllowedPattern: ()|(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
+    ConstraintDescription: Must be a valid IP of the form x.x.x.x
+  ManagementSecurityGroupID:
+    Type: AWS::EC2::SecurityGroup::Id
+    Description: ''
+  ManagementPrivateSubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: ''
+  S3BucketName:
+    Type: String
+    Description: ''
+    AllowedPattern: ()|^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
+  S3Key:
+    Type: String
+    Description: ''
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  ADC1nicBootstrapRole:
+    Properties:
+      Description: ''
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: citrixadc-lambda-policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Action:
+                  - ec2:DescribeInstances
+                  - ec2:DescribeNetworkInterfaces
+                  - ec2:DescribeSubnets
+                  - ec2:DescribeVpcs
+                  - ec2:DescribeAvailabilityZones
+                  - ec2:DescribeInstanceStatus
+                  - ec2:CreateNetworkInterface
+                  - ec2:DeleteNetworkInterface
+                  - ec2:AttachNetworkInterface
+                  - ec2:DetachNetworkInterface
+                  - ec2:ModifyNetworkInterfaceAttribute
+                  - ec2:ResetNetworkInterfaceAttribute
+                  - ec2:AssignPrivateIpAddresses
+                  - ec2:UnassignPrivateIpAddresses
+                  - ec2:AllocateAddress
+                  - ec2:ReleaseAddress
+                  - ec2:AssociateAddress
+                  - ec2:DisassociateAddress
+                Resource: '*'
+                Effect: Allow
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+    Type: AWS::IAM::Role
+  ADC1nicBootstrapFunction:
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-ADC1nicBootstrapFunction'
+      Code:
+        S3Bucket: !Ref 'S3BucketName'
+        S3Key: !Ref 'S3Key'
+      Description: ADC1nicBootstrapFunction
+      Handler: lambda_adc_1nic_bootstrap.lambda_handler
+      Role: !GetAtt 'ADC1nicBootstrapRole.Arn'
+      Runtime: python3.6
+      Timeout: 900
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref 'ManagementSecurityGroupID'
+        SubnetIds:
+          - !Ref 'ManagementPrivateSubnetID'
+    Type: AWS::Lambda::Function
+  AllocateADC1nicBootstrap:
+    Properties:
+      ServiceToken: !GetAtt 'ADC1nicBootstrapFunction.Arn'
+      ADCInstanceID: !Ref 'ADCInstanceID'
+      ADCPrivateNSIP: !Ref 'ManagementPrivateIP'
+      CustomADCPassword: !Ref 'ADCCustomPassword'
+    Type: AWS::CloudFormation::CustomResource
