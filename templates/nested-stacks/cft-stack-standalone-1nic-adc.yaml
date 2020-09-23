@@ -1,0 +1,197 @@
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterLabels:
+      SubnetID:
+        default: Subnet ID associated with Citrix ADC Management interface
+      VPCTenancy:
+        default: ''
+      CitrixADCInstanceType:
+        default: Citrix ADC instance type
+      KeyPairName:
+        default: Keypair to associate to ADCs
+      PublishCloudwatchMetrics:
+        default: Publish custom metrics to CloudWatch?
+      CitrixADCInstanceProfile:
+        default: IAM Instance Profile ARN associatd with Citrix ADC
+      ManagementSecurityGroupID:
+        default: Management Security Group ID
+      CitrixADCImageID:
+        default: Citrix ADC AMI ID
+      ManagementENIEIP:
+        default: Should PublicIP(EIP) be assigned to management interfaces?
+      ADCInstanceTagName:
+        default: ADC Instance Tag Name
+    ParameterGroups:
+      - Label:
+          default: Network Configuration
+        Parameters:
+          - SubnetID
+          - VPCTenancy
+      - Label:
+          default: Citrix ADC Configuration
+        Parameters:
+          - CitrixADCInstanceType
+          - KeyPairName
+          - PublishCloudwatchMetrics
+          - CitrixADCInstanceProfile
+          - ManagementSecurityGroupID
+      - Label:
+          default: Optional Configuration
+        Parameters:
+          - CitrixADCImageID
+          - ManagementENIEIP
+          - ADCInstanceTagName
+Conditions:
+  AssignEIP2ManagementENI: !Equals
+    - !Ref 'ManagementENIEIP'
+    - 'Yes'
+Outputs:
+  ManagementPrivateIP:
+    Description: ADC Management Private IP (NSIP)
+    Export:
+      Name: !Sub '${AWS::StackName}-ManagementPrivateIP'
+    Value: !GetAtt 'ManagementENI.PrimaryPrivateIpAddress'
+  CitrixADCInstanceID:
+    Description: Citrix ADC Instance ID
+    Export:
+      Name: !Sub '${AWS::StackName}-CitrixADCInstanceID'
+    Value: !Ref 'CitrixADCInstance'
+  ManagementEIP:
+    Description: ''
+    Export:
+      Name: !Sub '${AWS::StackName}-ManagementEIP'
+    Value: !Ref 'ManagementEIP'
+    Condition: AssignEIP2ManagementENI
+Parameters:
+  CitrixADCImageID:
+    Type: String
+    Description: ''
+  SubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: ''
+  ManagementENIEIP:
+    Type: String
+    Description: ''
+    Default: 'No'
+    AllowedValues:
+      - 'No'
+      - 'Yes'
+  ADCInstanceTagName:
+    Type: String
+    Description: ''
+  KeyPairName:
+    Type: String
+    Description: ''
+    Default: ''
+  VPCTenancy:
+    Type: String
+    Description: ''
+    Default: default
+    AllowedValues:
+      - default
+      - dedicated
+  CitrixADCInstanceType:
+    Type: String
+    Description: ''
+    Default: m5.xlarge
+    AllowedValues:
+      - t2.medium
+      - t2.large
+      - t2.xlarge
+      - t2.2xlarge
+      - m3.large
+      - m3.xlarge
+      - m3.2xlarge
+      - m4.large
+      - m4.xlarge
+      - m4.2xlarge
+      - m4.4xlarge
+      - m4.10xlarge
+      - m4.16xlarge
+      - m5.large
+      - m5.xlarge
+      - m5.2xlarge
+      - m5.4xlarge
+      - m5.8xlarge
+      - m5.12xlarge
+      - m5.16xlarge
+      - m5.24xlarge
+      - c4.large
+      - c4.xlarge
+      - c4.2xlarge
+      - c4.4xlarge
+      - c4.8xlarge
+      - c5.large
+      - c5.xlarge
+      - c5.2xlarge
+      - c5.4xlarge
+      - c5.9xlarge
+      - c5.12xlarge
+      - c5.18xlarge
+      - c5.24xlarge
+      - c5n.large
+      - c5n.xlarge
+      - c5n.2xlarge
+      - c5n.4xlarge
+      - c5n.9xlarge
+      - c5n.18xlarge
+  CitrixADCInstanceProfile:
+    Type: String
+    Description: ''
+    Default: ''
+  ManagementSecurityGroupID:
+    Type: AWS::EC2::SecurityGroup::Id
+    Description: ''
+  PublishCloudwatchMetrics:
+    Type: String
+    Description: ''
+    Default: 'Yes'
+    AllowedValues:
+      - 'No'
+      - 'Yes'
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  ManagementENI:
+    Properties:
+      Description: ADC Management Private IP (NSIP)
+      GroupSet:
+        - !Ref 'ManagementSecurityGroupID'
+      PrivateIpAddress: !Ref 'AWS::NoValue'
+      SecondaryPrivateIpAddressCount: 2
+      SubnetId: !Ref 'SubnetID'
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-ManagementENI'
+    Type: AWS::EC2::NetworkInterface
+  CitrixADCInstance:
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-${ADCInstanceTagName}-CitrixADCInstance'
+      IamInstanceProfile: !Ref 'CitrixADCInstanceProfile'
+      ImageId: !Ref 'CitrixADCImageID'
+      InstanceType: !Ref 'CitrixADCInstanceType'
+      KeyName: !Ref 'KeyPairName'
+      NetworkInterfaces:
+        - DeviceIndex: '0'
+          NetworkInterfaceId: !Ref 'ManagementENI'
+      Tenancy: !Ref 'VPCTenancy'
+      UserData: !Base64
+        Fn::Sub: PublishCloudwatchMetrics=${PublishCloudwatchMetrics}
+    Type: AWS::EC2::Instance
+  ManagementEIP:
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-ManagementEIP'
+    Type: AWS::EC2::EIP
+    Condition: AssignEIP2ManagementENI
+    DependsOn: CitrixADCInstance
+  AssociateManagementEIP2ENI:
+    Properties:
+      AllocationId: !GetAtt 'ManagementEIP.AllocationId'
+      NetworkInterfaceId: !Ref 'ManagementENI'
+      PrivateIpAddress: !GetAtt 'ManagementENI.PrimaryPrivateIpAddress'
+    Type: AWS::EC2::EIPAssociation
+    Condition: AssignEIP2ManagementENI
