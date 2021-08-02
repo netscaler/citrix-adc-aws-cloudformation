@@ -435,7 +435,7 @@ Resources:
             Effect: Allow
             Principal:
               Service:
-                - ec2.amazonaws.com.cn
+                - !Sub ec2.${AWS::URLSuffix}
         Version: '2012-10-17'
       Description: Citrix ADC IAM Role
       Path: /
@@ -546,11 +546,11 @@ Resources:
             Effect: Allow
             Principal:
               Service:
-                - lambda.amazonaws.com
+                - !Sub lambda.${AWS::URLSuffix}
         Version: '2012-10-17'
       Description: ''
       ManagedPolicyArns:
-        - arn:aws-cn:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       Path: /
       Policies:
         - PolicyDocument:

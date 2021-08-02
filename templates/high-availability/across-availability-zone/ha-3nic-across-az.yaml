@@ -439,7 +439,7 @@ Resources:
       Parameters:
         S3BucketName: !Sub '${S3BucketName}'
         S3Key: lambda-citrixadc-awscft.zip
-      TemplateURL: !Sub 'https://${S3BucketName}.s3.amazonaws.com/templates/nested-stacks/cft-stack-lambda-copier.yaml'
+      TemplateURL: !Sub 'https://${S3BucketName}.s3.${AWS::URLSuffix}/templates/nested-stacks/cft-stack-lambda-copier.yaml'
       Tags:
         - Key: Name
           Value: !Sub '${AWS::StackName}-LambdaCopierStack'
@@ -451,7 +451,7 @@ Resources:
         ADCProductVersion: !Ref 'ADCProductVersion'
         S3BucketName: !GetAtt 'LambdaCopierStack.Outputs.LambdaZipsBucket'
         S3Key: lambda-citrixadc-awscft.zip
-      TemplateURL: !Sub 'https://${S3BucketName}.s3.amazonaws.com/templates/nested-stacks/cft-stack-find-latest-ami.yaml'
+      TemplateURL: !Sub 'https://${S3BucketName}.s3.${AWS::URLSuffix}/templates/nested-stacks/cft-stack-find-latest-ami.yaml'
       Tags:
         - Key: Name
           Value: !Sub '${AWS::StackName}-LatestAMIStack'
@@ -460,7 +460,7 @@ Resources:
   IAMRoleStack:
     Properties:
       Parameters: {}
-      TemplateURL: !Sub 'https://${S3BucketName}.s3.amazonaws.com/templates/nested-stacks/cft-stack-citrixadc-iam-role.yaml'
+      TemplateURL: !Sub 'https://${S3BucketName}.s3.${AWS::URLSuffix}/templates/nested-stacks/cft-stack-citrixadc-iam-role.yaml'
       Tags:
         - Key: Name
           Value: !Sub '${AWS::StackName}-IAMRoleStack'
@@ -471,7 +471,7 @@ Resources:
         RestrictedSSHCIDR: !Ref 'RestrictedSSHCIDR'
         RestrictedWebAppCIDR: !Ref 'RestrictedWebAppCIDR'
         VPCID: !Ref 'VPCID'
-      TemplateURL: !Sub 'https://${S3BucketName}.s3.amazonaws.com/templates/nested-stacks/cft-stack-securitygroup.yaml'
+      TemplateURL: !Sub 'https://${S3BucketName}.s3.${AWS::URLSuffix}/templates/nested-stacks/cft-stack-securitygroup.yaml'
       Tags:
         - Key: Name
           Value: !Sub '${AWS::StackName}-SecurityGroupStack'
@@ -500,7 +500,7 @@ Resources:
         ServerPrivateSubnetID: !Ref 'PrimaryServerPrivateSubnetID'
         ServerSecurityGroupID: !GetAtt 'SecurityGroupStack.Outputs.ServerSG'
         VPCTenancy: !Ref 'VPCTenancy'
-      TemplateURL: !Sub 'https://${S3BucketName}.s3.amazonaws.com/templates/nested-stacks/cft-stack-standalone-adc.yaml'
+      TemplateURL: !Sub 'https://${S3BucketName}.s3.${AWS::URLSuffix}/templates/nested-stacks/cft-stack-standalone-adc.yaml'
       Tags:
         - Key: Name
           Value: !Sub '${AWS::StackName}-PrimaryCitrixADCStack'
@@ -529,7 +529,7 @@ Resources:
         ServerPrivateSubnetID: !Ref 'SecondaryServerPrivateSubnetID'
         ServerSecurityGroupID: !GetAtt 'SecurityGroupStack.Outputs.ServerSG'
         VPCTenancy: !Ref 'VPCTenancy'
-      TemplateURL: !Sub 'https://${S3BucketName}.s3.amazonaws.com/templates/nested-stacks/cft-stack-standalone-adc.yaml'
+      TemplateURL: !Sub 'https://${S3BucketName}.s3.${AWS::URLSuffix}/templates/nested-stacks/cft-stack-standalone-adc.yaml'
       Tags:
         - Key: Name
           Value: !Sub '${AWS::StackName}-SecondaryCitrixADCStack'
@@ -550,7 +550,7 @@ Resources:
         VCPUEdition: !Ref 'VCPUEdition'
         S3BucketName: !GetAtt 'LambdaCopierStack.Outputs.LambdaZipsBucket'
         S3Key: lambda-citrixadc-awscft.zip
-      TemplateURL: !Sub 'https://${S3BucketName}.s3.amazonaws.com/templates/nested-stacks/cft-stack-pooled-license.yaml'
+      TemplateURL: !Sub 'https://${S3BucketName}.s3.${AWS::URLSuffix}/templates/nested-stacks/cft-stack-pooled-license.yaml'
       Tags:
         - Key: Name
           Value: !Sub '${AWS::StackName}-PrimaryPooledLicenseStack'
@@ -572,7 +572,7 @@ Resources:
         VCPUEdition: !Ref 'VCPUEdition'
         S3BucketName: !GetAtt 'LambdaCopierStack.Outputs.LambdaZipsBucket'
         S3Key: lambda-citrixadc-awscft.zip
-      TemplateURL: !Sub 'https://${S3BucketName}.s3.amazonaws.com/templates/nested-stacks/cft-stack-pooled-license.yaml'
+      TemplateURL: !Sub 'https://${S3BucketName}.s3.${AWS::URLSuffix}/templates/nested-stacks/cft-stack-pooled-license.yaml'
       Tags:
         - Key: Name
           Value: !Sub '${AWS::StackName}-SecondaryPooledLicenseStack'
@@ -594,7 +594,7 @@ Resources:
         SecondaryInstanceID: !GetAtt 'SecondaryCitrixADCStack.Outputs.CitrixADCInstanceID'
         SecondaryManagementPrivateIP: !GetAtt 'SecondaryCitrixADCStack.Outputs.ManagementPrivateIP'
         SecondaryManagementPrivateSubnetID: !Ref 'SecondaryManagementPrivateSubnetID'
-      TemplateURL: !Sub 'https://${S3BucketName}.s3.amazonaws.com/templates/nested-stacks/cft-stack-configure-ha-across-az.yaml'
+      TemplateURL: !Sub 'https://${S3BucketName}.s3.${AWS::URLSuffix}/templates/nested-stacks/cft-stack-configure-ha-across-az.yaml'
       Tags:
         - Key: Name
           Value: !Sub '${AWS::StackName}-ConfigureHAAZStack'

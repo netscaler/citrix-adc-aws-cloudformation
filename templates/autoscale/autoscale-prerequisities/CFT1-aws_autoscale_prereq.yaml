@@ -4,10 +4,10 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
   This CFT automates the steps required for the "Pre-requisites for AWS" for Autoscaling of Citrix ADC in AWS using Citrix ADM
   Refer the documentation https://docs.citrix.com/en-us/citrix-application-delivery-management-service/hybrid-multi-cloud-deployments/autoscale-for-aws/autoscale-for-aws-configuration.html#pre-requisites-for-aws
-  
+
   Run this CFT only once. This creates IGW, Security Groups and IAM Roles
   This also creates AZ specific NAT, Route Tables and Subnets
-  
+
 Parameters:
   VPCID:
     Description: Select the target VPC from the Existing VPC
@@ -398,7 +398,7 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              AWS: arn:aws:iam::417067727217:root
+              AWS: !Sub arn:${AWS::Partition}:iam::417067727217:root
             Action: sts:AssumeRole
             Condition:
               StringEquals:
@@ -438,13 +438,13 @@ Resources:
             Effect: Allow
             Principal:
               Service:
-                - ec2.amazonaws.com
+                - !Sub ec2.${AWS::URLSuffix}
       RoleName: !Sub Citrix-ADC-${AWS::StackName}
   InstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
       Path: "/"
-      Roles: 
+      Roles:
         - !Ref ADCRoleInstance
       InstanceProfileName: !Ref ADCRoleInstance
     DependsOn: ADCRoleInstance

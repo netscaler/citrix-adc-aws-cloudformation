@@ -26,7 +26,7 @@ Resources:
       Path: /
       Description: ''
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -35,7 +35,7 @@ Resources:
             Effect: Allow
             Principal:
               Service:
-                - lambda.amazonaws.com
+                - !Sub lambda.${AWS::URLSuffix}
       Policies:
         - PolicyName: lambda-copier-get
           PolicyDocument:
@@ -44,7 +44,7 @@ Resources:
               - Action:
                   - s3:GetObject
                 Resource:
-                  - !Sub 'arn:aws:s3:::${S3BucketName}/${S3Key}'
+                  - !Sub 'arn:${AWS::Partition}:s3:::${S3BucketName}/${S3Key}'
                 Effect: Allow
         - PolicyName: lambda-copier-put
           PolicyDocument:
@@ -54,7 +54,7 @@ Resources:
                   - s3:PutObject
                   - s3:DeleteObject
                 Resource:
-                  - !Sub 'arn:aws:s3:::${LambdaZipsBucket}/${S3Key}'
+                  - !Sub 'arn:${AWS::Partition}:s3:::${LambdaZipsBucket}/${S3Key}'
                 Effect: Allow
     Type: AWS::IAM::Role
   CopyZipsFunction:

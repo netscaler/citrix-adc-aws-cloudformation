@@ -475,7 +475,9 @@
                             "Effect": "Allow",
                             "Principal": {
                                 "Service": [
-                                    "ec2.amazonaws.com.cn"
+                                    {
+                                        "Fn::Sub": "ec2.${AWS::URLSuffix}"
+                                    }
                                 ]
                             }
                         }

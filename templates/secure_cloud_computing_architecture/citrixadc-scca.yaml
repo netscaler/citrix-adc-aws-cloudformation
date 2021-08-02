@@ -68,7 +68,7 @@ Parameters:
     Type: String
     Default: ""
     Description: >-
-      "[OPTIONAL] AMI ID of Citrix ADC (13.0.41.x+) to be provisioned. 
+      "[OPTIONAL] AMI ID of Citrix ADC (13.0.41.x+) to be provisioned.
       If left empty, "Citrix ADC VPX - Customer Licensed Version 13.0-41.20
       (https://aws.amazon.com/marketplace/pp/B00AA01BOE)" is provisioned by default"
   CitrixADCInstanceType:
@@ -187,13 +187,6 @@ Conditions:
     - !Equals
       - !Ref CitrixADCImageID
       - ""
-  USGovRegion: !Or
-    - !Equals
-      - !Ref "AWS::Region"
-      - us-gov-west-1
-    - !Equals
-      - !Ref "AWS::Region"
-      - us-gov-east-1
 Resources:
   VPC:
     Type: AWS::EC2::VPC
@@ -694,7 +687,7 @@ Resources:
             Effect: Allow
             Principal:
               Service:
-                - ec2.amazonaws.com
+                - !Sub ec2.${AWS::URLSuffix}
   ExternalADCCitrixADCInstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
@@ -904,7 +897,7 @@ Resources:
             Effect: Allow
             Principal:
               Service:
-                - ec2.amazonaws.com
+                - !Sub ec2.${AWS::URLSuffix}
   InternalADCCitrixADCInstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
@@ -1051,7 +1044,7 @@ Resources:
           - Effect: Allow
             Principal:
               Service:
-                - lambda.amazonaws.com
+                - !Sub lambda.${AWS::URLSuffix}
             Action:
               - sts:AssumeRole
       Path: "/"
@@ -1065,10 +1058,7 @@ Resources:
                   - logs:CreateLogGroup
                   - logs:CreateLogStream
                   - logs:PutLogEvents
-                Resource: !If
-                  - USGovRegion
-                  - arn:aws-us-gov:logs:*:*:*
-                  - arn:aws:logs:*:*:*
+                Resource: !Sub arn:${AWS::Partition}:logs:*:*:*
 
   GetGatewayIPFromCIDR:
     DependsOn: EndpointS3
@@ -1172,7 +1162,7 @@ Resources:
 
                 auto eth1
                 iface eth1 inet dhcp
-                  
+
 
                 auto eth2
                 iface eth2 inet dhcp
@@ -1317,12 +1307,10 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              Service: lambda.amazonaws.com
+              Service: !Sub lambda.${AWS::URLSuffix}
             Action: sts:AssumeRole
-      ManagedPolicyArns: !If
-        - USGovRegion
-        - - arn:aws-us-gov:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-        - - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      ManagedPolicyArns:
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       Path: /
       Policies:
         - PolicyName: lambda-copier
@@ -1332,25 +1320,19 @@ Resources:
               - Effect: Allow
                 Action:
                   - s3:GetObject
-                Resource: !If
-                  - USGovRegion
-                  - - arn:aws-us-gov:s3:::citrixadc-automation/lambda-citrixadc-awscft.zip
-                  - - arn:aws:s3:::citrixadc-automation/lambda-citrixadc-awscft.zip
+                Resource: !Sub arn:${AWS::Partition}:s3:::citrixadc-automation/lambda-citrixadc-awscft.zip
               - Effect: Allow
                 Action:
                   - s3:PutObject
                   - s3:DeleteObject
-                Resource: !If
-                  - USGovRegion
-                  - - !Sub "arn:aws-us-gov:s3:::${LambdaZipsBucket}/lambda-citrixadc-awscft.zip"
-                  - - !Sub "arn:aws:s3:::${LambdaZipsBucket}/lambda-citrixadc-awscft.zip"
+                Resource: !Sub "aws${AWS::Partition}:s3:::${LambdaZipsBucket}/lambda-citrixadc-awscft.zip"
   CopyZipsFunction:
     DependsOn: EndpointS3
     Type: AWS::Lambda::Function
     Properties:
       Description: Copies objects from a source S3 bucket to a destination
       Handler: index.handler
-      Runtime: python2.7
+      Runtime: python3.6
       Role: !GetAtt CopyZipsRole.Arn
       Timeout: 240
       Code:
@@ -1415,7 +1397,7 @@ Resources:
           - Effect: Allow
             Principal:
               Service:
-                - lambda.amazonaws.com
+                - !Sub lambda.${AWS::URLSuffix}
             Action:
               - "sts:AssumeRole"
       Policies:
@@ -1430,10 +1412,7 @@ Resources:
                   - "logs:PutLogEvents"
                   - "logs:CreateExportTask"
                   - "logs:DescribeExportTask"
-                Resource: !If
-                  - USGovRegion
-                  - "arn:aws-us-gov:logs:*:*:*"
-                  - "arn:aws:logs:*:*:*"
+                Resource: !Sub "arn:${AWS::Partition}:logs:*:*:*"
         - PolicyName: LambdaAllowReadEC2
           PolicyDocument:
             Version: 2012-10-17

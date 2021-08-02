@@ -69,7 +69,7 @@ Resources:
       Description: ''
       Path: /
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       Policies:
         - PolicyName: citrixadc-lambda-policy
           PolicyDocument:
@@ -104,7 +104,7 @@ Resources:
             Effect: Allow
             Principal:
               Service:
-                - lambda.amazonaws.com
+                - !Sub lambda.${AWS::URLSuffix}
     Type: AWS::IAM::Role
   ConfigureHAFunction:
     Properties:

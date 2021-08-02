@@ -744,7 +744,9 @@
                             "Effect": "Allow",
                             "Principal": {
                                 "Service": [
-                                    "ec2.amazonaws.com.cn"
+                                    {
+                                        "Fn::Sub": "ec2.${AWS::URLSuffix}"
+                                    }
                                 ]
                             }
                         }
@@ -963,7 +965,9 @@
                             "Effect": "Allow",
                             "Principal": {
                                 "Service": [
-                                    "lambda.amazonaws.com"
+                                    {
+                                        "Fn::Sub": "lambda.${AWS::URLSuffix}"
+                                    }
                                 ]
                             }
                         }
@@ -972,7 +976,9 @@
                 },
                 "Description": "",
                 "ManagedPolicyArns": [
-                    "arn:aws-cn:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+                    {
+                        "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+                    }
                 ],
                 "Path": "/",
                 "Policies": [

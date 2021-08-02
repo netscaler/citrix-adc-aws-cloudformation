@@ -294,7 +294,7 @@ Resources:
             Effect: Allow
             Principal:
               Service:
-                - ec2.amazonaws.com.cn
+                - !Sub ec2.${AWS::URLSuffix}
         Version: '2012-10-17'
       Description: Citrix ADC IAM Role
       Path: /
