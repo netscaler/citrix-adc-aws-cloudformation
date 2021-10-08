@@ -1,0 +1,655 @@
+Description: >
+  This template provisions two Citrix ADC VPX in two different AWS Availability
+  Zones and configures them as High-Available.
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterLabels:
+      VPCID:
+        default: VPC ID to deploy the Citrix ADC
+      RouteTableID:
+        default: Enter the Route Table ID where Citrix ADC will be deployed
+      RestrictedManagementCIDR:
+        default:
+          Source address range to access Citric ADC management interfaces via
+          SSH, HTTP, HTTPS ports
+      PrimaryManagementPrivateSubnetID:
+        default: Subnet ID associated with Primary ADC Management interface
+      PrimaryClientPublicSubnetID:
+        default:
+          Subnet ID associated with Primary ADC Client interface (Traffic coming
+          from `client` to the `ADC VIP`)
+      PrimaryServerPrivateSubnetID:
+        default:
+          Subnet ID associated with Primary ADC Server interface (Traffic leaving
+          from the `ADC SNIP` to the `backend servers`)
+      SecondaryManagementPrivateSubnetID:
+        default: Subnet ID associated with Secondary ADC Management interface
+      SecondaryClientPublicSubnetID:
+        default:
+          Subnet ID associated with Secondary ADC Client interface (Traffic
+          coming from `client` to the `ADC VIP`)
+      SecondaryServerPrivateSubnetID:
+        default:
+          Subnet ID associated with Secondary ADC Server interface (Traffic
+          leaving from the `ADC SNIP` to the `backend servers`)
+      VPCTenancy:
+        default: ""
+      CitrixADCImageID:
+        default: Do you have any custom Citrix ADC AMI to be deployed?
+      KeyPairName:
+        default: Keypair to associate to ADCs
+      CitrixADCInstanceType:
+        default: Citrix ADC instance type
+      PublishCloudwatchMetrics:
+        default: Publish custom metrics to CloudWatch?
+      ChosenCIDROutsideVPC:
+        default:
+          Private Load Balancer VIP CIDR Range (e.g if VPC CIDR is 10.0.0.0/16
+          then provide any CIDR outside this VPC CIDR range.)
+      InternalLBVIP:
+        default: Internal LB VIP IP (Should be in the above Private Load Balancer VIP CIDR Range)
+      ManagementENIEIP:
+        default: Should PublicIP(EIP) be assigned to management interfaces?
+    ParameterGroups:
+      - Label:
+          default: Network Configuration
+        Parameters:
+          - VPCID
+          - RouteTableID
+          - RestrictedManagementCIDR
+          - PrimaryManagementPrivateSubnetID
+          - PrimaryClientPublicSubnetID
+          - PrimaryServerPrivateSubnetID
+          - SecondaryManagementPrivateSubnetID
+          - SecondaryClientPublicSubnetID
+          - SecondaryServerPrivateSubnetID
+          - VPCTenancy
+      - Label:
+          default: Citrix ADC Configuration
+        Parameters:
+          - CitrixADCImageID
+          - KeyPairName
+          - CitrixADCInstanceType
+          - PublishCloudwatchMetrics
+          - ManagementENIEIP
+      - Label:
+          default: Private Network Traffic Configuration for Internal Apps
+        Parameters:
+          - ChosenCIDROutsideVPC
+          - InternalLBVIP
+Conditions:
+  UseCustomADCAMI: !Not
+    - !Equals
+      - !Ref "CitrixADCImageID"
+      - ""
+  AssignEIP2ManagementENI: !Equals
+    - !Ref "ManagementENIEIP"
+    - "Yes"
+Mappings:
+  AWSAMIRegionMap:
+    AMI:
+      CITRIXADC: Citrix ADC VPX
+    us-gov-west-1:
+      CITRIXADC: ami-07949c655cc9a2a54
+    us-gov-east-1:
+      CITRIXADC: ami-01efdabd4e2e4eb2a
+    us-east-2:
+      CITRIXADC: ami-097041482a5332552
+    us-east-1:
+      CITRIXADC: ami-0cc1a300c5d141075
+    us-west-1:
+      CITRIXADC: ami-0eb926fc677264b8a
+    us-west-2:
+      CITRIXADC: ami-07219c8f7f22b3e68
+    ap-east-1:
+      CITRIXADC: ami-0a4ec20682227c262
+    ap-south-1:
+      CITRIXADC: ami-02d96bd2b6e7778bb
+    ap-northeast-2:
+      CITRIXADC: ami-0e7efbb8f8693bcad
+    ap-southeast-1:
+      CITRIXADC: ami-095c04642692d434e
+    ap-southeast-2:
+      CITRIXADC: ami-0a462ff885c7e4627
+    ap-northeast-1:
+      CITRIXADC: ami-062114eb9de72216d
+    ca-central-1:
+      CITRIXADC: ami-03cb631275fbf71e3
+    eu-central-1:
+      CITRIXADC: ami-0e8210f8cbdff51ae
+    eu-west-1:
+      CITRIXADC: ami-0fd0b64396f0317ce
+    eu-west-2:
+      CITRIXADC: ami-0204dcbbeca811ccd
+    eu-west-3:
+      CITRIXADC: ami-07c215058042376f9
+    eu-north-1:
+      CITRIXADC: ami-07da7220d3f7f0406
+    eu-south-1:
+      CITRIXADC: ami-05c62f50cdaf8d3e4
+    sa-east-1:
+      CITRIXADC: ami-06bfcfa9fc14775d0
+    me-south-1:
+      CITRIXADC: ami-00ec45fbc884ddc45
+    af-south-1:
+      CITRIXADC: ami-047c6027d066b9ed9
+Outputs:
+  CitrixADCIAMRole:
+    Description: Citrix ADC IAM Role
+    Export:
+      Name: !Sub "${AWS::StackName}-CitrixADCIAMRole"
+    Value: !Sub "https://console.aws.amazon.com/iam/home#/roles/${CitrixADCIAMRole}"
+  CitrixADCInstanceProfile:
+    Description: Citrix ADC IAM Instance Profile
+    Export:
+      Name: !Sub "${AWS::StackName}-CitrixADCInstanceProfile"
+    Value: !Ref "CitrixADCInstanceProfile"
+  ManagementSG:
+    Description:
+      Allow restricted inbound traffic from SSH, HTTP, HTTPS ports and
+      everything via TCP within Management Security Group and allow all outbound traffic
+      to all destination
+    Export:
+      Name: !Sub "${AWS::StackName}-ManagementSG"
+    Value: !Ref "ManagementSG"
+  PrimaryManagementPrivateIP:
+    Description: Primary ADC Management Private IP (NSIP)
+    Export:
+      Name: !Sub "${AWS::StackName}-PrimaryManagementPrivateIP"
+    Value: !GetAtt "PrimaryManagementENI.PrimaryPrivateIpAddress"
+  PrimaryClientPrivateIP:
+    Description: Primary ADC Client Private IP (VIP)
+    Export:
+      Name: !Sub "${AWS::StackName}-PrimaryClientPrivateIP"
+    Value: !GetAtt "PrimaryClientENI.PrimaryPrivateIpAddress"
+  PrimaryServerPrivateIP:
+    Description: Primary ADC Server Private IP (SNIP)
+    Export:
+      Name: !Sub "${AWS::StackName}-PrimaryServerPrivateIP"
+    Value: !GetAtt "PrimaryServerENI.PrimaryPrivateIpAddress"
+  SecondaryManagementPrivateIP:
+    Description: Secondary ADC Management Private IP (NSIP)
+    Export:
+      Name: !Sub "${AWS::StackName}-SecondaryManagementPrivateIP"
+    Value: !GetAtt "SecondaryManagementENI.PrimaryPrivateIpAddress"
+  SecondaryClientPrivateIP:
+    Description: Secondary ADC Client Private IP (VIP)
+    Export:
+      Name: !Sub "${AWS::StackName}-SecondaryClientPrivateIP"
+    Value: !GetAtt "SecondaryClientENI.PrimaryPrivateIpAddress"
+  SecondaryServerPrivateIP:
+    Description: Secondary ADC Server Private IP (SNIP)
+    Export:
+      Name: !Sub "${AWS::StackName}-SecondaryServerPrivateIP"
+    Value: !GetAtt "SecondaryServerENI.PrimaryPrivateIpAddress"
+  PrimaryManagementEIP:
+    Description: ""
+    Export:
+      Name: !Sub "${AWS::StackName}-PrimaryManagementEIP"
+    Value: !Ref "PrimaryManagementEIP"
+    Condition: AssignEIP2ManagementENI
+  SecondaryManagementEIP:
+    Description: ""
+    Export:
+      Name: !Sub "${AWS::StackName}-SecondaryManagementEIP"
+    Value: !Ref "SecondaryManagementEIP"
+    Condition: AssignEIP2ManagementENI
+  PrimaryADCInstanceID:
+    Description: Primary Citrix ADC Instance ID
+    Export:
+      Name: !Sub "${AWS::StackName}-PrimaryADCInstanceID"
+    Value: !Ref "PrimaryInstance"
+  SecondaryADCInstanceID:
+    Description: Secondary Citrix ADC Instance ID
+    Export:
+      Name: !Sub "${AWS::StackName}-SecondaryADCInstanceID"
+    Value: !Ref "SecondaryInstance"
+Parameters:
+  VPCID:
+    Type: AWS::EC2::VPC::Id
+    Description: ""
+  RestrictedManagementCIDR:
+    Type: String
+    Description: Must be a valid IP CIDR range of the form x.x.x.x/x
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x
+  PrimaryManagementPrivateSubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: ""
+  PrimaryClientPublicSubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: ""
+  PrimaryServerPrivateSubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: ""
+  SecondaryManagementPrivateSubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: ""
+  SecondaryClientPublicSubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: ""
+  SecondaryServerPrivateSubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: ""
+  VPCTenancy:
+    Type: String
+    Description: ""
+    Default: default
+    AllowedValues:
+      - default
+      - dedicated
+  CitrixADCInstanceType:
+    Type: String
+    Description: ""
+    Default: m5.xlarge
+    AllowedValues:
+      - t2.medium
+      - t2.large
+      - t2.xlarge
+      - t2.2xlarge
+      - m3.large
+      - m3.xlarge
+      - m3.2xlarge
+      - m4.large
+      - m4.xlarge
+      - m4.2xlarge
+      - m4.4xlarge
+      - m4.10xlarge
+      - m4.16xlarge
+      - m5.large
+      - m5.xlarge
+      - m5.2xlarge
+      - m5.4xlarge
+      - m5.8xlarge
+      - m5.12xlarge
+      - m5.16xlarge
+      - m5.24xlarge
+      - c4.large
+      - c4.xlarge
+      - c4.2xlarge
+      - c4.4xlarge
+      - c4.8xlarge
+      - c5.large
+      - c5.xlarge
+      - c5.2xlarge
+      - c5.4xlarge
+      - c5.9xlarge
+      - c5.12xlarge
+      - c5.18xlarge
+      - c5.24xlarge
+      - c5n.large
+      - c5n.xlarge
+      - c5n.2xlarge
+      - c5n.4xlarge
+      - c5n.9xlarge
+      - c5n.18xlarge
+  CitrixADCImageID:
+    Type: String
+    Description: If left empty, the AMI from the CFT will be deployed. Refer here for the latest AMI IDs - https://github.com/citrix/citrix-adc-aws-cloudformation/blob/master/templates/README.md
+    AllowedPattern: ^$|^ami-[a-z0-9]{17}$
+    ConstraintDescription: CitrixADCImageID should either be empty OR valid AMI ID
+  KeyPairName:
+    Description: ""
+    Type: AWS::EC2::KeyPair::KeyName
+  ManagementENIEIP:
+    Type: String
+    Description: ""
+    Default: "No"
+    AllowedValues:
+      - "No"
+      - "Yes"
+  PublishCloudwatchMetrics:
+    Type: String
+    Description: ""
+    Default: "Yes"
+    AllowedValues:
+      - "No"
+      - "Yes"
+  ChosenCIDROutsideVPC:
+    Type: String
+    Description: LB VServers for internal apps to be created from this CIDR. e.g if VPC CIDR is 10.0.0.0/16 then provide any CIDR outside this VPC CIDR range Eg. 192.168.0.0/16
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x
+  InternalLBVIP:
+    Type: String
+    Description: Should be an IP address from the above CIDR. Eg., if the above Private LB VIP CIDR range is 192.168.0.0/16, then Internal LB VIP IP can be 192.168.10.10
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
+    ConstraintDescription: Must be a valid IP of the form x.x.x.x
+  RouteTableID:
+    Type: String
+    Description: "Give any routing table associate with the above VPC. Go to VPC->RouteTables in AWS Console."
+    AllowedPattern: ^rtb-[a-z0-9]{17}$
+    ConstraintDescription: "Required Parameter: Input valid Route Table ID"
+
+AWSTemplateFormatVersion: "2010-09-09"
+Resources:
+  CitrixADCIAMRole:
+    Properties:
+      Path: /
+      Description: Citrix ADC IAM Role
+      Policies:
+        - PolicyName: Citrixadc-instance-policy-ha-private-ip
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Action:
+                  - ec2:DescribeInstances
+                  - ec2:DescribeAddresses
+                  - ec2:AssociateAddress
+                  - ec2:DisassociateAddress
+                  - ec2:DescribeRouteTables
+                  - ec2:DeleteRoute
+                  - ec2:CreateRoute
+                  - ec2:ModifyNetworkInterfaceAttribute
+                  - iam:SimulatePrincipalPolicy
+                  - iam:GetRole
+                Resource: "*"
+                Effect: Allow
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - !Sub ec2.${AWS::URLSuffix}
+    Type: AWS::IAM::Role
+  CitrixADCInstanceProfile:
+    Properties:
+      Path: /
+      Roles:
+        - !Ref "CitrixADCIAMRole"
+    Type: AWS::IAM::InstanceProfile
+  ManagementSG:
+    Properties:
+      GroupName: !Sub "${AWS::StackName}-ManagementSG"
+      GroupDescription:
+        Allow restricted inbound traffic from SSH, HTTP, HTTPS ports
+        and everything via TCP within Management Security Group and allow all outbound
+        traffic to all destination
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all traffic to all destination
+          IpProtocol: "-1"
+      SecurityGroupIngress:
+        - CidrIp: !Ref "RestrictedManagementCIDR"
+          Description: SSH port
+          IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+        - CidrIp: !Ref "RestrictedManagementCIDR"
+          Description: HTTP port
+          IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+        - CidrIp: !Ref "RestrictedManagementCIDR"
+          Description: HTTPS port
+          IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+      VpcId: !Ref "VPCID"
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-ManagementSG"
+    Type: AWS::EC2::SecurityGroup
+  ManagementInboundRule:
+    Properties:
+      GroupId: !GetAtt "ManagementSG.GroupId"
+      SourceSecurityGroupId: !GetAtt "ManagementSG.GroupId"
+      IpProtocol: tcp
+      FromPort: 0
+      ToPort: 65535
+      Description: ManagementSG
+    Type: AWS::EC2::SecurityGroupIngress
+  PrimaryManagementENI:
+    Properties:
+      Description: Primary ADC Management Private IP (NSIP)
+      GroupSet:
+        - !Ref "ManagementSG"
+      SubnetId: !Ref "PrimaryManagementPrivateSubnetID"
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-PrimaryManagementENI"
+    Type: AWS::EC2::NetworkInterface
+  PrimaryClientENI:
+    Properties:
+      Description: Primary ADC Client Private IP (VIP)
+      GroupSet: []
+      SubnetId: !Ref "PrimaryClientPublicSubnetID"
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-PrimaryClientENI"
+    Type: AWS::EC2::NetworkInterface
+  PrimaryServerENI:
+    Properties:
+      Description: Primary ADC Server Private IP (SNIP)
+      GroupSet: []
+      SubnetId: !Ref "PrimaryServerPrivateSubnetID"
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-PrimaryServerENI"
+    Type: AWS::EC2::NetworkInterface
+  SecondaryManagementENI:
+    Properties:
+      Description: Secondary ADC Management Private IP (NSIP)
+      GroupSet:
+        - !Ref "ManagementSG"
+      SubnetId: !Ref "SecondaryManagementPrivateSubnetID"
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-SecondaryManagementENI"
+    Type: AWS::EC2::NetworkInterface
+  SecondaryClientENI:
+    Properties:
+      Description: Secondary ADC Client Private IP (VIP)
+      GroupSet: []
+      SubnetId: !Ref "SecondaryClientPublicSubnetID"
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-SecondaryClientENI"
+    Type: AWS::EC2::NetworkInterface
+  SecondaryServerENI:
+    Properties:
+      Description: Secondary ADC Server Private IP (SNIP)
+      GroupSet: []
+      SubnetId: !Ref "SecondaryServerPrivateSubnetID"
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-SecondaryServerENI"
+    Type: AWS::EC2::NetworkInterface
+  ClientVIP:
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-ClientVIP"
+    Type: AWS::EC2::EIP
+  AssociateClientVIP2ENI:
+    Properties:
+      AllocationId: !GetAtt "ClientVIP.AllocationId"
+      NetworkInterfaceId: !Ref "PrimaryClientENI"
+      PrivateIpAddress: !GetAtt "PrimaryClientENI.PrimaryPrivateIpAddress"
+    Type: AWS::EC2::EIPAssociation
+  PrimaryManagementEIP:
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-PrimaryManagementEIP"
+    Type: AWS::EC2::EIP
+    Condition: AssignEIP2ManagementENI
+  AssociatePrimaryManagementEIP2ENI:
+    Properties:
+      AllocationId: !GetAtt "PrimaryManagementEIP.AllocationId"
+      NetworkInterfaceId: !Ref "PrimaryManagementENI"
+      PrivateIpAddress: !GetAtt "PrimaryManagementENI.PrimaryPrivateIpAddress"
+    Type: AWS::EC2::EIPAssociation
+    Condition: AssignEIP2ManagementENI
+  SecondaryManagementEIP:
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-SecondaryManagementEIP"
+    Type: AWS::EC2::EIP
+    Condition: AssignEIP2ManagementENI
+  AssociateSecondaryManagementEIP2ENI:
+    Properties:
+      AllocationId: !GetAtt "SecondaryManagementEIP.AllocationId"
+      NetworkInterfaceId: !Ref "SecondaryManagementENI"
+      PrivateIpAddress: !GetAtt "SecondaryManagementENI.PrimaryPrivateIpAddress"
+    Type: AWS::EC2::EIPAssociation
+    Condition: AssignEIP2ManagementENI
+  PrimaryInstance:
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-PrimaryInstance"
+      IamInstanceProfile: !Ref "CitrixADCInstanceProfile"
+      ImageId: !If
+        - UseCustomADCAMI
+        - !Ref CitrixADCImageID
+        - !FindInMap
+          - AWSAMIRegionMap
+          - !Ref "AWS::Region"
+          - CITRIXADC
+      InstanceType: !Ref "CitrixADCInstanceType"
+      KeyName: !Ref "KeyPairName"
+      NetworkInterfaces:
+        - DeviceIndex: "0"
+          NetworkInterfaceId: !Ref "PrimaryManagementENI"
+        - DeviceIndex: "1"
+          NetworkInterfaceId: !Ref "PrimaryClientENI"
+        - DeviceIndex: "2"
+          NetworkInterfaceId: !Ref "PrimaryServerENI"
+      Tenancy: !Ref "VPCTenancy"
+      UserData: !Base64
+        Fn::Sub: |-
+          PublishCloudwatchMetrics=${PublishCloudwatchMetrics}
+          <NS-PRE-BOOT-CONFIG>
+              <NS-CONFIG>
+                  set systemparameter -promptString "%u@%s"
+                  add ha node 1 ${SecondaryManagementENI.PrimaryPrivateIpAddress} -inc ENABLED
+                  add ns ip ${SecondaryClientENI.PrimaryPrivateIpAddress} ${GetSubnetMaskCustomResource.Netmask} -type VIP
+                  add ipset ha_ipset
+                  bind ipset ha_ipset ${SecondaryClientENI.PrimaryPrivateIpAddress}
+                  add ns ip ${InternalLBVIP} 255.255.255.255 -type VIP
+                  add lb vserver external_lb HTTP ${PrimaryClientENI.PrimaryPrivateIpAddress} 80 -ipset ha_ipset
+                  add lb vserver internal_lb HTTP ${InternalLBVIP} 80
+              </NS-CONFIG>
+          </NS-PRE-BOOT-CONFIG>
+    Type: AWS::EC2::Instance
+  SecondaryInstance:
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-SecondaryInstance"
+      IamInstanceProfile: !Ref "CitrixADCInstanceProfile"
+      ImageId: !If
+        - UseCustomADCAMI
+        - !Ref CitrixADCImageID
+        - !FindInMap
+          - AWSAMIRegionMap
+          - !Ref "AWS::Region"
+          - CITRIXADC
+      InstanceType: !Ref "CitrixADCInstanceType"
+      KeyName: !Ref "KeyPairName"
+      NetworkInterfaces:
+        - DeviceIndex: "0"
+          NetworkInterfaceId: !Ref "SecondaryManagementENI"
+        - DeviceIndex: "1"
+          NetworkInterfaceId: !Ref "SecondaryClientENI"
+        - DeviceIndex: "2"
+          NetworkInterfaceId: !Ref "SecondaryServerENI"
+      Tenancy: !Ref "VPCTenancy"
+      UserData: !Base64
+        Fn::Sub: |-
+          PublishCloudwatchMetrics=${PublishCloudwatchMetrics}
+          <NS-PRE-BOOT-CONFIG>
+               <NS-CONFIG>
+                   add ha node 1 ${PrimaryManagementENI.PrimaryPrivateIpAddress} -inc ENABLED
+                   add ns ip ${SecondaryClientENI.PrimaryPrivateIpAddress} ${GetSubnetMaskCustomResource.Netmask} -type VIP
+                   add ipset ha_ipset
+                   bind ipset ha_ipset ${SecondaryClientENI.PrimaryPrivateIpAddress}
+               </NS-CONFIG>
+          </NS-PRE-BOOT-CONFIG>
+    Type: AWS::EC2::Instance
+    DependsOn: PrimaryInstance
+  ChosenCIDRRoute:
+    Properties:
+      DestinationCidrBlock: !Sub "${ChosenCIDROutsideVPC}"
+      NetworkInterfaceId: !Ref "PrimaryClientENI"
+      RouteTableId: !Ref "RouteTableID"
+    Type: AWS::EC2::Route
+
+  GetSubnetMaskLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: Return Subnet default gateway IP from its CIDR
+      Handler: index.handler
+      MemorySize: 128
+      Role: !GetAtt GetSubnetMaskIAMRole.Arn
+      Runtime: "python3.6"
+      Timeout: 30
+      Code:
+        ZipFile: |
+          import boto3
+          import cfnresponse
+          import ipaddress
+          ec2_client = boto3.client("ec2")
+          cidr_to_netmask = lambda cidr: (str(ipaddress.IPv4Network(cidr).network_address), str(ipaddress.IPv4Network(cidr).netmask))
+          def get_subnet_address(snid):
+            filters = []
+            subnets = ec2_client.describe_subnets(SubnetIds=[snid], Filters=filters)
+            print(f"subnets: {subnets}")
+            try:
+              cidr = subnets["Subnets"][0]["CidrBlock"]
+              return cidr_to_netmask(cidr)
+            except Exception as e:
+              raise Exception(f"ERROR: Could not get subnet details: {e}")
+          def handler(event, context):
+            status = cfnresponse.FAILED
+            print(f"event: {event}")
+            reason = None
+            returndata = {}
+            try:
+              if event["RequestType"] == "Create":
+                subnet_id = event["ResourceProperties"]["SubnetID"]
+                returndata['Netmask'] = get_subnet_address(subnet_id)[1]
+                status = cfnresponse.SUCCESS
+            except Exception as e:
+              reason = f"Exception: {e}"
+              print(reason)
+            finally:
+              cfnresponse.send(event, context, status, responseData=returndata, reason=reason)
+  GetSubnetMaskCustomResource:
+    Type: Custom::CIDR2GatewayIP
+    Properties:
+      ServiceToken: !GetAtt GetSubnetMaskLambda.Arn
+      SubnetID: !Ref SecondaryClientPublicSubnetID
+
+  GetSubnetMaskIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - !Sub lambda.${AWS::URLSuffix}
+            Action:
+              - sts:AssumeRole
+      Path: "/"
+      ManagedPolicyArns:
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: !Sub describe-subnets-${AWS::StackName}
+          PolicyDocument:
+            Statement:
+              - Action:
+                  - ec2:DescribeSubnets
+                Effect: Allow
+                Resource: '*'
+            Version: '2012-10-17'
