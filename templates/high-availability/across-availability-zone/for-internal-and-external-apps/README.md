@@ -68,7 +68,6 @@ The users are required to change the password post deployment when asked.
 
 |Region|CFT|
 |--|--|
-
 |**US East (N. Virginia)** us-east-1|[![cft-launch-button](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?templateURL=https://s3.amazonaws.com/citrixadc-automation/templates/high-availability/across-availability-zone/for-internal-and-external-apps/ha-3nic-across-az-pipeip.yaml)|
 |**US East (Ohio)** us-east-2|[![cft-launch-button](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/new?templateURL=https://s3.amazonaws.com/citrixadc-automation/templates/high-availability/across-availability-zone/for-internal-and-external-apps/ha-3nic-across-az-pipeip.yaml)|
 |**US West (N. California)** us-west-1|[![cft-launch-button](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=us-west-1#/stacks/new?templateURL=https://s3.amazonaws.com/citrixadc-automation/templates/high-availability/across-availability-zone/for-internal-and-external-apps/ha-3nic-across-az-pipeip.yaml)|
