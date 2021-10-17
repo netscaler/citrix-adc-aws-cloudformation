@@ -43,7 +43,8 @@ The following should be present
     * Management side Subnet
     * Client side Subnet
     * Servers side Subnet
-* 2 unallocated EIPs, if the user is opting for EIPs for management interfaces
+* 2 optional unallocated EIPs, if the user is opting for EIPs for management interfaces
+* 1 unallocated EIP, for public VIP
 * EC2 KeyPair
 
 ## Post-deployment steps
