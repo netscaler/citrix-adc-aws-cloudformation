@@ -14,7 +14,7 @@ Metadata:
       PrimaryClientSubnetCIDR:
         default: Subnet CIDR associated with Primary ADC Client interface
       PrimaryServerSubnetCIDR:
-        default: Subnet CIDR associated with Primary ADC Client interface
+        default: Subnet CIDR associated with Primary ADC Server interface
       SecondaryManagementSubnetCIDR:
         default: Subnet CIDR associated with Secondary ADC Management interface
       SecondaryClientSubnetCIDR:
@@ -82,31 +82,11 @@ Outputs:
     Export:
       Name: !Sub '${AWS::StackName}-PublicRouteTable'
     Value: !Ref 'PublicRouteTable'
-  PrimaryAZNATEIP:
-    Description: ''
-    Export:
-      Name: !Sub '${AWS::StackName}-PrimaryAZNATEIP'
-    Value: !Ref 'PrimaryAZNATEIP'
-  SecondaryAZNATEIP:
-    Description: ''
-    Export:
-      Name: !Sub '${AWS::StackName}-SecondaryAZNATEIP'
-    Value: !Ref 'SecondaryAZNATEIP'
-  PrivatePrimaryManagementRouteTable:
-    Description: ''
-    Export:
-      Name: !Sub '${AWS::StackName}-PrivatePrimaryManagementRouteTable'
-    Value: !Ref 'PrivatePrimaryManagementRouteTable'
   PrivatePrimaryServerRouteTable:
     Description: ''
     Export:
       Name: !Sub '${AWS::StackName}-PrivatePrimaryServerRouteTable'
     Value: !Ref 'PrivatePrimaryServerRouteTable'
-  PrivateSecondaryManagementRouteTable:
-    Description: ''
-    Export:
-      Name: !Sub '${AWS::StackName}-PrivateSecondaryManagementRouteTable'
-    Value: !Ref 'PrivateSecondaryManagementRouteTable'
   PrivateSecondaryServerRouteTable:
     Description: ''
     Export:
@@ -264,15 +244,35 @@ Resources:
       GatewayId: !Ref 'InternetGateway'
       RouteTableId: !Ref 'PublicRouteTable'
     Type: AWS::EC2::Route
+  PublicRouteTablePrimaryManagementSubnetAssociation:
+    Properties:
+      RouteTableId: !Ref 'PublicRouteTable'
+      SubnetId: !Ref 'PrimaryManagementSubnet'
+    Type: AWS::EC2::SubnetRouteTableAssociation
   PublicRouteTablePrimaryClientSubnetAssociation:
     Properties:
       RouteTableId: !Ref 'PublicRouteTable'
       SubnetId: !Ref 'PrimaryClientSubnet'
     Type: AWS::EC2::SubnetRouteTableAssociation
+  PrivateRouteTablePrimaryServerSubnetAssociation:
+    Properties:
+      RouteTableId: !Ref 'PrivatePrimaryServerRouteTable'
+      SubnetId: !Ref 'PrimaryServerSubnet'
+    Type: AWS::EC2::SubnetRouteTableAssociation
+  PublicRouteTableSecondaryManagementSubnetAssociation:
+    Properties:
+      RouteTableId: !Ref 'PublicRouteTable'
+      SubnetId: !Ref 'SecondaryManagementSubnet'
+    Type: AWS::EC2::SubnetRouteTableAssociation
   PublicRouteTableSecondaryClientSubnetAssociation:
     Properties:
       RouteTableId: !Ref 'PublicRouteTable'
       SubnetId: !Ref 'SecondaryClientSubnet'
+    Type: AWS::EC2::SubnetRouteTableAssociation
+  PrivateRouteTableSecondaryServerSubnetAssociation:
+    Properties:
+      RouteTableId: !Ref 'PrivateSecondaryServerRouteTable'
+      SubnetId: !Ref 'SecondaryServerSubnet'
     Type: AWS::EC2::SubnetRouteTableAssociation
   PrimaryAZNATEIP:
     Properties:
@@ -304,19 +304,6 @@ Resources:
         - Key: Name
           Value: !Sub '${AWS::StackName}-SecondaryAZNAT'
     Type: AWS::EC2::NatGateway
-  PrivatePrimaryManagementRouteTable:
-    Properties:
-      VpcId: !Ref 'VPC'
-      Tags:
-        - Key: Name
-          Value: !Sub '${AWS::StackName}-PrivatePrimaryManagementRouteTable'
-    Type: AWS::EC2::RouteTable
-  PrivatePrimaryManagementRouteTablePrimaryAZNATRoute:
-    Properties:
-      DestinationCidrBlock: 0.0.0.0/0
-      NatGatewayId: !Ref 'PrimaryAZNAT'
-      RouteTableId: !Ref 'PrivatePrimaryManagementRouteTable'
-    Type: AWS::EC2::Route
   PrivatePrimaryServerRouteTable:
     Properties:
       VpcId: !Ref 'VPC'
@@ -329,19 +316,6 @@ Resources:
       DestinationCidrBlock: 0.0.0.0/0
       NatGatewayId: !Ref 'PrimaryAZNAT'
       RouteTableId: !Ref 'PrivatePrimaryServerRouteTable'
-    Type: AWS::EC2::Route
-  PrivateSecondaryManagementRouteTable:
-    Properties:
-      VpcId: !Ref 'VPC'
-      Tags:
-        - Key: Name
-          Value: !Sub '${AWS::StackName}-PrivateSecondaryManagementRouteTable'
-    Type: AWS::EC2::RouteTable
-  PrivateSecondaryManagementRouteTableSecondaryAZNATRoute:
-    Properties:
-      DestinationCidrBlock: 0.0.0.0/0
-      NatGatewayId: !Ref 'SecondaryAZNAT'
-      RouteTableId: !Ref 'PrivateSecondaryManagementRouteTable'
     Type: AWS::EC2::Route
   PrivateSecondaryServerRouteTable:
     Properties:
@@ -356,24 +330,3 @@ Resources:
       NatGatewayId: !Ref 'SecondaryAZNAT'
       RouteTableId: !Ref 'PrivateSecondaryServerRouteTable'
     Type: AWS::EC2::Route
-  PrivateRouteTablePrimaryManagementSubnetAssociation:
-    Properties:
-      RouteTableId: !Ref 'PrivatePrimaryManagementRouteTable'
-      SubnetId: !Ref 'PrimaryManagementSubnet'
-    Type: AWS::EC2::SubnetRouteTableAssociation
-  PrivateRouteTablePrimaryServerSubnetAssociation:
-    Properties:
-      RouteTableId: !Ref 'PrivatePrimaryServerRouteTable'
-      SubnetId: !Ref 'PrimaryServerSubnet'
-    Type: AWS::EC2::SubnetRouteTableAssociation
-  PrivateRouteTableSecondaryManagementSubnetAssociation:
-    Properties:
-      RouteTableId: !Ref 'PrivateSecondaryManagementRouteTable'
-      SubnetId: !Ref 'SecondaryManagementSubnet'
-    Type: AWS::EC2::SubnetRouteTableAssociation
-  PrivateRouteTableSecondaryServerSubnetAssociation:
-    Properties:
-      RouteTableId: !Ref 'PrivateSecondaryServerRouteTable'
-      SubnetId: !Ref 'SecondaryServerSubnet'
-    Type: AWS::EC2::SubnetRouteTableAssociation
-
