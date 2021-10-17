@@ -52,14 +52,6 @@ The users are required to change the password post deployment when asked.
 
 ## Network architecture
 
-### Before failover
-
-![Before Failover HA Private IP](./before-failover-ha-pip.png)
-
-### After failover
-
-![After Failover HA Private IP](./after-failover-ha-pip.png)
-
 ### ADC state after the deployment
 
 ![ADC State after the deployment](./state-of-adc-after-the-deployment.jpg)
@@ -90,6 +82,5 @@ The users are required to change the password post deployment when asked.
 
 * [Citrix ADC VPX on AWS](https://docs.citrix.com/en-us/citrix-adc/13/deploying-vpx/deploy-aws.html)
 * [Deploy a VPX high-availability pair with private IP addresses across different AWS zones](https://docs.citrix.com/en-us/citrix-adc/current-release/deploying-vpx/deploy-aws/vpx-ha-pip-different-aws-zones.html)
-* [Citrix ADC HA with private IP now available across multizones in AWS](https://www.citrix.com/blogs/2020/11/03/citrix-adc-ha-with-private-ip-now-available-across-multizones-in-aws/)
 * [How High Availability on AWS works](https://docs.citrix.com/en-us/citrix-adc/13/deploying-vpx/deploy-aws/how-aws-ha-works.html)
 * [Citrix ADC Overview](https://www.citrix.com/en-in/products/citrix-adc/)
