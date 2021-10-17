@@ -609,7 +609,7 @@ Resources:
             except Exception as e:
               raise Exception(f"ERROR: Could not get subnet details: {e}")
           def handler(event, context):
-            status = cfnresponse.FAILED
+            status = cfnresponse.SUCCESS
             print(f"event: {event}")
             reason = None
             returndata = {}
@@ -617,10 +617,10 @@ Resources:
               if event["RequestType"] == "Create":
                 subnet_id = event["ResourceProperties"]["SubnetID"]
                 returndata['Netmask'] = get_subnet_address(subnet_id)[1]
-                status = cfnresponse.SUCCESS
             except Exception as e:
               reason = f"Exception: {e}"
               print(reason)
+              status = cfnresponse.FAILED
             finally:
               cfnresponse.send(event, context, status, responseData=returndata, reason=reason)
   GetSubnetMaskCustomResource:
