@@ -1,0 +1,402 @@
+Description:
+  This template provisions a Citrix CitrixADMAgent VPX in AWS. This template
+  also gives an option to allocate Pooled License to Citrix ADCs while provisioning.
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterLabels:
+      VPCID:
+        default: VPC ID to deploy the resources
+      VPCCIDR:
+        default: CIDR of the above VPC selected
+      ManagementSubnetID:
+        default: Subnet ID associated with Citrix CitrixADMAgent Management interface
+      VPCTenancy:
+        default: ""
+      ADMAgentInstanceType:
+        default: Citrix CitrixADMAgent instance type
+      KeyPairName:
+        default: Keypair to associate to ADCs
+      CustomerID:
+        default: Your Citrix cloud 'Customer ID (Tenant ID)'
+      ClientID:
+        default: Your Citrix cloud API 'Client ID'
+      ClientSecret:
+        default: Your Citrix cloud API 'Client Secret'
+      ManagementENIEIP:
+        default: Should PublicIP(EIP) be assigned to CitrixADMAgent management interface?
+    ParameterGroups:
+      - Label:
+          default: Network Configuration
+        Parameters:
+          - VPCID
+          - VPCCIDR
+          - ManagementSubnetID
+          - VPCTenancy
+      - Label:
+          default: Citrix CitrixADMAgent Configuration
+        Parameters:
+          - RestrictedManagementCIDR
+          - ADMAgentInstanceType
+          - KeyPairName
+      - Label:
+          default: Citrix ADM Agent Registration to ADM Service Configuration
+        Parameters:
+          - CustomerID
+          - ClientID
+          - ClientSecret
+      - Label:
+          default: Optional Configuration
+        Parameters:
+          - ManagementENIEIP
+Conditions:
+  AssignEIP2ManagementENI: !Equals
+    - !Ref "ManagementENIEIP"
+    - "Yes"
+Mappings:
+  AWSAMIRegionMap:
+    AMI:
+      CITRIXADC: Citrix ADC VPX
+    us-gov-west-1:
+      CITRIXADC: ami-092f732611d303a87
+    us-gov-east-1:
+      CITRIXADC: ami-000f2d9b73817f39e
+    us-east-2:
+      CITRIXADC: ami-0ebd66d0b795a3657
+    us-east-1:
+      CITRIXADC: ami-0cf764f145810a178
+    us-west-1:
+      CITRIXADC: ami-05b62a01e8178d5ff
+    us-west-2:
+      CITRIXADC: ami-0621def1c50e8b95b
+    ap-east-1:
+      CITRIXADC: ami-0acea7dbcff7d0447
+    ap-south-1:
+      CITRIXADC: ami-033f961b2211139e1
+    ap-northeast-2:
+      CITRIXADC: ami-07f62e510782b4535
+    ap-southeast-1:
+      CITRIXADC: ami-034f21e6b03e4337d
+    ap-southeast-2:
+      CITRIXADC: ami-05fa970ad1c447477
+    ap-northeast-1:
+      CITRIXADC: ami-0b57eb21f6ebe07f0
+    ap-northeast-3:
+      CITRIXADC: ami-0f4e253c0b9e8fb4a
+    ca-central-1:
+      CITRIXADC: ami-02960fc8dfa540b60
+    eu-central-1:
+      CITRIXADC: ami-06f8dda2c4ca7d074
+    eu-west-1:
+      CITRIXADC: ami-0ec2e987648881520
+    eu-west-2:
+      CITRIXADC: ami-0516b3dbd6a477217
+    eu-west-3:
+      CITRIXADC: ami-0c24dc0616de8c4d0
+    eu-north-1:
+      CITRIXADC: ami-0cad5b5f9ed4dbcbb
+    sa-east-1:
+      CITRIXADC: ami-0bea290ccdf8451a4
+    me-south-1:
+      CITRIXADC: ami-0608733848459caad
+Outputs:
+  ManagementSG:
+    Description:
+      Allow restricted inbound traffic from SSH and all traffic for required
+      agent ports
+    Export:
+      Name: !Sub "${AWS::StackName}-ManagementSG"
+    Value: !Ref "ManagementSG"
+  ManagementPrivateIP:
+    Description: CitrixADMAgent Management ENI
+    Export:
+      Name: !Sub "${AWS::StackName}-ManagementPrivateIP"
+    Value: !GetAtt "ManagementENI.PrimaryPrivateIpAddress"
+  ManagementEIP:
+    Description: ""
+    Export:
+      Name: !Sub "${AWS::StackName}-ManagementEIP"
+    Value: !Ref "ManagementEIP"
+    Condition: AssignEIP2ManagementENI
+  CitrixADMAgentInstanceID:
+    Description: CitrixADMAgent Instance ID
+    Export:
+      Name: !Sub "${AWS::StackName}-CitrixADMAgentInstanceID"
+    Value: !Ref "CitrixADMAgentInstance"
+Parameters:
+  VPCID:
+    Type: AWS::EC2::VPC::Id
+    Description: ""
+  VPCCIDR:
+    Type: String
+    Description: Must be a valid IP CIDR range of the form x.x.x.x/x
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x
+  ManagementSubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: ""
+  VPCTenancy:
+    Type: String
+    Description: ""
+    Default: default
+    AllowedValues:
+      - default
+      - dedicated
+  ADMAgentInstanceType:
+    Type: String
+    Description: ""
+    Default: m5.xlarge
+    AllowedValues:
+      - t2.medium
+      - t2.large
+      - t2.xlarge
+      - t2.2xlarge
+      - m3.large
+      - m3.xlarge
+      - m3.2xlarge
+      - m4.large
+      - m4.xlarge
+      - m4.2xlarge
+      - m4.4xlarge
+      - m4.10xlarge
+      - m4.16xlarge
+      - m5.large
+      - m5.xlarge
+      - m5.2xlarge
+      - m5.4xlarge
+      - m5.8xlarge
+      - m5.12xlarge
+      - m5.16xlarge
+      - m5.24xlarge
+      - c4.large
+      - c4.xlarge
+      - c4.2xlarge
+      - c4.4xlarge
+      - c4.8xlarge
+      - c5.large
+      - c5.xlarge
+      - c5.2xlarge
+      - c5.4xlarge
+      - c5.9xlarge
+      - c5.12xlarge
+      - c5.18xlarge
+      - c5.24xlarge
+      - c5n.large
+      - c5n.xlarge
+      - c5n.2xlarge
+      - c5n.4xlarge
+      - c5n.9xlarge
+      - c5n.18xlarge
+  RestrictedManagementCIDR:
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x
+    Description: Must be a valid IP CIDR range of the form x.x.x.x/x
+    Type: String
+  KeyPairName:
+    Description: ""
+    Type: AWS::EC2::KeyPair::KeyName
+  ManagementENIEIP:
+    Type: String
+    Description: ""
+    Default: "No"
+    AllowedValues:
+      - "No"
+      - "Yes"
+  ClientID:
+    Description: "If do do not already have, Refer here: https://developer.cloud.com/citrix-cloud/citrix-cloud-api-overview/docs/get-started-with-citrix-cloud-apis"
+    Type: String
+  ClientSecret:
+    Description: "If do do not already have, Refer here: https://developer.cloud.com/citrix-cloud/citrix-cloud-api-overview/docs/get-started-with-citrix-cloud-apis"
+    NoEcho: true
+    Type: String
+  CustomerID:
+    Description: "If do do not already have, Refer here: https://developer.cloud.com/citrix-cloud/citrix-cloud-api-overview/docs/get-started-with-citrix-cloud-apis"
+    Type: String
+AWSTemplateFormatVersion: "2010-09-09"
+Resources:
+  ManagementSG:
+    Properties:
+      GroupName: !Sub "${AWS::StackName}-ManagementSG"
+      GroupDescription:
+        Allow restricted inbound traffic from SSH and all traffic
+        for required agent ports
+      SecurityGroupEgress:
+        - CidrIp: "0.0.0.0/0"
+          Description: Allow all traffic to all destination
+          IpProtocol: "-1"
+      SecurityGroupIngress:
+        - CidrIp: !Ref "RestrictedManagementCIDR"
+          Description: SSH port
+          IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+        - CidrIp: !Ref "VPCCIDR"
+          Description: Allow all traffic within VPC
+          IpProtocol: "-1"
+        - CidrIp: 0.0.0.0/0
+          Description: SGIngresesAgentUDP162
+          IpProtocol: udp
+          FromPort: 162
+          ToPort: 162
+        - CidrIp: 0.0.0.0/0
+          Description: SGIngresesAgentUDP514
+          IpProtocol: udp
+          FromPort: 514
+          ToPort: 514
+        - CidrIp: 0.0.0.0/0
+          Description: SGIngresesAgentTCP27000
+          IpProtocol: tcp
+          FromPort: 27000
+          ToPort: 27000
+        - CidrIp: 0.0.0.0/0
+          Description: SGIngresesAgentTCP7279
+          IpProtocol: tcp
+          FromPort: 7279
+          ToPort: 7279
+        - CidrIp: 0.0.0.0/0
+          Description: SGIngresesAgentUDP4739
+          IpProtocol: udp
+          FromPort: 4739
+          ToPort: 4739
+        - CidrIp: 0.0.0.0/0
+          Description: SGIngresesAgentTCP5557
+          IpProtocol: tcp
+          FromPort: 5557
+          ToPort: 5557
+        - CidrIp: 0.0.0.0/0
+          Description: SGIngresesAgentTCP5563
+          IpProtocol: tcp
+          FromPort: 5563
+          ToPort: 5563
+      VpcId: !Ref "VPCID"
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-ManagementSG"
+    Type: AWS::EC2::SecurityGroup
+  ManagementENI:
+    Properties:
+      Description: CitrixADMAgent Management ENI
+      GroupSet:
+        - !Ref "ManagementSG"
+      PrivateIpAddress: !Ref "AWS::NoValue"
+      SubnetId: !Ref "ManagementSubnetID"
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-ManagementENI"
+    Type: AWS::EC2::NetworkInterface
+  ManagementEIP:
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-ManagementEIP"
+    Type: AWS::EC2::EIP
+    Condition: AssignEIP2ManagementENI
+  AssociateManagementEIP2ENI:
+    Properties:
+      AllocationId: !GetAtt "ManagementEIP.AllocationId"
+      NetworkInterfaceId: !Ref "ManagementENI"
+      PrivateIpAddress: !GetAtt "ManagementENI.PrimaryPrivateIpAddress"
+    Type: AWS::EC2::EIPAssociation
+    Condition: AssignEIP2ManagementENI
+  CitrixADMAgentInstance:
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-CitrixADMAgentInstance"
+      ImageId: !FindInMap
+        - AWSAMIRegionMap
+        - !Ref "AWS::Region"
+        - CITRIXADC
+      InstanceType: !Ref "ADMAgentInstanceType"
+      KeyName: !Ref "KeyPairName"
+      NetworkInterfaces:
+        - DeviceIndex: "0"
+          NetworkInterfaceId: !Ref "ManagementENI"
+      Tenancy: !Ref "VPCTenancy"
+      UserData: !Base64
+        Fn::Sub: registeragent -serviceurl ${ADMActivationCodeCustomResource.ServiceURL} -activationcode ${ADMActivationCodeCustomResource.ActivationCode}
+    Type: AWS::EC2::Instance
+
+  ADMActivationCodeIAMRole:
+    Properties:
+      Path: /
+      Description: ""
+      ManagedPolicyArns:
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - !Sub lambda.${AWS::URLSuffix}
+    Type: AWS::IAM::Role
+  ADMActivationCodeFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: ADMActivationCodeFunction
+      Handler: index.handler
+      Role: !GetAtt "ADMActivationCodeIAMRole.Arn"
+      Runtime: python3.6
+      Timeout: 60
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-ADMActivationCodeFunction"
+      Code:
+        ZipFile: |
+          import cfnresponse
+          import http.client
+          import json
+          def handler(event, context):
+            status = cfnresponse.SUCCESS
+            reason = None
+            response_data = {}
+            try:
+              if event["RequestType"] == "Create":
+                print("Request = Create")
+                customer_id = event["ResourceProperties"]["CustomerID"]
+                client_id = event["ResourceProperties"]["ClientID"]
+                client_secret = event["ResourceProperties"]["ClientSecret"]
+                conn = http.client.HTTPSConnection("adm.cloud.com")
+                headers = { "isCloud": "true", "Content-Type": "application/json" }
+                print(f"headers={headers}")
+                payload = {"login": {"ID": client_id,"Secret": client_secret }}
+                payload = json.dumps(payload)
+                conn.request("POST", "/nitro/v1/config/login", payload, headers)
+                print("Got SessionID")
+                response = conn.getresponse()
+                result = response.read()
+                r = json.loads(result.decode("utf-8"))
+                if 'errorcode' in r and r['errorcode'] != 0:
+                  raise Exception(r)
+                sessid = r["login"][0]["sessionid"]
+                headers["Cookie"] = f"SESSID={sessid}"
+                payload = ""
+                conn.request("GET", f"/nitro/v1/config/trust_preauthtoken/{customer_id}?customer={customer_id}", payload, headers)
+                response = conn.getresponse()
+                result = response.read()
+                r = json.loads(result.decode("utf-8"))
+                if 'errorcode' in r and r['errorcode'] != 0:
+                  raise Exception(r)
+                print("Got Service URL and ActivationCode")
+                service_url = r["trust_preauthtoken"][0]['api_gateway_url']
+                activation_code = r["trust_preauthtoken"][0]['token']
+                response_data = {
+                  "ServiceURL": service_url,
+                  "ActivationCode": activation_code
+                }
+            except Exception as e:
+              reason = f"Exception: {e}"
+              print(reason)
+              status = cfnresponse.FAILED
+            finally:
+              cfnresponse.send(event, context, status, responseData=response_data, reason=reason)
+  ADMActivationCodeCustomResource:
+    Properties:
+      ServiceToken: !GetAtt "ADMActivationCodeFunction.Arn"
+      CustomerID: !Ref "CustomerID"
+      ClientID: !Ref "ClientID"
+      ClientSecret: !Ref "ClientSecret"
+    Type: AWS::CloudFormation::CustomResource

@@ -1,6 +1,7 @@
 # VPC Infrastructure
 
 ## Network Architecture
+
 Below is the network architecture which will be deployed.
 
 ![VPC Infra Network Architecture](./vpc-infra-final-architecture.png)
