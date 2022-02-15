@@ -6,6 +6,8 @@ Metadata:
     ParameterLabels:
       VPCID:
         default: VPC ID to deploy the resources
+      VPCCIDR:
+        default: VPC CIDR of the above selected VPC
       RestrictedWebAppCIDR:
         default: Address range to access apps behind the ADCs
       RestrictedSSHCIDR:
@@ -78,11 +80,31 @@ Metadata:
       VCPUEdition:
         default: CPU-Licensing Edition (Select this if the above LicensingMode is
           `CPU-Licensing`)
+
+      ADCRegistration2ADMService:
+        default: Do you want to register the ADC to ADM Service?
+      ADMAgentIP:
+        default: Reachable External ADM Agent IP address
+      ADMAgentDeployment:
+        default: Do you want to deploy a new ADM Agent?
+      ADMAgentRestrictedManagementCIDR:
+        default: Address range to access Management interface of Citrix ADM Agent
+      ADMAgentInstanceType:
+        default: Citrix CitrixADMAgent instance type
+      CustomerID:
+        default: Your Citrix cloud 'Customer ID (Tenant ID)'
+      ClientID:
+        default: Your Citrix cloud API 'Client ID'
+      ClientSecret:
+        default: Your Citrix cloud API 'Client Secret'
+      ADMAgentManagementENIEIP:
+        default: Should PublicIP(EIP) be assigned to CitrixADMAgent management interface?
     ParameterGroups:
       - Label:
           default: Network Configuration
         Parameters:
           - VPCID
+          - VPCCIDR
           - RestrictedWebAppCIDR
           - RestrictedSSHCIDR
           - PrimaryManagementPrivateSubnetID
@@ -124,6 +146,20 @@ Metadata:
           - PooledEdition
           - Platform
           - VCPUEdition
+
+      - Label:
+          default: Citrix ADM Agent Configuration (Optional)
+        Parameters:
+          - ADCRegistration2ADMService
+          - ADMAgentIP
+          - ADMAgentDeployment
+          - ClientID
+          - ClientSecret
+          - CustomerID
+          - ADMAgentInstanceType
+          - ADMAgentRestrictedManagementCIDR
+          - ADMAgentManagementENIEIP
+
 Conditions:
   UseLatestAMI: !Equals
     - !Ref 'CitrixADCImageID'
@@ -137,6 +173,14 @@ Conditions:
   UsePooledLicense: !Equals
     - !Ref 'PooledLicense'
     - 'Yes'
+  DeployADMAgent: !Equals [!Ref ADMAgentDeployment, "Yes"]
+  RegisterADC2ADMService: !Equals [!Ref ADCRegistration2ADMService, "Yes"]
+  AssignADMAgentEIP: !Equals
+    - !Ref 'ADMAgentManagementENIEIP'
+    - 'Yes'
+  DeployADMAgentAndAssignADMAgentEIP: !And
+    - !Condition DeployADMAgent
+    - !Condition AssignADMAgentEIP
 Outputs:
   PrimaryCitrixADCIP:
     Description: Primary Citrix ADC Public Management IP
@@ -181,6 +225,25 @@ Outputs:
     Export:
       Name: !Sub '${AWS::StackName}-ServerSecurityGroupID'
     Value: !GetAtt 'SecurityGroupStack.Outputs.ServerSG'
+  ADMAgentEIP:
+    Condition: DeployADMAgentAndAssignADMAgentEIP
+    Value: !GetAtt ADMAgentStack.Outputs.ManagementEIP
+    Description: Public IP address of the ADM Agent
+    Export:
+      Name: !Sub "${AWS::StackName}-ADMAgentEIP"
+  ADMAgentPrivateIP:
+    Condition: DeployADMAgent
+    Value: !GetAtt ADMAgentStack.Outputs.ManagementPrivateIP
+    Description: Private IP address of the ADM Agent
+    Export:
+      Name: !Sub "${AWS::StackName}-ADMAgentPrivateIP"
+  ADMAgentInstanceID:
+    Condition: DeployADMAgent
+    Value: !GetAtt ADMAgentStack.Outputs.CitrixADMAgentInstanceID
+    Description: Instance ID of the ADM Agent
+    Export:
+      Name: !Sub "${AWS::StackName}-ADMAgentInstanceID"
+
 Parameters:
   VPCID:
     Type: AWS::EC2::VPC::Id
@@ -432,6 +495,102 @@ Parameters:
       - Advanced
       - Premium
     Default: ''
+
+  ADMAgentDeployment:
+    Description: If you select 'No', only give 'Citrix ADM Agent IP' above and ignore the rest of the parametes in this section.
+    Type: String
+    Default: "No"
+    AllowedValues:
+      - "Yes"
+      - "No"
+  ADMAgentIP:
+    Default: ""
+    Description: Ignore this if you are deploying ADM Agent below. This IP will be auto assigned in the deployment process.
+    Type: String
+
+  VPCCIDR:
+    Type: String
+    Description: Must be a valid IP CIDR range of the form x.x.x.x/x
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x
+  ADMAgentInstanceType:
+    Type: String
+    Description: ""
+    Default: m5.xlarge
+    AllowedValues:
+      - t2.medium
+      - t2.large
+      - t2.xlarge
+      - t2.2xlarge
+      - m3.large
+      - m3.xlarge
+      - m3.2xlarge
+      - m4.large
+      - m4.xlarge
+      - m4.2xlarge
+      - m4.4xlarge
+      - m4.10xlarge
+      - m4.16xlarge
+      - m5.large
+      - m5.xlarge
+      - m5.2xlarge
+      - m5.4xlarge
+      - m5.8xlarge
+      - m5.12xlarge
+      - m5.16xlarge
+      - m5.24xlarge
+      - c4.large
+      - c4.xlarge
+      - c4.2xlarge
+      - c4.4xlarge
+      - c4.8xlarge
+      - c5.large
+      - c5.xlarge
+      - c5.2xlarge
+      - c5.4xlarge
+      - c5.9xlarge
+      - c5.12xlarge
+      - c5.18xlarge
+      - c5.24xlarge
+      - c5n.large
+      - c5n.xlarge
+      - c5n.2xlarge
+      - c5n.4xlarge
+      - c5n.9xlarge
+      - c5n.18xlarge
+  ADMAgentRestrictedManagementCIDR:
+    AllowedPattern: ()|(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x
+    Description: Must be a valid IP CIDR range of the form x.x.x.x/x
+    Type: String
+  ADMAgentManagementENIEIP:
+    Type: String
+    Description: ""
+    Default: "No"
+    AllowedValues:
+      - "No"
+      - "Yes"
+  ClientID:
+    Description: "If do do not already have, Refer here: https://developer.cloud.com/citrix-cloud/citrix-cloud-api-overview/docs/get-started-with-citrix-cloud-apis"
+    Type: String
+    Default: ""
+  ClientSecret:
+    Description: "If do do not already have, Refer here: https://developer.cloud.com/citrix-cloud/citrix-cloud-api-overview/docs/get-started-with-citrix-cloud-apis"
+    NoEcho: true
+    Type: String
+    Default: ""
+  CustomerID:
+    Description: "If do do not already have, Refer here: https://developer.cloud.com/citrix-cloud/citrix-cloud-api-overview/docs/get-started-with-citrix-cloud-apis"
+    Type: String
+    Default: ""
+
+  ADCRegistration2ADMService:
+    Type: String
+    Description: "If you do not want to register the ADC to ADM Service, you can ignore the entire section. Know more about ADM Service here: https://www.citrix.com/products/citrix-application-delivery-management/"
+    Default: "No"
+    AllowedValues:
+      - "No"
+      - "Yes"
 AWSTemplateFormatVersion: '2010-09-09'
 Resources:
   LambdaCopierStack:
@@ -606,3 +765,83 @@ Resources:
           - !Ref 'SecondaryPooledLicenseStack'
         - ''
 
+  ADMAgentStack:
+    Condition: DeployADMAgent
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "https://${S3BucketName}.s3.${AWS::URLSuffix}/templates/external-adm-agent/external-adm-agent.yaml"
+      Tags:
+        - Key: Name
+          Value: !Sub "ADMAgentStack-${AWS::StackName}"
+      Parameters:
+        VPCID: !Ref "VPCID"
+        VPCCIDR: !Ref "VPCCIDR"
+        ManagementSubnetID: !Ref PrimaryManagementPrivateSubnetID
+        VPCTenancy: !Ref "VPCTenancy"
+        ADMAgentInstanceType: !Ref "ADMAgentInstanceType"
+        RestrictedManagementCIDR: !Ref "ADMAgentRestrictedManagementCIDR"
+        KeyPairName: !Ref KeyPairName
+        ManagementENIEIP: !Ref "ADMAgentManagementENIEIP"
+        ClientID: !Ref "ClientID"
+        ClientSecret: !Ref "ClientSecret"
+        CustomerID: !Ref "CustomerID"
+
+  RegisterPrimaryADC2ADMServiceStack:
+    DependsOn: ConfigureHAAZStack
+    Condition: RegisterADC2ADMService
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "https://${S3BucketName}.s3.${AWS::URLSuffix}/templates/nested-stacks/cft-stack-register-adc-to-admservice.yaml"
+      Tags:
+        - Key: Name
+          Value: !Sub "RegisterADC2ADMServiceStack-${AWS::StackName}"
+      Parameters:
+        VPCID: !Ref "VPCID"
+        VPCCIDR: !Ref "VPCCIDR"
+        ADMAgentManagementSubnetID: !Ref PrimaryManagementPrivateSubnetID
+        VPCTenancy: !Ref "VPCTenancy"
+        ADMAgentInstanceType: !Ref "ADMAgentInstanceType"
+        ADMAgentRestrictedManagementCIDR: !Ref "ADMAgentRestrictedManagementCIDR"
+        ADMAgentKeyPairName: !Ref "KeyPairName"
+        ADMAgentManagementENIEIP: !Ref "ADMAgentManagementENIEIP"
+        ClientID: !Ref "ClientID"
+        ClientSecret: !Ref "ClientSecret"
+        CustomerID: !Ref "CustomerID"
+        AdcPassword: !Ref "ADCCustomPassword"
+        AdcNSIP: !GetAtt "PrimaryCitrixADCStack.Outputs.ManagementPrivateIP"
+        ADMAgentDeployment: "No"
+        ADMAgentIP: !If
+                      - DeployADMAgent
+                      - !GetAtt ADMAgentStack.Outputs.ManagementPrivateIP
+                      - !Ref ADMAgentIP
+        S3BucketName: !Ref "S3BucketName"
+
+  RegisterSecondaryADC2ADMServiceStack:
+    DependsOn: ConfigureHAAZStack
+    Condition: RegisterADC2ADMService
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "https://${S3BucketName}.s3.${AWS::URLSuffix}/templates/nested-stacks/cft-stack-register-adc-to-admservice.yaml"
+      Tags:
+        - Key: Name
+          Value: !Sub "RegisterADC2ADMServiceStack-${AWS::StackName}"
+      Parameters:
+        VPCID: !Ref "VPCID"
+        VPCCIDR: !Ref "VPCCIDR"
+        ADMAgentManagementSubnetID: !Ref PrimaryManagementPrivateSubnetID
+        VPCTenancy: !Ref "VPCTenancy"
+        ADMAgentInstanceType: !Ref "ADMAgentInstanceType"
+        ADMAgentRestrictedManagementCIDR: !Ref "ADMAgentRestrictedManagementCIDR"
+        ADMAgentKeyPairName: !Ref "KeyPairName"
+        ADMAgentManagementENIEIP: !Ref "ADMAgentManagementENIEIP"
+        ClientID: !Ref "ClientID"
+        ClientSecret: !Ref "ClientSecret"
+        CustomerID: !Ref "CustomerID"
+        AdcPassword: !Ref "ADCCustomPassword"
+        AdcNSIP: !GetAtt "SecondaryCitrixADCStack.Outputs.ManagementPrivateIP"
+        ADMAgentDeployment: "No"
+        ADMAgentIP: !If
+                      - DeployADMAgent
+                      - !GetAtt ADMAgentStack.Outputs.ManagementPrivateIP
+                      - !Ref ADMAgentIP
+        S3BucketName: !Ref "S3BucketName"

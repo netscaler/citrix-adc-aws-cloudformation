@@ -340,7 +340,7 @@ Resources:
       Handler: index.handler
       Role: !GetAtt "ADMActivationCodeIAMRole.Arn"
       Runtime: python3.6
-      Timeout: 60
+      Timeout: 300
       Tags:
         - Key: Name
           Value: !Sub "${AWS::StackName}-ADMActivationCodeFunction"

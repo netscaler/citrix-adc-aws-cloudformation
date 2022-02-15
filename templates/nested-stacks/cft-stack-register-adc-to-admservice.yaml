@@ -149,13 +149,14 @@ Resources:
       Handler: index.handler
       Role: !GetAtt "RegisterADCRole.Arn"
       Runtime: python3.8
-      Timeout: 100
+      Timeout: 900
       Code:
         ZipFile: |
           import urllib.request, urllib.parse
           import json, random, string, time
           import cfnresponse
           HEADERS = {}
+          print_json = lambda x: json.dumps(x)
           def open_url(url, headers, data=None, method='GET'):
             if data: data = data.encode('utf-8')
             req = urllib.request.Request(url, data, headers, method)
@@ -173,30 +174,42 @@ Resources:
             print("INSIDE get_all_agents()")
             agent_url = f'https://adm.cloud.com/massvc/{customer_id}/nitro/v2/config/mps_agent'
             status, reason, body = open_url(agent_url, HEADERS)
-            print(f"Status={status}; Reason={reason}; Body={json.dumps(body, indent=4)}")
+            print(f"Status={status}; Reason={reason}; Body={print_json(body)}")
             return body['mps_agent']
           def get_agent(ip, customer_id):
               print("INSIDE get_agent()")
               all_agents = get_all_agents(customer_id)
               for agent in all_agents:
-                if agent['name'] == ip and agent['platform'] == 'AWS': return agent
+                if agent['name'] == ip and agent['platform'] == 'AWS':
+                  if agent['state'].upper() == 'UP':
+                    return agent
+                  print("Agent is still down. Waiting for it to come up.")
               return None
           def create_new_profile(profilename, username, password, customer_id):
             print("INSIDE create_new_profile()")
             data = { "ns_device_profile": { "name": profilename, "username": username, "password": password, "snmpsecurityname": "test-snmp", } }
             url = f'https://adm.cloud.com/massvc/{customer_id}/nitro/v2/config/ns_device_profile'
             status, reason, body = open_url(url, HEADERS, json.dumps(data), 'POST')
-            print(f"Status={status}; Reason={reason}; Body={json.dumps(body, indent=4)}")
+            print(f"Status={status}; Reason={reason}; Body={print_json(body)}")
             if status != 200: # 409 CONFLICT if profile already exists
-              raise Exception(f"Status={status}; Reason={reason}; Body={body}")
-          def add_managed_adc(adcip, agentip,adcpass, profilename, customer_id):
+              raise Exception(f"Status={status}; Reason={reason}; Body={print_json(body)}")
+            print(f"{profilename} Profile created")
+          def add_managed_adc(adcip, agentip, adcpass, profilename, customer_id):
             print("INSIDE add_managed_adc()")
+            # check for existing managed device
+            url = f'https://adm.cloud.com/massvc/{customer_id}/nitro/v2/config/managed_device'
+            status, reason, body = open_url(url, HEADERS)
+            print(f"Status={status}; Reason={reason}; Body={print_json(body)}")
+            for managed_device in body['managed_device']:
+              if managed_device['ip_address'] == adcip:
+                print(f"{adcip} already exists")
+                return status, reason, body
             MAX_RETRIES, tries = 30, 0
             agent = get_agent(agentip, customer_id)
             while agent is None and tries < MAX_RETRIES:
               agent = get_agent(agentip, customer_id)
               tries += 1
-              print(f"Agent not found. Retrying in 10 seconds. Tries={tries}")
+              print(f"Agent not found OR is still DOWN. Retrying in 10 seconds. Tries={tries}")
               time.sleep(10)
             dc_id = agent['datacenter_id']
             create_new_profile(profilename, 'nsroot', adcpass, customer_id)
@@ -213,12 +226,25 @@ Resources:
             }
             url = f'https://adm.cloud.com/massvc/{customer_id}/nitro/v2/config/managed_device'
             status, reason, body = open_url(url, HEADERS, json.dumps(data), 'POST')
-            print(f"Status={status}; Reason={reason}; Body={json.dumps(body, indent=4)}")
-            if status != 200:
-              raise Exception(f"Status={status}; Reason={reason}; Body={body}")
+            print(f"Status={status}; Reason={reason}; Body={print_json(body)}")
+            return status, reason, body
+          def wait_for_registration(body, customer_id):
+            print("INSIDE wait_for_registration()")
+            actid = body['managed_device'][0]['act_id']
+            url = f'https://adm.cloud.com/massvc/{customer_id}/nitro/v2/config/activity_status/{actid}'
+            status, reason, body = open_url(url, HEADERS)
+            print(f"Status={status}; Reason={reason}; Body={print_json(body)}")
+            for activity_status in body["activity_status"]:
+              if activity_status['is_last'] == 'true':
+                if activity_status['status'] == 'Completed':
+                  return True
+                else:
+                  raise Exception(f"Status={status}; Reason={reason}; Body={print_json(body)}")
+            return False
           def handler(event, context):
             global HEADERS
             lambda_status = cfnresponse.SUCCESS
+            lambda_reason = None
             resp = {}
             try:
               if event["RequestType"] == "Create":
@@ -233,17 +259,30 @@ Resources:
                 print(f"agentip:{agentip}; adcip:{adcip}; profilename:{profilename}")
                 status, reason, body = get_token(client_id, client_secret)
                 if status != 200:
-                  print(f"Status={status}; Reason={reason}; Body={json.dumps(body, indent=4)}")
-                  raise Exception(f"Status={status}; Reason={reason}; Body={body}")
+                  raise Exception(f"Status={status}; Reason={reason}; Body={print_json(body)}")
                 HEADERS = { 'Authorization': f"CwsAuthbearer={body['access_token']}", 'isCloud': 'true'}
                 profilename += ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(3))
-                add_managed_adc(adcip, agentip,adcpass, profilename, customer_id)
-                resp = {"ADCProfileName": profilename}
+                status, reason, body = add_managed_adc(adcip, agentip,adcpass, profilename, customer_id)
+                if status != 200:
+                  raise Exception(f"Status={status}; Reason={reason}; Body={print_json(body)}")
+                MAX_TRIES, tries = 20, 1
+                while tries <= MAX_TRIES:
+                  status = wait_for_registration(body, customer_id)
+                  if not status:
+                    tries += 1
+                    print(f"ADC not registered yet. Retrying in 5 seconds. Tries={tries}")
+                    time.sleep(5)
+                  else:
+                    print("ADC registered successfully. ")
+                    break
+                else:
+                  raise Exception(f"Device not registered after {MAX_TRIES} tries")
             except Exception as e:
               print(f"Exception: {e}")
               lambda_status = cfnresponse.FAILED
+              lambda_reason = str(e)
             finally:
-              cfnresponse.send(event, context, lambda_status, responseData=resp)
+              cfnresponse.send(event, context, lambda_status, responseData=resp, reason=lambda_reason)
   RegisterADCRole:
     Properties:
       AssumeRolePolicyDocument:
@@ -282,3 +321,17 @@ Resources:
         ClientID: !Ref "ClientID"
         ClientSecret: !Ref "ClientSecret"
         CustomerID: !Ref "CustomerID"
+
+Outputs:
+  ADMAgentEIP:
+    Condition: DeployADMAgent
+    Value: !GetAtt ADMAgentStack.Outputs.ManagementEIP
+    Description: Public IP address of the ADM Agent
+  ADMAgentPrivateIP:
+    Condition: DeployADMAgent
+    Value: !GetAtt ADMAgentStack.Outputs.ManagementPrivateIP
+    Description: Private IP address of the ADM Agent
+  ADMAgentInstanceID:
+    Condition: DeployADMAgent
+    Value: !GetAtt ADMAgentStack.Outputs.CitrixADMAgentInstanceID
+    Description: Instance ID of the ADM Agent

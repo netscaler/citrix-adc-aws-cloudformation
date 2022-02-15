@@ -1,4 +1,4 @@
-Description:
+Description: >
   This template provisions a Citrix ADC VPX in AWS. This template also
   gives an option to allocate Pooled License to Citrix ADCs while provisioning.
 Metadata:
@@ -6,6 +6,8 @@ Metadata:
     ParameterLabels:
       VPCID:
         default: VPC ID to deploy the resources
+      VPCCIDR:
+        default: VPC CIDR of the above selected VPC
       RestrictedWebAppCIDR:
         default: Address range to access apps behind the ADCs
       RestrictedSSHCIDR:
@@ -154,6 +156,17 @@ Conditions:
   AssignEIP2ManagementENI: !Equals [!Ref "ManagementENIEIP", "Yes"]
   AssignClientEIP: !Equals [!Ref "ClientENIEIP", "Yes"]
   UsePooledLicense: !Equals [!Ref "PooledLicense", "Yes"]
+  DeployADMAgent: !Equals [!Ref ADMAgentDeployment, "Yes"]
+  RegisterADC2ADMServiceAndDeploymentADMAgent: !And
+    - !Condition RegisterADC2ADMService
+    - !Condition DeployADMAgent
+  AssignADMAgentEIP: !Equals
+    - !Ref 'ADMAgentManagementENIEIP'
+    - 'Yes'
+  RegisterADC2ADMServiceAndDeploymentADMAgentAndAssignADMAgentEIP: !And
+    - !Condition RegisterADC2ADMService
+    - !Condition DeployADMAgent
+    - !Condition AssignADMAgentEIP
 Outputs:
   CitrixADCIP:
     Description: " Citrix ADC Public Management IP"
@@ -187,6 +200,24 @@ Outputs:
     Export:
       Name: !Sub "${AWS::StackName}-ServerSecurityGroupID"
     Value: !GetAtt "SecurityGroupStack.Outputs.ServerSG"
+  ADMAgentEIP:
+    Condition: RegisterADC2ADMServiceAndDeploymentADMAgentAndAssignADMAgentEIP
+    Value: !GetAtt RegisterADC2ADMServiceStack.Outputs.ADMAgentEIP
+    Description: Public IP address of the ADM Agent
+    Export:
+      Name: !Sub "${AWS::StackName}-ADMAgentEIP"
+  ADMAgentPrivateIP:
+    Condition: RegisterADC2ADMServiceAndDeploymentADMAgent
+    Value: !GetAtt RegisterADC2ADMServiceStack.Outputs.ADMAgentPrivateIP
+    Description: Private IP address of the ADM Agent
+    Export:
+      Name: !Sub "${AWS::StackName}-ADMAgentPrivateIP"
+  ADMAgentInstanceID:
+    Condition: RegisterADC2ADMServiceAndDeploymentADMAgent
+    Value: !GetAtt RegisterADC2ADMServiceStack.Outputs.ADMAgentInstanceID
+    Description: Instance ID of the ADM Agent
+    Export:
+      Name: !Sub "${AWS::StackName}-ADMAgentInstanceID"
 
 Parameters:
   VPCID:
@@ -626,6 +657,7 @@ Resources:
     DependsOn: ADCInitStack
 
   RegisterADC2ADMServiceStack:
+    DependsOn: ADCInitStack
     Condition: RegisterADC2ADMService
     Type: AWS::CloudFormation::Stack
     Properties:
