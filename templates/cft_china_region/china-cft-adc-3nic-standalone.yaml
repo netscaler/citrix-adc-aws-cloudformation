@@ -452,7 +452,6 @@ Resources:
   ServerENI:
     Properties:
       Description: ADC Server Private IP (SNIP)
-      GroupSet: []
       PrivateIpAddress: !If
         - UseServerPrivateIP
         - !Ref 'ServerPrivateIP'

@@ -355,7 +355,6 @@ Resources:
   PrimaryClientENI:
     Properties:
       Description: Primary ADC Client Private IP (VIP)
-      GroupSet: []
       PrivateIpAddress: !Ref 'AWS::NoValue'
       SecondaryPrivateIpAddressCount: 1
       SubnetId: !Ref 'ClientPublicSubnetID'
@@ -413,7 +412,6 @@ Resources:
   PrimaryServerENI:
     Properties:
       Description: Primary ADC Server Private IP (SNIP)
-      GroupSet: []
       PrivateIpAddress: !Ref 'AWS::NoValue'
       SecondaryPrivateIpAddressCount: 1
       SubnetId: !Ref 'ServerPrivateSubnetID'
@@ -424,7 +422,6 @@ Resources:
   SecondaryClientENI:
     Properties:
       Description: Secondary ADC Client Private IP (VIP)
-      GroupSet: []
       PrivateIpAddress: !Ref 'AWS::NoValue'
       SubnetId: !Ref 'ClientPublicSubnetID'
       Tags:
@@ -482,7 +479,6 @@ Resources:
   SecondaryServerENI:
     Properties:
       Description: Secondary ADC Server Private IP (SNIP)
-      GroupSet: []
       PrivateIpAddress: !Ref 'AWS::NoValue'
       SubnetId: !Ref 'ServerPrivateSubnetID'
       Tags:
