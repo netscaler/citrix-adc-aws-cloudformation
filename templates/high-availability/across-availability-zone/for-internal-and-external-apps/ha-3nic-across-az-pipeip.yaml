@@ -6,6 +6,8 @@ Metadata:
     ParameterLabels:
       VPCID:
         default: VPC ID to deploy the Citrix ADC
+      VPCCIDR:
+        default: VPC CIDR of the above selected VPC
       RouteTableID:
         default: Enter the Route Table ID where Citrix ADC will be deployed
       RestrictedManagementCIDR:
@@ -50,11 +52,31 @@ Metadata:
         default: Internal LB VIP IP (Should be in the above Private Load Balancer VIP CIDR Range)
       ManagementENIEIP:
         default: Should PublicIP(EIP) be assigned to management interfaces?
+      ADCCustomPassword:
+        default: Citrix ADC management login Password
+
+      ADCRegistration2ADMService:
+        default: Do you want to register the ADC to ADM Service?
+      ADMAgentIP:
+        default: Reachable External ADM Agent IP address
+      ADMAgentDeployment:
+        default: Do you want to deploy a new ADM Agent?
+      ADMAgentInstanceType:
+        default: Citrix CitrixADMAgent instance type
+      CustomerID:
+        default: Your Citrix cloud 'Customer ID (Tenant ID)'
+      ClientID:
+        default: Your Citrix cloud API 'Client ID'
+      ClientSecret:
+        default: Your Citrix cloud API 'Client Secret'
+      ADMAgentManagementENIEIP:
+        default: Should PublicIP(EIP) be assigned to CitrixADMAgent management interface?
     ParameterGroups:
       - Label:
           default: Network Configuration
         Parameters:
           - VPCID
+          - VPCCIDR
           - RouteTableID
           - RestrictedManagementCIDR
           - PrimaryManagementPrivateSubnetID
@@ -68,6 +90,7 @@ Metadata:
           default: Citrix ADC Configuration
         Parameters:
           - CitrixADCImageID
+          - ADCCustomPassword
           - KeyPairName
           - CitrixADCInstanceType
           - PublishCloudwatchMetrics
@@ -77,6 +100,19 @@ Metadata:
         Parameters:
           - ChosenCIDROutsideVPC
           - InternalLBVIP
+
+      - Label:
+          default: Citrix ADM Agent Configuration (Optional)
+        Parameters:
+          - ADCRegistration2ADMService
+          - ADMAgentIP
+          - ADMAgentDeployment
+          - ClientID
+          - ClientSecret
+          - CustomerID
+          - ADMAgentInstanceType
+          - ADMAgentManagementENIEIP
+
 Conditions:
   UseCustomADCAMI: !Not
     - !Equals
@@ -85,54 +121,78 @@ Conditions:
   AssignEIP2ManagementENI: !Equals
     - !Ref "ManagementENIEIP"
     - "Yes"
+  DeployADMAgent: !Equals [!Ref ADMAgentDeployment, "Yes"]
+  RegisterADC2ADMService: !Equals [!Ref ADCRegistration2ADMService, "Yes"]
+  AssignADMAgentEIP: !Equals
+    - !Ref "ADMAgentManagementENIEIP"
+    - "Yes"
+  DeployADMAgentAndAssignADMAgentEIP: !And
+    - !Condition DeployADMAgent
+    - !Condition AssignADMAgentEIP
+
 Mappings:
   AWSAMIRegionMap:
     AMI:
-      CITRIXADC: Citrix ADC VPX
+      CITRIXADC: Citrix ADC VPX Customer Licensed 13.1-12.51 (Feb 03 2022)
+      ADMAGENT: Citrix ADM Agent 13.1-19.24 (Jan 27 2022)
     us-gov-west-1:
-      CITRIXADC: ami-07949c655cc9a2a54
+      CITRIXADC: ami-0242a9417711bc75d
+      ADMAGENT: ami-0637b6337298ae2f9
     us-gov-east-1:
-      CITRIXADC: ami-01efdabd4e2e4eb2a
+      CITRIXADC: ami-06a01cbb4544e2301
+      ADMAGENT: ami-0f8785bc61da6a8be
     us-east-2:
-      CITRIXADC: ami-097041482a5332552
+      CITRIXADC: ami-05da437eade2b3f61
+      ADMAGENT: ami-0185fc30dc461b345
     us-east-1:
-      CITRIXADC: ami-0cc1a300c5d141075
+      CITRIXADC: ami-00c74aa43b1b8e9cc
+      ADMAGENT: ami-08981e05263a43860
     us-west-1:
-      CITRIXADC: ami-0eb926fc677264b8a
+      CITRIXADC: ami-006f6c4ec5c2a3c87
+      ADMAGENT: ami-07f2113acdcf0d499
     us-west-2:
-      CITRIXADC: ami-07219c8f7f22b3e68
+      CITRIXADC: ami-0f26166922f57f54f
+      ADMAGENT: ami-0555740d0d3595807
     ap-east-1:
-      CITRIXADC: ami-0a4ec20682227c262
+      CITRIXADC: ami-0ac40d463dcd43adf
+      ADMAGENT: ami-00e81c0c8f4017d77
     ap-south-1:
-      CITRIXADC: ami-02d96bd2b6e7778bb
+      CITRIXADC: ami-0c236379ba54100ea
+      ADMAGENT: ami-0999608f6eb2c32e9
     ap-northeast-2:
-      CITRIXADC: ami-0e7efbb8f8693bcad
+      CITRIXADC: ami-02fba680edab26bad
+      ADMAGENT: ami-05b59bab134dd6ad6
     ap-southeast-1:
-      CITRIXADC: ami-095c04642692d434e
+      CITRIXADC: ami-0c18f07bbfc647f73
+      ADMAGENT: ami-0bdb7052037a7f4ae
     ap-southeast-2:
-      CITRIXADC: ami-0a462ff885c7e4627
+      CITRIXADC: ami-01929c66f93e06808
+      ADMAGENT: ami-01969c9e888e1d84d
     ap-northeast-1:
-      CITRIXADC: ami-062114eb9de72216d
+      CITRIXADC: ami-0d32c9782b0dafa66
+      ADMAGENT: ami-01ea4e1795bf502bb
     ca-central-1:
-      CITRIXADC: ami-03cb631275fbf71e3
+      CITRIXADC: ami-061daf38969102571
+      ADMAGENT: ami-0dc917f0db7dccb70
     eu-central-1:
-      CITRIXADC: ami-0e8210f8cbdff51ae
+      CITRIXADC: ami-04cc32afce2e09927
+      ADMAGENT: ami-08c53e761b1c713eb
     eu-west-1:
-      CITRIXADC: ami-0fd0b64396f0317ce
+      CITRIXADC: ami-04936904527679056
+      ADMAGENT: ami-0c15d4b8d0f458af4
     eu-west-2:
-      CITRIXADC: ami-0204dcbbeca811ccd
+      CITRIXADC: ami-0dd0aa051b3fc4e4b
+      ADMAGENT: ami-0728041db4bad4143
     eu-west-3:
-      CITRIXADC: ami-07c215058042376f9
+      CITRIXADC: ami-0ee4ea493a900a192
+      ADMAGENT: ami-080cd8f69dd85e8bd
     eu-north-1:
-      CITRIXADC: ami-07da7220d3f7f0406
-    eu-south-1:
-      CITRIXADC: ami-05c62f50cdaf8d3e4
+      CITRIXADC: ami-0ce97179f7d9eb91b
+      ADMAGENT: ami-06c1b235c0eba085a
     sa-east-1:
-      CITRIXADC: ami-06bfcfa9fc14775d0
-    me-south-1:
-      CITRIXADC: ami-00ec45fbc884ddc45
-    af-south-1:
-      CITRIXADC: ami-047c6027d066b9ed9
+      CITRIXADC: ami-041f8d11eab0c1169
+      ADMAGENT: ami-0f4ac30069a8fd7a4
+
 Outputs:
   CitrixADCIAMRole:
     Description: Citrix ADC IAM Role
@@ -204,6 +264,25 @@ Outputs:
     Export:
       Name: !Sub "${AWS::StackName}-SecondaryADCInstanceID"
     Value: !Ref "SecondaryInstance"
+  ADMAgentEIP:
+    Condition: DeployADMAgentAndAssignADMAgentEIP
+    Value: !Ref ADMAgentManagementEIP
+    Description: Public IP address of the ADM Agent
+    Export:
+      Name: !Sub "${AWS::StackName}-ADMAgentEIP"
+  ADMAgentPrivateIP:
+    Condition: DeployADMAgent
+    Value: !GetAtt ADMAgentManagementENI.PrimaryPrivateIpAddress
+    Description: Private IP address of the ADM Agent
+    Export:
+      Name: !Sub "${AWS::StackName}-ADMAgentPrivateIP"
+  ADMAgentInstanceID:
+    Condition: DeployADMAgent
+    Value: !Ref ADMAgentInstance
+    Description: Instance ID of the ADM Agent
+    Export:
+      Name: !Sub "${AWS::StackName}-ADMAgentInstanceID"
+
 Parameters:
   VPCID:
     Type: AWS::EC2::VPC::Id
@@ -321,6 +400,104 @@ Parameters:
     AllowedPattern: ^rtb-[a-z0-9]{17}$
     ConstraintDescription: "Required Parameter: Input valid Route Table ID"
 
+  ADCCustomPassword:
+    Type: String
+    NoEcho: true
+    AllowedPattern: '[.\S]{8,15}'
+    ConstraintDescription:
+      Password length must be minimum 8 and maximum 15 characters.
+      Whitespace characters not allowed.
+  ADMAgentDeployment:
+    Description: If you select 'No', only give 'Citrix ADM Agent IP' above and ignore the rest of the parametes in this section.
+    Type: String
+    Default: "No"
+    AllowedValues:
+      - "Yes"
+      - "No"
+  ADMAgentIP:
+    Default: ""
+    Description: Ignore this if you are deploying ADM Agent below. This IP will be auto assigned in the deployment process.
+    Type: String
+
+  VPCCIDR:
+    Type: String
+    Description: Must be a valid IP CIDR range of the form x.x.x.x/x
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x
+  ADMAgentInstanceType:
+    Type: String
+    Description: ""
+    Default: m5.xlarge
+    AllowedValues:
+      - t2.medium
+      - t2.large
+      - t2.xlarge
+      - t2.2xlarge
+      - m3.large
+      - m3.xlarge
+      - m3.2xlarge
+      - m4.large
+      - m4.xlarge
+      - m4.2xlarge
+      - m4.4xlarge
+      - m4.10xlarge
+      - m4.16xlarge
+      - m5.large
+      - m5.xlarge
+      - m5.2xlarge
+      - m5.4xlarge
+      - m5.8xlarge
+      - m5.12xlarge
+      - m5.16xlarge
+      - m5.24xlarge
+      - c4.large
+      - c4.xlarge
+      - c4.2xlarge
+      - c4.4xlarge
+      - c4.8xlarge
+      - c5.large
+      - c5.xlarge
+      - c5.2xlarge
+      - c5.4xlarge
+      - c5.9xlarge
+      - c5.12xlarge
+      - c5.18xlarge
+      - c5.24xlarge
+      - c5n.large
+      - c5n.xlarge
+      - c5n.2xlarge
+      - c5n.4xlarge
+      - c5n.9xlarge
+      - c5n.18xlarge
+  ADMAgentManagementENIEIP:
+    Type: String
+    Description: ""
+    Default: "No"
+    AllowedValues:
+      - "No"
+      - "Yes"
+  ClientID:
+    Description: "If do do not already have, Refer here: https://developer.cloud.com/citrix-cloud/citrix-cloud-api-overview/docs/get-started-with-citrix-cloud-apis"
+    Type: String
+    Default: ""
+  ClientSecret:
+    Description: "If do do not already have, Refer here: https://developer.cloud.com/citrix-cloud/citrix-cloud-api-overview/docs/get-started-with-citrix-cloud-apis"
+    NoEcho: true
+    Type: String
+    Default: ""
+  CustomerID:
+    Description: "If do do not already have, Refer here: https://developer.cloud.com/citrix-cloud/citrix-cloud-api-overview/docs/get-started-with-citrix-cloud-apis"
+    Type: String
+    Default: ""
+
+  ADCRegistration2ADMService:
+    Type: String
+    Description: "If you do not want to register the ADC to ADM Service, you can ignore the entire section. Know more about ADM Service here: https://www.citrix.com/products/citrix-application-delivery-management/"
+    Default: "No"
+    AllowedValues:
+      - "No"
+      - "Yes"
+
 AWSTemplateFormatVersion: "2010-09-09"
 Resources:
   CitrixADCIAMRole:
@@ -388,6 +565,9 @@ Resources:
           IpProtocol: tcp
           FromPort: 443
           ToPort: 443
+        - CidrIp: !Ref VPCCIDR
+          Description: Allow all traffic from VPC
+          IpProtocol: "-1"
       VpcId: !Ref "VPCID"
       Tags:
         - Key: Name
@@ -415,7 +595,7 @@ Resources:
   PrimaryClientENI:
     Properties:
       Description: Primary ADC Client Private IP (VIP)
-      GroupSet: []
+
       SubnetId: !Ref "PrimaryClientPublicSubnetID"
       Tags:
         - Key: Name
@@ -424,7 +604,6 @@ Resources:
   PrimaryServerENI:
     Properties:
       Description: Primary ADC Server Private IP (SNIP)
-      GroupSet: []
       SubnetId: !Ref "PrimaryServerPrivateSubnetID"
       Tags:
         - Key: Name
@@ -443,7 +622,6 @@ Resources:
   SecondaryClientENI:
     Properties:
       Description: Secondary ADC Client Private IP (VIP)
-      GroupSet: []
       SubnetId: !Ref "SecondaryClientPublicSubnetID"
       Tags:
         - Key: Name
@@ -452,7 +630,6 @@ Resources:
   SecondaryServerENI:
     Properties:
       Description: Secondary ADC Server Private IP (SNIP)
-      GroupSet: []
       SubnetId: !Ref "SecondaryServerPrivateSubnetID"
       Tags:
         - Key: Name
@@ -529,6 +706,7 @@ Resources:
           PublishCloudwatchMetrics=${PublishCloudwatchMetrics}
           <NS-PRE-BOOT-CONFIG>
               <NS-CONFIG>
+                  set system user nsroot notnsroot
                   set systemparameter -promptString "%u@%s"
                   add ha node 1 ${SecondaryManagementENI.PrimaryPrivateIpAddress} -inc ENABLED
                   add ns ip ${SecondaryClientENI.PrimaryPrivateIpAddress} ${GetSubnetMaskCustomResource.Netmask} -type VIP
@@ -568,6 +746,7 @@ Resources:
           PublishCloudwatchMetrics=${PublishCloudwatchMetrics}
           <NS-PRE-BOOT-CONFIG>
                <NS-CONFIG>
+                   set system user nsroot notnsroot
                    add ha node 1 ${PrimaryManagementENI.PrimaryPrivateIpAddress} -inc ENABLED
                    add ns ip ${SecondaryClientENI.PrimaryPrivateIpAddress} ${GetSubnetMaskCustomResource.Netmask} -type VIP
                    add ipset ha_ipset
@@ -651,5 +830,462 @@ Resources:
               - Action:
                   - ec2:DescribeSubnets
                 Effect: Allow
-                Resource: '*'
-            Version: '2012-10-17'
+                Resource: "*"
+            Version: "2012-10-17"
+
+  DelayRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - !Sub lambda.${AWS::URLSuffix}
+        Version: "2012-10-17"
+      Description: ""
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Path: /
+      Policies: []
+    Type: AWS::IAM::Role
+
+  DelayFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-DelayRole"
+      Description: Delays execution of the next step in the deployment
+      Handler: index.handler
+      Role: !GetAtt DelayRole.Arn
+      Runtime: python3.8
+      Timeout: 900
+      Code:
+        ZipFile: |
+          import time
+          import cfnresponse
+          def handler(event, context):
+            lambda_status = cfnresponse.SUCCESS
+            lambda_reason = None
+            resp = {}
+            try:
+              if event["RequestType"] == "Create":
+                print("Request = Create")
+                time_to_sleep = int(event["ResourceProperties"]["Sleep"])
+                print(f"Sleeping(waiting) for {time_to_sleep} seconds")
+                time.sleep(time_to_sleep)
+            except Exception as e:
+              print(f"Exception: {e}")
+              lambda_status = cfnresponse.FAILED
+              lambda_reason = str(e)
+            finally:
+              cfnresponse.send(event, context, lambda_status, responseData=resp, reason=lambda_reason)
+
+  WaitForADCInstancesToBeReady:
+    DependsOn:
+      - PrimaryInstance
+      - SecondaryInstance
+    Properties:
+      Sleep: 400
+      ServiceToken: !GetAtt DelayFunction.Arn
+    Type: AWS::CloudFormation::CustomResource
+
+  RegisterADCFunction:
+    Condition: RegisterADC2ADMService
+    Type: AWS::Lambda::Function
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-RegisterADCFunction"
+      Description: RegisterADCFunction
+      Handler: index.handler
+      Role: !GetAtt "RegisterADCRole.Arn"
+      Runtime: python3.8
+      Timeout: 900
+      Code:
+        ZipFile: |
+          import urllib.request, urllib.parse
+          import json, random, string, time
+          import cfnresponse
+          HEADERS = {}
+          print_json = lambda x: json.dumps(x)
+          def open_url(url, headers, data=None, method='GET'):
+            if data: data = data.encode('utf-8')
+            req = urllib.request.Request(url, data, headers, method)
+            try:
+              with urllib.request.urlopen(req) as f:
+                return f.status, f.reason, json.loads(f.read())
+            except Exception as e:
+              return e.code, e.reason, json.loads(e.read())
+          def get_token(client_id, client_secret):
+            url = 'https://api-us.cloud.com/cctrustoauth2/root/tokens/clients'
+            params = {'grant_type': 'client_credentials', 'client_id': client_id, 'client_secret': client_secret}
+            params = urllib.parse.urlencode(params)
+            return open_url(url, {}, params, 'POST')
+          def get_all_agents(customer_id):
+            print("INSIDE get_all_agents()")
+            agent_url = f'https://adm.cloud.com/massvc/{customer_id}/nitro/v2/config/mps_agent'
+            status, reason, body = open_url(agent_url, HEADERS)
+            print(f"Status={status}; Reason={reason}; Body={print_json(body)}")
+            return body['mps_agent']
+          def get_agent(ip, customer_id):
+              print("INSIDE get_agent()")
+              all_agents = get_all_agents(customer_id)
+              for agent in all_agents:
+                if agent['name'] == ip and agent['platform'] == 'AWS':
+                  if agent['state'].upper() == 'UP':
+                    return agent
+                  print("Agent is still down. Waiting for it to come up.")
+              return None
+          def create_new_profile(profilename, username, password, customer_id):
+            print("INSIDE create_new_profile()")
+            data = { "ns_device_profile": { "name": profilename, "username": username, "password": password, "snmpsecurityname": "test-snmp", } }
+            url = f'https://adm.cloud.com/massvc/{customer_id}/nitro/v2/config/ns_device_profile'
+            status, reason, body = open_url(url, HEADERS, json.dumps(data), 'POST')
+            print(f"Status={status}; Reason={reason}; Body={print_json(body)}")
+            if status != 200: # 409 CONFLICT if profile already exists
+              raise Exception(f"Status={status}; Reason={reason}; Body={print_json(body)}")
+            print(f"{profilename} Profile created")
+          def add_managed_adc(adcip, agentip, adcpass, profilename, customer_id):
+            print("INSIDE add_managed_adc()")
+            # check for existing managed device
+            url = f'https://adm.cloud.com/massvc/{customer_id}/nitro/v2/config/managed_device'
+            status, reason, body = open_url(url, HEADERS)
+            print(f"Status={status}; Reason={reason}; Body={print_json(body)}")
+            for managed_device in body['managed_device']:
+              if managed_device['ip_address'] == adcip:
+                print(f"{adcip} already exists")
+                return status, reason, body
+            MAX_RETRIES, tries = 30, 0
+            agent = get_agent(agentip, customer_id)
+            while agent is None and tries < MAX_RETRIES:
+              agent = get_agent(agentip, customer_id)
+              tries += 1
+              print(f"Agent not found OR is still DOWN. Retrying in 10 seconds. Tries={tries}")
+              time.sleep(10)
+            dc_id = agent['datacenter_id']
+            create_new_profile(profilename, 'nsroot', adcpass, customer_id)
+            agent_id = agent['id']
+            data =    {
+              "params": { "action": "add_device" },
+              "managed_device": {
+                "register_failed_device": "true",
+                "ip_address": adcip,
+                "profile_name": profilename,
+                "datacenter_id": dc_id,
+                "agent_id": agent_id,
+              }
+            }
+            url = f'https://adm.cloud.com/massvc/{customer_id}/nitro/v2/config/managed_device'
+            status, reason, body = open_url(url, HEADERS, json.dumps(data), 'POST')
+            print(f"Status={status}; Reason={reason}; Body={print_json(body)}")
+            return status, reason, body
+          def wait_for_registration(body, customer_id):
+            print("INSIDE wait_for_registration()")
+            actid = body['managed_device'][0]['act_id']
+            url = f'https://adm.cloud.com/massvc/{customer_id}/nitro/v2/config/activity_status/{actid}'
+            status, reason, body = open_url(url, HEADERS)
+            print(f"Status={status}; Reason={reason}; Body={print_json(body)}")
+            for activity_status in body["activity_status"]:
+              if activity_status['is_last'] == 'true':
+                if activity_status['status'] == 'Completed':
+                  return True
+                else:
+                  raise Exception(f"Status={status}; Reason={reason}; Body={print_json(body)}")
+            return False
+          def handler(event, context):
+            global HEADERS
+            lambda_status = cfnresponse.SUCCESS
+            lambda_reason = None
+            resp = {}
+            try:
+              if event["RequestType"] == "Create":
+                print("Request = Create")
+                customer_id = event["ResourceProperties"]["CustomerID"]
+                client_id = event["ResourceProperties"]["ClientID"]
+                client_secret = event["ResourceProperties"]["ClientSecret"]
+                adcip = event["ResourceProperties"]["ADCIP"]
+                agentip = event["ResourceProperties"]["AgentIP"]
+                adcpass = event["ResourceProperties"]["ADCPassword"]
+                profilename = event["ResourceProperties"]["ProfileName"]
+                print(f"agentip:{agentip}; adcip:{adcip}; profilename:{profilename}")
+                status, reason, body = get_token(client_id, client_secret)
+                if status != 200:
+                  raise Exception(f"Status={status}; Reason={reason}; Body={print_json(body)}")
+                HEADERS = { 'Authorization': f"CwsAuthbearer={body['access_token']}", 'isCloud': 'true'}
+                profilename += ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(3))
+                status, reason, body = add_managed_adc(adcip, agentip,adcpass, profilename, customer_id)
+                if status != 200:
+                  raise Exception(f"Status={status}; Reason={reason}; Body={print_json(body)}")
+                MAX_TRIES, tries = 20, 1
+                while tries <= MAX_TRIES:
+                  status = wait_for_registration(body, customer_id)
+                  if not status:
+                    tries += 1
+                    print(f"ADC not registered yet. Retrying in 5 seconds. Tries={tries}")
+                    time.sleep(5)
+                  else:
+                    print("ADC registered successfully. ")
+                    break
+                else:
+                  raise Exception(f"Device not registered after {MAX_TRIES} tries")
+            except Exception as e:
+              print(f"Exception: {e}")
+              lambda_status = cfnresponse.FAILED
+              lambda_reason = str(e)
+            finally:
+              cfnresponse.send(event, context, lambda_status, responseData=resp, reason=lambda_reason)
+
+  RegisterADCRole:
+    Condition: RegisterADC2ADMService
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - !Sub lambda.${AWS::URLSuffix}
+        Version: "2012-10-17"
+      Description: ""
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Path: /
+      Policies: []
+    Type: AWS::IAM::Role
+
+  RegisterPrimaryADC:
+    DependsOn: WaitForADCInstancesToBeReady
+    Condition: RegisterADC2ADMService
+    Properties:
+      CustomerID: !Ref "CustomerID"
+      ClientID: !Ref "ClientID"
+      ClientSecret: !Ref "ClientSecret"
+      ADCIP: !GetAtt "PrimaryManagementENI.PrimaryPrivateIpAddress"
+      AgentIP:
+        !If [
+          DeployADMAgent,
+          !GetAtt ADMAgentManagementENI.PrimaryPrivateIpAddress,
+          !Ref ADMAgentIP,
+        ]
+      ADCPassword: !Ref ADCCustomPassword
+      ProfileName: !Ref AWS::StackName
+      ServiceToken: !GetAtt "RegisterADCFunction.Arn"
+    Type: AWS::CloudFormation::CustomResource
+
+  RegisterSecondaryADC:
+    DependsOn: WaitForADCInstancesToBeReady
+    Condition: RegisterADC2ADMService
+    Properties:
+      CustomerID: !Ref "CustomerID"
+      ClientID: !Ref "ClientID"
+      ClientSecret: !Ref "ClientSecret"
+      ADCIP: !GetAtt "SecondaryManagementENI.PrimaryPrivateIpAddress"
+      AgentIP:
+        !If [
+          DeployADMAgent,
+          !GetAtt ADMAgentManagementENI.PrimaryPrivateIpAddress,
+          !Ref ADMAgentIP,
+        ]
+      ADCPassword: !Ref ADCCustomPassword
+      ProfileName: !Ref AWS::StackName
+      ServiceToken: !GetAtt "RegisterADCFunction.Arn"
+    Type: AWS::CloudFormation::CustomResource
+
+  ADMAgentManagementSG:
+    Condition: DeployADMAgent
+    Properties:
+      GroupName: !Sub "${AWS::StackName}-ADMAgentManagementSG"
+      GroupDescription:
+        Allow restricted inbound traffic from SSH and all traffic
+        for required agent ports
+      SecurityGroupEgress:
+        - CidrIp: "0.0.0.0/0"
+          Description: Allow all traffic to all destination
+          IpProtocol: "-1"
+      SecurityGroupIngress:
+        - CidrIp: !Ref "RestrictedManagementCIDR"
+          Description: SSH port
+          IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+        - CidrIp: !Ref "VPCCIDR"
+          Description: Allow all traffic within VPC
+          IpProtocol: "-1"
+        - CidrIp: 0.0.0.0/0
+          Description: SGIngresesAgentUDP162
+          IpProtocol: udp
+          FromPort: 162
+          ToPort: 162
+        - CidrIp: 0.0.0.0/0
+          Description: SGIngresesAgentUDP514
+          IpProtocol: udp
+          FromPort: 514
+          ToPort: 514
+        - CidrIp: 0.0.0.0/0
+          Description: SGIngresesAgentTCP27000
+          IpProtocol: tcp
+          FromPort: 27000
+          ToPort: 27000
+        - CidrIp: 0.0.0.0/0
+          Description: SGIngresesAgentTCP7279
+          IpProtocol: tcp
+          FromPort: 7279
+          ToPort: 7279
+        - CidrIp: 0.0.0.0/0
+          Description: SGIngresesAgentUDP4739
+          IpProtocol: udp
+          FromPort: 4739
+          ToPort: 4739
+        - CidrIp: 0.0.0.0/0
+          Description: SGIngresesAgentTCP5557
+          IpProtocol: tcp
+          FromPort: 5557
+          ToPort: 5557
+        - CidrIp: 0.0.0.0/0
+          Description: SGIngresesAgentTCP5563
+          IpProtocol: tcp
+          FromPort: 5563
+          ToPort: 5563
+      VpcId: !Ref "VPCID"
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-ADMAgentManagementSG"
+    Type: AWS::EC2::SecurityGroup
+  ADMAgentManagementENI:
+    Condition: DeployADMAgent
+    Properties:
+      Description: CitrixADMAgent Management ENI
+      GroupSet:
+        - !Ref "ADMAgentManagementSG"
+      PrivateIpAddress: !Ref "AWS::NoValue"
+      SubnetId: !Ref PrimaryManagementPrivateSubnetID
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-ADMAgentManagementENI"
+    Type: AWS::EC2::NetworkInterface
+  ADMAgentManagementEIP:
+    Condition: DeployADMAgentAndAssignADMAgentEIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-ADMAgentManagementEIP"
+    Type: AWS::EC2::EIP
+
+  AssociateADMAgentManagementEIP2ENI:
+    Condition: DeployADMAgentAndAssignADMAgentEIP
+    Properties:
+      AllocationId: !GetAtt "ADMAgentManagementEIP.AllocationId"
+      NetworkInterfaceId: !Ref "ADMAgentManagementENI"
+      PrivateIpAddress: !GetAtt "ADMAgentManagementENI.PrimaryPrivateIpAddress"
+    Type: AWS::EC2::EIPAssociation
+  ADMAgentInstance:
+    Condition: DeployADMAgent
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-ADMAgentInstance"
+      ImageId: !FindInMap
+        - AWSAMIRegionMap
+        - !Ref "AWS::Region"
+        - ADMAGENT
+      InstanceType: !Ref "ADMAgentInstanceType"
+      KeyName: !Ref "KeyPairName"
+      NetworkInterfaces:
+        - DeviceIndex: "0"
+          NetworkInterfaceId: !Ref "ADMAgentManagementENI"
+      Tenancy: !Ref "VPCTenancy"
+      UserData: !Base64
+        Fn::Sub: registeragent -serviceurl ${ADMActivationCodeCustomResource.ServiceURL} -activationcode ${ADMActivationCodeCustomResource.ActivationCode}
+    Type: AWS::EC2::Instance
+
+  ADMActivationCodeIAMRole:
+    Condition: DeployADMAgent
+    Properties:
+      Path: /
+      Description: ""
+      ManagedPolicyArns:
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - !Sub lambda.${AWS::URLSuffix}
+    Type: AWS::IAM::Role
+  ADMActivationCodeFunction:
+    Condition: DeployADMAgent
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: ADMActivationCodeFunction
+      Handler: index.handler
+      Role: !GetAtt "ADMActivationCodeIAMRole.Arn"
+      Runtime: python3.6
+      Timeout: 300
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-ADMActivationCodeFunction"
+      Code:
+        ZipFile: |
+          import cfnresponse
+          import http.client
+          import json
+          def handler(event, context):
+            status = cfnresponse.SUCCESS
+            reason = None
+            response_data = {}
+            try:
+              if event["RequestType"] == "Create":
+                print("Request = Create")
+                customer_id = event["ResourceProperties"]["CustomerID"]
+                client_id = event["ResourceProperties"]["ClientID"]
+                client_secret = event["ResourceProperties"]["ClientSecret"]
+                conn = http.client.HTTPSConnection("adm.cloud.com")
+                headers = { "isCloud": "true", "Content-Type": "application/json" }
+                print(f"headers={headers}")
+                payload = {"login": {"ID": client_id,"Secret": client_secret }}
+                payload = json.dumps(payload)
+                conn.request("POST", "/nitro/v1/config/login", payload, headers)
+                print("Got SessionID")
+                response = conn.getresponse()
+                result = response.read()
+                r = json.loads(result.decode("utf-8"))
+                if 'errorcode' in r and r['errorcode'] != 0:
+                  raise Exception(r)
+                sessid = r["login"][0]["sessionid"]
+                headers["Cookie"] = f"SESSID={sessid}"
+                payload = ""
+                conn.request("GET", f"/nitro/v1/config/trust_preauthtoken/{customer_id}?customer={customer_id}", payload, headers)
+                response = conn.getresponse()
+                result = response.read()
+                r = json.loads(result.decode("utf-8"))
+                if 'errorcode' in r and r['errorcode'] != 0:
+                  raise Exception(r)
+                print("Got Service URL and ActivationCode")
+                service_url = r["trust_preauthtoken"][0]['api_gateway_url']
+                activation_code = r["trust_preauthtoken"][0]['token']
+                response_data = {
+                  "ServiceURL": service_url,
+                  "ActivationCode": activation_code
+                }
+            except Exception as e:
+              reason = f"Exception: {e}"
+              print(reason)
+              status = cfnresponse.FAILED
+            finally:
+              cfnresponse.send(event, context, status, responseData=response_data, reason=reason)
+  ADMActivationCodeCustomResource:
+    Condition: DeployADMAgent
+    Properties:
+      ServiceToken: !GetAtt "ADMActivationCodeFunction.Arn"
+      CustomerID: !Ref "CustomerID"
+      ClientID: !Ref "ClientID"
+      ClientSecret: !Ref "ClientSecret"
+    Type: AWS::CloudFormation::CustomResource
