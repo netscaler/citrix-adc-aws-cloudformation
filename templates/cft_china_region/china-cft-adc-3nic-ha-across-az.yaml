@@ -670,7 +670,6 @@ Resources:
   PrimaryServerENI:
     Properties:
       Description: Primary ADC Server Private IP (SNIP)
-      GroupSet: []
       PrivateIpAddress: !If
         - UsePrimaryServerPrivateIP
         - !Ref 'PrimaryServerPrivateIP'
@@ -742,7 +741,6 @@ Resources:
   SecondaryServerENI:
     Properties:
       Description: Secondary ADC Server Private IP (SNIP)
-      GroupSet: []
       PrivateIpAddress: !If
         - UseSecondaryServerPrivateIP
         - !Ref 'SecondaryServerPrivateIP'

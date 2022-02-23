@@ -483,7 +483,6 @@ Resources:
   PrimaryClientENI:
     Properties:
       Description: Primary ADC Client Private IP (VIP)
-      GroupSet: []
       PrivateIpAddress: !If
         - UsePrimaryClientPrivateIP
         - !Ref 'PrimaryClientPrivateIP'
@@ -496,7 +495,6 @@ Resources:
   PrimaryServerENI:
     Properties:
       Description: Primary ADC Server Private IP (SNIP)
-      GroupSet: []
       PrivateIpAddress: !If
         - UsePrimaryServerPrivateIP
         - !Ref 'PrimaryServerPrivateIP'
@@ -523,7 +521,6 @@ Resources:
   SecondaryClientENI:
     Properties:
       Description: Secondary ADC Client Private IP (VIP)
-      GroupSet: []
       PrivateIpAddress: !If
         - UseSecondaryClientPrivateIP
         - !Ref 'SecondaryClientPrivateIP'
@@ -536,7 +533,6 @@ Resources:
   SecondaryServerENI:
     Properties:
       Description: Secondary ADC Server Private IP (SNIP)
-      GroupSet: []
       PrivateIpAddress: !If
         - UseSecondaryServerPrivateIP
         - !Ref 'SecondaryServerPrivateIP'
