@@ -197,7 +197,7 @@ Parameters:
   ManagementENIEIP:
     Type: String
     Description: ""
-    Default: "No"
+    Default: "Yes"
     AllowedValues:
       - "No"
       - "Yes"

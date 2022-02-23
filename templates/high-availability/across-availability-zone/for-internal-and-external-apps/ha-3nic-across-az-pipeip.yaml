@@ -69,8 +69,6 @@ Metadata:
         default: Your Citrix cloud API 'Client ID'
       ClientSecret:
         default: Your Citrix cloud API 'Client Secret'
-      ADMAgentManagementENIEIP:
-        default: Should PublicIP(EIP) be assigned to CitrixADMAgent management interface?
     ParameterGroups:
       - Label:
           default: Network Configuration
@@ -111,7 +109,6 @@ Metadata:
           - ClientSecret
           - CustomerID
           - ADMAgentInstanceType
-          - ADMAgentManagementENIEIP
 
 Conditions:
   UseCustomADCAMI: !Not
@@ -123,12 +120,6 @@ Conditions:
     - "Yes"
   DeployADMAgent: !Equals [!Ref ADMAgentDeployment, "Yes"]
   RegisterADC2ADMService: !Equals [!Ref ADCRegistration2ADMService, "Yes"]
-  AssignADMAgentEIP: !Equals
-    - !Ref "ADMAgentManagementENIEIP"
-    - "Yes"
-  DeployADMAgentAndAssignADMAgentEIP: !And
-    - !Condition DeployADMAgent
-    - !Condition AssignADMAgentEIP
 
 Mappings:
   AWSAMIRegionMap:
@@ -265,7 +256,7 @@ Outputs:
       Name: !Sub "${AWS::StackName}-SecondaryADCInstanceID"
     Value: !Ref "SecondaryInstance"
   ADMAgentEIP:
-    Condition: DeployADMAgentAndAssignADMAgentEIP
+    Condition: DeployADMAgent
     Value: !Ref ADMAgentManagementEIP
     Description: Public IP address of the ADM Agent
     Export:
@@ -469,13 +460,6 @@ Parameters:
       - c5n.4xlarge
       - c5n.9xlarge
       - c5n.18xlarge
-  ADMAgentManagementENIEIP:
-    Type: String
-    Description: ""
-    Default: "No"
-    AllowedValues:
-      - "No"
-      - "Yes"
   ClientID:
     Description: "If do do not already have, Refer here: https://developer.cloud.com/citrix-cloud/citrix-cloud-api-overview/docs/get-started-with-citrix-cloud-apis"
     Type: String
@@ -1168,7 +1152,7 @@ Resources:
           Value: !Sub "${AWS::StackName}-ADMAgentManagementENI"
     Type: AWS::EC2::NetworkInterface
   ADMAgentManagementEIP:
-    Condition: DeployADMAgentAndAssignADMAgentEIP
+    Condition: DeployADMAgent
     Properties:
       Domain: vpc
       Tags:
@@ -1177,7 +1161,7 @@ Resources:
     Type: AWS::EC2::EIP
 
   AssociateADMAgentManagementEIP2ENI:
-    Condition: DeployADMAgentAndAssignADMAgentEIP
+    Condition: DeployADMAgent
     Properties:
       AllocationId: !GetAtt "ADMAgentManagementEIP.AllocationId"
       NetworkInterfaceId: !Ref "ADMAgentManagementENI"

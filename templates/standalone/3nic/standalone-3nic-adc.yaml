@@ -93,8 +93,6 @@ Metadata:
         default: Your Citrix cloud API 'Client ID'
       ClientSecret:
         default: Your Citrix cloud API 'Client Secret'
-      ADMAgentManagementENIEIP:
-        default: Should PublicIP(EIP) be assigned to CitrixADMAgent management interface?
     ParameterGroups:
       - Label:
           default: Network Configuration
@@ -148,7 +146,6 @@ Metadata:
           - CustomerID
           - ADMAgentInstanceType
           - ADMAgentRestrictedManagementCIDR
-          - ADMAgentManagementENIEIP
 
 Conditions:
   RegisterADC2ADMService: !Equals [!Ref ADCRegistration2ADMService, "Yes"]
@@ -160,13 +157,6 @@ Conditions:
   RegisterADC2ADMServiceAndDeploymentADMAgent: !And
     - !Condition RegisterADC2ADMService
     - !Condition DeployADMAgent
-  AssignADMAgentEIP: !Equals
-    - !Ref 'ADMAgentManagementENIEIP'
-    - 'Yes'
-  RegisterADC2ADMServiceAndDeploymentADMAgentAndAssignADMAgentEIP: !And
-    - !Condition RegisterADC2ADMService
-    - !Condition DeployADMAgent
-    - !Condition AssignADMAgentEIP
 Outputs:
   CitrixADCIP:
     Description: " Citrix ADC Public Management IP"
@@ -201,7 +191,7 @@ Outputs:
       Name: !Sub "${AWS::StackName}-ServerSecurityGroupID"
     Value: !GetAtt "SecurityGroupStack.Outputs.ServerSG"
   ADMAgentEIP:
-    Condition: RegisterADC2ADMServiceAndDeploymentADMAgentAndAssignADMAgentEIP
+    Condition: RegisterADC2ADMServiceAndDeploymentADMAgent
     Value: !GetAtt RegisterADC2ADMServiceStack.Outputs.ADMAgentEIP
     Description: Public IP address of the ADM Agent
     Export:
@@ -515,13 +505,6 @@ Parameters:
     ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x
     Description: Must be a valid IP CIDR range of the form x.x.x.x/x
     Type: String
-  ADMAgentManagementENIEIP:
-    Type: String
-    Description: ""
-    Default: "No"
-    AllowedValues:
-      - "No"
-      - "Yes"
   ClientID:
     Description: "If do do not already have, Refer here: https://developer.cloud.com/citrix-cloud/citrix-cloud-api-overview/docs/get-started-with-citrix-cloud-apis"
     Type: String
@@ -673,7 +656,7 @@ Resources:
         ADMAgentInstanceType: !Ref "ADMAgentInstanceType"
         ADMAgentRestrictedManagementCIDR: !Ref "ADMAgentRestrictedManagementCIDR"
         ADMAgentKeyPairName: !Ref "KeyPairName"
-        ADMAgentManagementENIEIP: !Ref "ADMAgentManagementENIEIP"
+        ADMAgentManagementENIEIP: "Yes"
         ClientID: !Ref "ClientID"
         ClientSecret: !Ref "ClientSecret"
         CustomerID: !Ref "CustomerID"

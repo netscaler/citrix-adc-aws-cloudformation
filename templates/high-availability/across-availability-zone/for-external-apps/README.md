@@ -43,6 +43,7 @@ The following should be present
     * Client side Subnet
     * Servers side Subnet
 * 3 unallocated EIPs
+* 1 more unallocated EIP for ADMAgent, if provisioning of ADMAgent option is enabled.
 * EC2 KeyPair
 
 ### VPC pre-requisite
