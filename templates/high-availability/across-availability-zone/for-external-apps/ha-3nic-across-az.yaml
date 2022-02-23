@@ -97,8 +97,6 @@ Metadata:
         default: Your Citrix cloud API 'Client ID'
       ClientSecret:
         default: Your Citrix cloud API 'Client Secret'
-      ADMAgentManagementENIEIP:
-        default: Should PublicIP(EIP) be assigned to CitrixADMAgent management interface?
     ParameterGroups:
       - Label:
           default: Network Configuration
@@ -158,7 +156,6 @@ Metadata:
           - CustomerID
           - ADMAgentInstanceType
           - ADMAgentRestrictedManagementCIDR
-          - ADMAgentManagementENIEIP
 
 Conditions:
   UseLatestAMI: !Equals
@@ -175,12 +172,6 @@ Conditions:
     - 'Yes'
   DeployADMAgent: !Equals [!Ref ADMAgentDeployment, "Yes"]
   RegisterADC2ADMService: !Equals [!Ref ADCRegistration2ADMService, "Yes"]
-  AssignADMAgentEIP: !Equals
-    - !Ref 'ADMAgentManagementENIEIP'
-    - 'Yes'
-  DeployADMAgentAndAssignADMAgentEIP: !And
-    - !Condition DeployADMAgent
-    - !Condition AssignADMAgentEIP
 Outputs:
   PrimaryCitrixADCIP:
     Description: Primary Citrix ADC Public Management IP
@@ -226,7 +217,7 @@ Outputs:
       Name: !Sub '${AWS::StackName}-ServerSecurityGroupID'
     Value: !GetAtt 'SecurityGroupStack.Outputs.ServerSG'
   ADMAgentEIP:
-    Condition: DeployADMAgentAndAssignADMAgentEIP
+    Condition: DeployADMAgent
     Value: !GetAtt ADMAgentStack.Outputs.ManagementEIP
     Description: Public IP address of the ADM Agent
     Export:
@@ -563,13 +554,6 @@ Parameters:
     ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x
     Description: Must be a valid IP CIDR range of the form x.x.x.x/x
     Type: String
-  ADMAgentManagementENIEIP:
-    Type: String
-    Description: ""
-    Default: "No"
-    AllowedValues:
-      - "No"
-      - "Yes"
   ClientID:
     Description: "If do do not already have, Refer here: https://developer.cloud.com/citrix-cloud/citrix-cloud-api-overview/docs/get-started-with-citrix-cloud-apis"
     Type: String
@@ -781,7 +765,7 @@ Resources:
         ADMAgentInstanceType: !Ref "ADMAgentInstanceType"
         RestrictedManagementCIDR: !Ref "ADMAgentRestrictedManagementCIDR"
         KeyPairName: !Ref KeyPairName
-        ManagementENIEIP: !Ref "ADMAgentManagementENIEIP"
+        ManagementENIEIP: "Yes"
         ClientID: !Ref "ClientID"
         ClientSecret: !Ref "ClientSecret"
         CustomerID: !Ref "CustomerID"
@@ -803,7 +787,7 @@ Resources:
         ADMAgentInstanceType: !Ref "ADMAgentInstanceType"
         ADMAgentRestrictedManagementCIDR: !Ref "ADMAgentRestrictedManagementCIDR"
         ADMAgentKeyPairName: !Ref "KeyPairName"
-        ADMAgentManagementENIEIP: !Ref "ADMAgentManagementENIEIP"
+        ADMAgentManagementENIEIP: "Yes"
         ClientID: !Ref "ClientID"
         ClientSecret: !Ref "ClientSecret"
         CustomerID: !Ref "CustomerID"
@@ -833,7 +817,7 @@ Resources:
         ADMAgentInstanceType: !Ref "ADMAgentInstanceType"
         ADMAgentRestrictedManagementCIDR: !Ref "ADMAgentRestrictedManagementCIDR"
         ADMAgentKeyPairName: !Ref "KeyPairName"
-        ADMAgentManagementENIEIP: !Ref "ADMAgentManagementENIEIP"
+        ADMAgentManagementENIEIP: "Yes"
         ClientID: !Ref "ClientID"
         ClientSecret: !Ref "ClientSecret"
         CustomerID: !Ref "CustomerID"

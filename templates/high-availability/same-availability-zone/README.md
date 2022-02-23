@@ -22,10 +22,11 @@ The CloudFormation template requires sufficient IAM previliges to create IAM rol
     - Client side Subnet
     - Server side Subnet
 - 3 unallocated EIPs
+- 1 more unallocated EIP for ADMAgent, if provisioning of ADMAgent option is enabled.
 - EC2 KeyPair
 
 ### VPC pre-requisite
-> The resources in Management Subnet must be reachable to the below AWS endpoints - 
+> The resources in Management Subnet must be reachable to the below AWS endpoints -
 - `ec2.amazonaws.com`
 - `s3.amazonaws.com`
 

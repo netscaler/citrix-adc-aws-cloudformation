@@ -45,6 +45,7 @@ The following should be present
     * Servers side Subnet
 * 2 optional unallocated EIPs, if the user is opting for EIPs for management interfaces
 * 1 unallocated EIP, for public VIP
+* 1 more unallocated EIP for ADMAgent, if provisioning of ADMAgent option is enabled.
 * EC2 KeyPair
 
 ## Post-deployment steps

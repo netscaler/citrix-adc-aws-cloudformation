@@ -17,6 +17,7 @@ This template creates the below resources:
   * Client interface (eth1)
   * Server interface (eth2)
 * 1 Elastic IP for Management interface `User has option not to create these EIPs`
+* 1 Elastic IP for ADMAgent, if ADMAgent provisioning is enabled during VPX creation
 
 ## Pre-requisites
 
@@ -31,7 +32,9 @@ The following should be present
   * Management side Subnet
   * Client side Subnet
   * Servers side Subnet
-*1 unallocated EIP
+* 1 unallocated EIP
+* 1 more unallocated EIP for ADMAgent, if provisioning of ADMAgent option is enabled.
+
 * EC2 KeyPair
 
 ## Quick Launch Links
