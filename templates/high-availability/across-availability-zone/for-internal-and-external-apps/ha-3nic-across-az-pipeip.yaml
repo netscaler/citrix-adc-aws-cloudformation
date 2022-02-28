@@ -476,7 +476,7 @@ Parameters:
 
   ADCRegistration2ADMService:
     Type: String
-    Description: "If you do not want to register the ADC to ADM Service, you can ignore the entire section. Know more about ADM Service here: https://www.citrix.com/products/citrix-application-delivery-management/"
+    Description: "If you do not want to register the ADC to ADM Service, you can ignore the entire section. You need to subscribe to `Citrix ADM External Agent AMI` in AWS marketplace before running this CFT, so agent will be provisioned to connect to Citrix ADM Service`.  Know more about ADM Service here: https://www.citrix.com/products/citrix-application-delivery-management/"
     Default: "No"
     AllowedValues:
       - "No"
@@ -690,7 +690,7 @@ Resources:
           PublishCloudwatchMetrics=${PublishCloudwatchMetrics}
           <NS-PRE-BOOT-CONFIG>
               <NS-CONFIG>
-                  set system user nsroot notnsroot
+                  set system user nsroot ${ADCCustomPassword}
                   set systemparameter -promptString "%u@%s"
                   add ha node 1 ${SecondaryManagementENI.PrimaryPrivateIpAddress} -inc ENABLED
                   add ns ip ${SecondaryClientENI.PrimaryPrivateIpAddress} ${GetSubnetMaskCustomResource.Netmask} -type VIP
@@ -730,7 +730,7 @@ Resources:
           PublishCloudwatchMetrics=${PublishCloudwatchMetrics}
           <NS-PRE-BOOT-CONFIG>
                <NS-CONFIG>
-                   set system user nsroot notnsroot
+                   set system user nsroot ${ADCCustomPassword}
                    add ha node 1 ${PrimaryManagementENI.PrimaryPrivateIpAddress} -inc ENABLED
                    add ns ip ${SecondaryClientENI.PrimaryPrivateIpAddress} ${GetSubnetMaskCustomResource.Netmask} -type VIP
                    add ipset ha_ipset
