@@ -208,6 +208,7 @@ Parameters:
     Default: '13.0'
     AllowedValues:
       - '13.0'
+      - '13.1'
   CitrixADCInstanceType:
     Type: String
     Description: ''
