@@ -753,7 +753,7 @@ Resources:
       Handler: index.handler
       MemorySize: 128
       Role: !GetAtt GetSubnetMaskIAMRole.Arn
-      Runtime: "python3.6"
+      Runtime: "python3.9"
       Timeout: 30
       Code:
         ZipFile: |
@@ -1211,7 +1211,7 @@ Resources:
       Description: ADMActivationCodeFunction
       Handler: index.handler
       Role: !GetAtt "ADMActivationCodeIAMRole.Arn"
-      Runtime: python3.6
+      Runtime: python3.9
       Timeout: 300
       Tags:
         - Key: Name

@@ -118,7 +118,7 @@ Resources:
       Description: CopyZipsFunction
       Handler: index.handler
       Role: !GetAtt 'CopyZipsRole.Arn'
-      Runtime: python3.6
+      Runtime: python3.9
       Timeout: 30
     Type: AWS::Lambda::Function
   CopyZips:

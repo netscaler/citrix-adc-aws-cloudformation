@@ -117,7 +117,7 @@ Resources:
       Description: ConfigureHAFunction
       Handler: lambda_ha_across_az.lambda_handler
       Role: !GetAtt 'LambdaConfigureHAAcrossAZRole.Arn'
-      Runtime: python3.6
+      Runtime: python3.9
       Timeout: 900
       VpcConfig:
         SecurityGroupIds:

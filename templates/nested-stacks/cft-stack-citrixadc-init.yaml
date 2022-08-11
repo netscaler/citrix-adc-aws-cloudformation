@@ -90,7 +90,7 @@ Resources:
       Description: ADCInitFunction
       Handler: lambda_adc_init.lambda_handler
       Role: !GetAtt 'ADCInitRole.Arn'
-      Runtime: python3.6
+      Runtime: python3.9
       Timeout: 900
       VpcConfig:
         SecurityGroupIds:

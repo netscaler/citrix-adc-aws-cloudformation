@@ -90,7 +90,7 @@ Resources:
       Description: ADC1nicBootstrapFunction
       Handler: lambda_adc_1nic_bootstrap.lambda_handler
       Role: !GetAtt 'ADC1nicBootstrapRole.Arn'
-      Runtime: python3.6
+      Runtime: python3.9
       Timeout: 900
       VpcConfig:
         SecurityGroupIds:
