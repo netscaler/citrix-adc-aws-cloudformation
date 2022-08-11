@@ -84,7 +84,7 @@ Resources:
       Description: AMIInfoFunction
       Handler: lambda_get_latest_citrixadc_ami.lambda_handler
       Role: !GetAtt 'LatestAMILambdaRole.Arn'
-      Runtime: python3.6
+      Runtime: python3.9
       Timeout: 30
     Type: AWS::Lambda::Function
   AMIInfo:

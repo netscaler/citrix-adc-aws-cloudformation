@@ -145,7 +145,7 @@ Resources:
       Description: PooledLicenseFunction
       Handler: lambda_pooled_license.lambda_handler
       Role: !GetAtt 'PooledLicenseRole.Arn'
-      Runtime: python3.6
+      Runtime: python3.9
       Timeout: 900
       VpcConfig:
         SecurityGroupIds:

@@ -1068,7 +1068,7 @@ Resources:
       Handler: index.handler
       MemorySize: 128
       Role: !GetAtt LambdaGetGatewayIPExecutionRole.Arn
-      Runtime: "python3.6"
+      Runtime: "python3.9"
       Timeout: 30
       Code:
         ZipFile: |
@@ -1332,7 +1332,7 @@ Resources:
     Properties:
       Description: Copies objects from a source S3 bucket to a destination
       Handler: index.handler
-      Runtime: python3.6
+      Runtime: python3.9
       Role: !GetAtt CopyZipsRole.Arn
       Timeout: 240
       Code:
@@ -1451,7 +1451,7 @@ Resources:
         S3Bucket: !Ref LambdaZipsBucket
         S3Key: lambda-citrixadc-awscft.zip
       Handler: lambda-scca.lambda_handler
-      Runtime: python3.6
+      Runtime: python3.9
       Timeout: 900
       Role: !GetAtt LambdaExecutionRole.Arn
       VpcConfig:
