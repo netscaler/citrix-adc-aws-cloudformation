@@ -18,11 +18,13 @@ def lambda_handler(event, context):
             new_adc_password = event["ResourceProperties"]["CustomADCPassword"]
             adc_instance_id = event["ResourceProperties"]["ADCInstanceID"]
             adc_nsip = event["ResourceProperties"]["ADCPrivateNSIP"]
+            new_rpc_password = event["ResourceProperties"]["RPCNodePassword"]
 
             adc = CitrixADC(
                 nsip=adc_nsip, nsuser="nsroot", default_password=adc_instance_id, new_password=new_adc_password
             )
             logger.debug(adc.get_nsip())
+            adc.change_rpcnode_password(nodeip=adc_nsip, new_rpc_password=new_rpc_password, secure="YES")
 
             response_status = "SUCCESS"
         else:  # request_type == 'Delete' | 'Update'

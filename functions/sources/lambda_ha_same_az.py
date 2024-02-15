@@ -41,6 +41,7 @@ def lambda_handler(event, context):
             secondary_instance_id = event["ResourceProperties"]["SecondaryADCInstanceID"]
             secondary_nsip = event["ResourceProperties"]["SecondaryADCPrivateNSIP"]
             # secondary_vip = event['ResourceProperties']['SecondaryADCPrivateVIP']
+            new_rpc_password = event["ResourceProperties"]["RPCNodePassword"]
 
             new_primaryadc_password = new_secondaryadc_password = new_adc_password
 
@@ -65,7 +66,6 @@ def lambda_handler(event, context):
                 default_password=secondary_instance_id,
                 new_password=new_secondaryadc_password,
             )
-
             # assign VIP, SNIP to primaryADC
             primary_vip_eni = get_vip_eni(instid=primary_instance_id)
             primary_snip_eni = get_snip_eni(instid=primary_instance_id)
@@ -89,11 +89,14 @@ def lambda_handler(event, context):
             primary.add_nsip(ip=floating_snip, netmask=snip_subnetmask, iptype="SNIP")
 
             primary.add_hanode(id=1, ipaddress=secondary_nsip, incmode=False)
-            waitfor(3)
+            waitfor(10)
             secondary.add_hanode(id=1, ipaddress=primary_nsip, incmode=False)
 
             # Wait for the password to sync into Secondary-VPX.
             waitfor(60, reason="secondary VPX password to get synced to that of primary")
+
+            primary.change_rpcnode_password(nodeip=primary_nsip, new_rpc_password=new_rpc_password)
+            primary.change_rpcnode_password(nodeip=secondary_nsip, new_rpc_password=new_rpc_password)
 
             # From now, the Secondary-VPX password will be that of Primary-VPX
             secondary.change_password(new_primaryadc_password)
@@ -103,7 +106,7 @@ def lambda_handler(event, context):
 
             primary.add_lbvserver(name=lbvserver_name, servicetype="HTTP", ipaddress=floating_vip, port=80)
 
-            waitfor(2)
+            waitfor(20, reason="for the HA Sync to complete")
             if secondary.get_lbvserver(name=lbvserver_name):
                 logger.info("SUCCESS: {} and {} configured in HA mode".format(primary.nsip, secondary.nsip))
             else:

@@ -75,6 +75,20 @@ class CitrixADC(HTTPNitro):
                     logger.error("Refer log file for more information")
                     raise Exception
 
+    def change_rpcnode_password(self, nodeip, new_rpc_password, secure="YES"):
+        data = {
+            "nsrpcnode": {
+                "ipaddress": nodeip,
+                "password": new_rpc_password,
+                "secure": secure,
+            }
+        }
+        result = self.do_put(data=data)
+        if result:
+            logger.info("SUCCESS: Changed RPC Node password for {}".format(self.nsip))
+        else:
+            logger.error("FAIL: Could not change RPC Node password for {}".format(self.nsip))
+
     # NS
     def save_config(self):
         data = {"nsconfig": {}}

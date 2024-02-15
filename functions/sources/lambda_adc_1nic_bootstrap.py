@@ -18,6 +18,7 @@ def lambda_handler(event, context):
             new_adc_password = event["ResourceProperties"]["CustomADCPassword"]
             adc_instance_id = event["ResourceProperties"]["ADCInstanceID"]
             adc_nsip = event["ResourceProperties"]["ADCPrivateNSIP"]
+            new_rpc_password = event["ResourceProperties"]["RPCNodePassword"]
 
             eni = get_enis(adc_instance_id)[0] # 1nic has only one ENI and 3 private IPs (1 primary IP and 2 secondary IP)
             adc_vip = eni['PrivateIpAddresses'][1]['PrivateIpAddress']
@@ -26,6 +27,7 @@ def lambda_handler(event, context):
             adc = CitrixADC(
                 nsip=adc_nsip, nsuser="nsroot", default_password=adc_instance_id, new_password=new_adc_password
             )
+            adc.change_rpcnode_password(nodeip=adc_nsip, new_rpc_password=new_rpc_password)
 
             _, netmask = get_subnet_address(eni['SubnetId'])
             adc.add_nsip(adc_vip, netmask, 'VIP')
