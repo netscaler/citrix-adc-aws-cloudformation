@@ -25,6 +25,7 @@ def lambda_handler(event, context):
             secondary_instance_id = event["ResourceProperties"]["SecondaryADCInstanceID"]
             secondary_nsip = event["ResourceProperties"]["SecondaryADCPrivateNSIP"]
             secondary_vip = event["ResourceProperties"]["SecondaryADCPrivateVIP"]
+            new_rpc_password = event["ResourceProperties"]["RPCNodePassword"]
 
             new_primaryadc_password = new_secondaryadc_password = new_adc_password
 
@@ -55,7 +56,10 @@ def lambda_handler(event, context):
             secondary.add_hanode(id=1, ipaddress=primary_nsip, incmode=True)
 
             # Wait for the password to sync into Secondary-VPX.
-            waitfor(30, reason="secondary VPX password to get synced to that of primary")
+            waitfor(60, reason="secondary VPX password to get synced to that of primary")
+
+            primary.change_rpcnode_password(nodeip=primary_nsip, new_rpc_password=new_rpc_password)
+            primary.change_rpcnode_password(nodeip=secondary_nsip, new_rpc_password=new_rpc_password)
 
             # From now, the Secondary-VPX password will be that of Primary-VPX
             secondary.change_password(new_primaryadc_password)
