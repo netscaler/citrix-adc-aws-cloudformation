@@ -35,10 +35,11 @@ Parameters:
   ADCProductVersion:
     Type: String
     Description: ''
-    Default: '13.0'
+    Default: '14.1'
     AllowedValues:
       - '13.0'
       - '13.1'
+      - '14.1'
   S3BucketName:
     Type: String
     Description: ''

@@ -33,6 +33,6 @@ def lambda_handler(event, context):
 
 
 if __name__ == "__main__":
-    adc_version = "13.1"
+    adc_version = "14.1"
     adc_product = "Citrix ADC VPX - Customer Licensed"
     print(get_latest_citrixadc_ami(adc_version, adc_product))

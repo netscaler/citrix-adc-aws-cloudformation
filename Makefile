@@ -21,6 +21,8 @@ cfnlint:
 	cfn-lint `find templates -name "*.yaml" | grep -v aws-marketplace-cfts | grep -v secure_cloud_computing_architecture | grep -v autoscale | grep -v vpc-infra` -i W2506
 
 prod-sync-bucket: cfnlint
+	@echo "Have you zipped the latest lambda package? - Press Ctrl-C to cancel"
+	read confirm
 	# TODO: take `yes` as input and parse the input for confirmation
 	@echo "Are you sure pushing TEMPLATES and LAMBDA to PRODUCTION S3 bucket `citrixadc-automation`? - Press Ctrl-C to cancel"
 	read confirm
