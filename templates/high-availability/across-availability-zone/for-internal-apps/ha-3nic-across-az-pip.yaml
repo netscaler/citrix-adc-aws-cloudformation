@@ -53,6 +53,8 @@ Metadata:
         default: (Optional) LBVserver VIP IP
       ManagementENIEIP:
         default: Should PublicIP(EIP) be assigned to management interfaces?
+      RPCNodePassword:
+        default: Citrix ADC RPC Node Password
     ParameterGroups:
       - Label:
           default: Network Configuration
@@ -76,6 +78,7 @@ Metadata:
       - Label:
           default: Citrix ADC Configuration
         Parameters:
+          - RPCNodePassword
           - KeyPairName
           - CitrixADCInstanceType
           - PublishCloudwatchMetrics
@@ -386,6 +389,12 @@ Parameters:
     Description: ''
     AllowedPattern: ^rtb-[a-z0-9]{17}$
     ConstraintDescription: 'Required Parameter: Input valid Route Table ID'
+  RPCNodePassword:
+    Type: String
+    Description:
+      Citrix ADC RPC Node password. RPC Node passoword, refer
+      https://docs.netscaler.com/en-us/citrix-adc/current-release/getting-started-with-citrix-adc/change-rpc-node-password.html
+    NoEcho: true
 AWSTemplateFormatVersion: '2010-09-09'
 Resources:
   CitrixADCIAMRole:
@@ -602,6 +611,8 @@ Resources:
                         set systemparameter -promptString "%u@%s"
                         add ha node 1 ${SecondaryManagementENI.PrimaryPrivateIpAddress} -inc ENABLED
                         add lb vserver sample_lb_vserver HTTP ${LBVserverVIP} 80
+                        set ns rpcnode ${PrimaryManagementENI.PrimaryPrivateIpAddress} -password ${RPCNodePassword}
+                        set ns rpcnode ${SecondaryManagementENI.PrimaryPrivateIpAddress} -password ${RPCNodePassword}
                     </NS-CONFIG>
                 </NS-PRE-BOOT-CONFIG>
           - Fn::Base64:
@@ -611,6 +622,8 @@ Resources:
                     <NS-CONFIG>
                         set systemparameter -promptString "%u@%s"
                         add ha node 1 ${SecondaryManagementENI.PrimaryPrivateIpAddress} -inc ENABLED
+                        set ns rpcnode ${PrimaryManagementENI.PrimaryPrivateIpAddress} -password ${RPCNodePassword}
+                        set ns rpcnode ${SecondaryManagementENI.PrimaryPrivateIpAddress} -password ${RPCNodePassword}
                     </NS-CONFIG>
                 </NS-PRE-BOOT-CONFIG>
     Type: AWS::EC2::Instance
@@ -641,6 +654,8 @@ Resources:
                <NS-CONFIG>
                    set systemparameter -promptString "%u@%s"
                    add ha node 1 ${PrimaryManagementENI.PrimaryPrivateIpAddress} -inc ENABLED
+                   set ns rpcnode ${PrimaryManagementENI.PrimaryPrivateIpAddress} -password ${RPCNodePassword}
+                   set ns rpcnode ${SecondaryManagementENI.PrimaryPrivateIpAddress} -password ${RPCNodePassword}
                </NS-CONFIG>
           </NS-PRE-BOOT-CONFIG>
     Type: AWS::EC2::Instance

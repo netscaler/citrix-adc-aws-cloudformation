@@ -54,6 +54,8 @@ Metadata:
         default: Should PublicIP(EIP) be assigned to management interfaces?
       ADCCustomPassword:
         default: Citrix ADC management login Password
+      RPCNodePassword:
+        default: Citrix ADC RPC Node Password
 
       ADCRegistration2ADMService:
         default: Do you want to register the ADC to ADM Service?
@@ -89,6 +91,7 @@ Metadata:
         Parameters:
           - CitrixADCImageID
           - ADCCustomPassword
+          - RPCNodePassword
           - KeyPairName
           - CitrixADCInstanceType
           - PublishCloudwatchMetrics
@@ -398,6 +401,12 @@ Parameters:
     ConstraintDescription:
       Password length must be minimum 8 and maximum 15 characters.
       Whitespace characters not allowed.
+  RPCNodePassword:
+    Type: String
+    Description:
+      Citrix ADC RPC Node password. RPC Node passoword, refer
+      https://docs.netscaler.com/en-us/citrix-adc/current-release/getting-started-with-citrix-adc/change-rpc-node-password.html
+    NoEcho: true
   ADMAgentDeployment:
     Description: If you select 'No', only give 'Citrix ADM Agent IP' above and ignore the rest of the parametes in this section.
     Type: String
@@ -699,6 +708,8 @@ Resources:
                   add ns ip ${InternalLBVIP} 255.255.255.255 -type VIP
                   add lb vserver external_lb HTTP ${PrimaryClientENI.PrimaryPrivateIpAddress} 80 -ipset ha_ipset
                   add lb vserver internal_lb HTTP ${InternalLBVIP} 80
+                  set ns rpcnode ${PrimaryManagementENI.PrimaryPrivateIpAddress} -password ${RPCNodePassword}
+                  set ns rpcnode ${SecondaryManagementENI.PrimaryPrivateIpAddress} -password ${RPCNodePassword}
               </NS-CONFIG>
           </NS-PRE-BOOT-CONFIG>
     Type: AWS::EC2::Instance
@@ -735,6 +746,8 @@ Resources:
                    add ns ip ${SecondaryClientENI.PrimaryPrivateIpAddress} ${GetSubnetMaskCustomResource.Netmask} -type VIP
                    add ipset ha_ipset
                    bind ipset ha_ipset ${SecondaryClientENI.PrimaryPrivateIpAddress}
+                   set ns rpcnode ${SecondaryManagementENI.PrimaryPrivateIpAddress} -password ${RPCNodePassword}
+                   set ns rpcnode ${PrimaryManagementENI.PrimaryPrivateIpAddress} -password ${RPCNodePassword}
                </NS-CONFIG>
           </NS-PRE-BOOT-CONFIG>
     Type: AWS::EC2::Instance
