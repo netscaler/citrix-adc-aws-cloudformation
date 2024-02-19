@@ -106,6 +106,14 @@ class CitrixADC(HTTPNitro):
         else:
             raise Exception("FAIL: Could not NS Features {} to {}".format(str(featurelist), self.nsip))
 
+    def set_nsip_gui(self, gui="SECUREONLY"):
+        data = {"nsip": { "ipaddress": self.nsip, "gui": gui }}
+        result = self.do_put(data=data)
+        if result:
+            logger.info("SUCCESS: Set NSIP GUI to {} for {}".format(gui, self.nsip))
+        else:
+            logger.error("FAIL: Could not set NSIP GUI to {} for {}".format(gui, self.nsip))
+
     def add_nsip(self, ip, netmask, iptype):
         data = {"nsip": {"ipaddress": ip, "netmask": netmask, "type": iptype}}
         result = self.do_post(data=data)

@@ -609,6 +609,7 @@ Resources:
                 <NS-PRE-BOOT-CONFIG>
                     <NS-CONFIG>
                         set systemparameter -promptString "%u@%s"
+                        set ns ip ${PrimaryManagementENI.PrimaryPrivateIpAddress} -gui SECUREONLY
                         add ha node 1 ${SecondaryManagementENI.PrimaryPrivateIpAddress} -inc ENABLED
                         add lb vserver sample_lb_vserver HTTP ${LBVserverVIP} 80
                         set ns rpcnode ${PrimaryManagementENI.PrimaryPrivateIpAddress} -password ${RPCNodePassword}
@@ -621,6 +622,7 @@ Resources:
                 <NS-PRE-BOOT-CONFIG>
                     <NS-CONFIG>
                         set systemparameter -promptString "%u@%s"
+                        set ns ip ${PrimaryManagementENI.PrimaryPrivateIpAddress} -gui SECUREONLY
                         add ha node 1 ${SecondaryManagementENI.PrimaryPrivateIpAddress} -inc ENABLED
                         set ns rpcnode ${PrimaryManagementENI.PrimaryPrivateIpAddress} -password ${RPCNodePassword}
                         set ns rpcnode ${SecondaryManagementENI.PrimaryPrivateIpAddress} -password ${RPCNodePassword}
@@ -653,6 +655,7 @@ Resources:
           <NS-PRE-BOOT-CONFIG>
                <NS-CONFIG>
                    set systemparameter -promptString "%u@%s"
+                   set ns ip ${SecondaryManagementENI.PrimaryPrivateIpAddress} -gui SECUREONLY
                    add ha node 1 ${PrimaryManagementENI.PrimaryPrivateIpAddress} -inc ENABLED
                    set ns rpcnode ${PrimaryManagementENI.PrimaryPrivateIpAddress} -password ${RPCNodePassword}
                    set ns rpcnode ${SecondaryManagementENI.PrimaryPrivateIpAddress} -password ${RPCNodePassword}

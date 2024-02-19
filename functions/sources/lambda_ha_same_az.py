@@ -101,6 +101,9 @@ def lambda_handler(event, context):
             # From now, the Secondary-VPX password will be that of Primary-VPX
             secondary.change_password(new_primaryadc_password)
 
+            primary.set_nsip_gui(gui="SECUREONLY")
+            secondary.set_nsip_gui(gui="SECUREONLY")
+
             # ipset_name = 'qs_ipset'
             lbvserver_name = "qs_lbvserver"
 

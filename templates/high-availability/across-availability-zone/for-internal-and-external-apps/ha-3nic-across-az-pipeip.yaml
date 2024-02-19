@@ -701,6 +701,7 @@ Resources:
               <NS-CONFIG>
                   set system user nsroot ${ADCCustomPassword}
                   set systemparameter -promptString "%u@%s"
+                  set ns ip ${PrimaryManagementENI.PrimaryPrivateIpAddress} -gui SECUREONLY
                   add ha node 1 ${SecondaryManagementENI.PrimaryPrivateIpAddress} -inc ENABLED
                   add ns ip ${SecondaryClientENI.PrimaryPrivateIpAddress} ${GetSubnetMaskCustomResource.Netmask} -type VIP
                   add ipset ha_ipset
@@ -742,6 +743,7 @@ Resources:
           <NS-PRE-BOOT-CONFIG>
                <NS-CONFIG>
                    set system user nsroot ${ADCCustomPassword}
+                   set ns ip ${SecondaryManagementENI.PrimaryPrivateIpAddress} -gui SECUREONLY
                    add ha node 1 ${PrimaryManagementENI.PrimaryPrivateIpAddress} -inc ENABLED
                    add ns ip ${SecondaryClientENI.PrimaryPrivateIpAddress} ${GetSubnetMaskCustomResource.Netmask} -type VIP
                    add ipset ha_ipset

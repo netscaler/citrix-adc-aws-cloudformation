@@ -25,6 +25,7 @@ def lambda_handler(event, context):
             )
             logger.debug(adc.get_nsip())
             adc.change_rpcnode_password(nodeip=adc_nsip, new_rpc_password=new_rpc_password, secure="YES")
+            adc.set_nsip_gui(gui="SECUREONLY")
 
             response_status = "SUCCESS"
         else:  # request_type == 'Delete' | 'Update'

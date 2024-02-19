@@ -29,6 +29,8 @@ def lambda_handler(event, context):
             )
             adc.change_rpcnode_password(nodeip=adc_nsip, new_rpc_password=new_rpc_password)
 
+            adc.set_nsip_gui(gui="SECUREONLY")
+
             _, netmask = get_subnet_address(eni['SubnetId'])
             adc.add_nsip(adc_vip, netmask, 'VIP')
             adc.add_nsip(adc_snip, netmask, 'SNIP')
