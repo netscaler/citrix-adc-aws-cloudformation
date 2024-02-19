@@ -280,6 +280,12 @@ Parameters:
     Default: default
     Description: ''
     Type: String
+  RPCNodePassword:
+    Type: String
+    Description:
+      Citrix ADC RPC Node password. RPC Node passoword, refer
+      https://docs.netscaler.com/en-us/citrix-adc/current-release/getting-started-with-citrix-adc/change-rpc-node-password.html
+    NoEcho: true
 Resources:
   AssociateClientEIP2ENI:
     Condition: AssignClientEIP
@@ -388,7 +394,15 @@ Resources:
       UserData: !Base64
         Fn::Sub: |-
           PublishCloudwatchMetrics=${PublishCloudwatchMetrics}
-          HAPeerIP=${SecondaryManagementENI.PrimaryPrivateIpAddress}
+          <NS-PRE-BOOT-CONFIG>
+              <NS-CONFIG>
+                  set systemparameter -promptString "%u@%s"
+                  set ns ip ${PrimaryManagementENI.PrimaryPrivateIpAddress} -gui SECUREONLY
+                  add ha node 1 ${SecondaryManagementENI.PrimaryPrivateIpAddress}
+                  set ns rpcnode ${PrimaryManagementENI.PrimaryPrivateIpAddress} -password ${RPCNodePassword}
+                  set ns rpcnode ${SecondaryManagementENI.PrimaryPrivateIpAddress} -password ${RPCNodePassword}
+              </NS-CONFIG>
+          </NS-PRE-BOOT-CONFIG>
     Type: AWS::EC2::Instance
   PrimaryManagementEIP:
     Condition: AssignEIP2ManagementENI
@@ -454,8 +468,15 @@ Resources:
       UserData: !Base64
         Fn::Sub: |-
           PublishCloudwatchMetrics=${PublishCloudwatchMetrics}
-          HAPeerIP=${PrimaryManagementENI.PrimaryPrivateIpAddress}
-          HAPeerInstanceId=${PrimaryInstance}
+          <NS-PRE-BOOT-CONFIG>
+              <NS-CONFIG>
+                  set systemparameter -promptString "%u@%s"
+                  set ns ip ${SecondaryManagementENI.PrimaryPrivateIpAddress} -gui SECUREONLY
+                  add ha node 1 ${PrimaryManagementENI.PrimaryPrivateIpAddress}
+                  set ns rpcnode ${PrimaryManagementENI.PrimaryPrivateIpAddress} -password ${RPCNodePassword}
+                  set ns rpcnode ${SecondaryManagementENI.PrimaryPrivateIpAddress} -password ${RPCNodePassword}
+              </NS-CONFIG>
+          </NS-PRE-BOOT-CONFIG>
     Type: AWS::EC2::Instance
   SecondaryManagementEIP:
     Condition: AssignEIP2ManagementENI
