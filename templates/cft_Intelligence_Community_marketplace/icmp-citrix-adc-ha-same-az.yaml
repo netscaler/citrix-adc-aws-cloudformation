@@ -17,48 +17,10 @@ Mappings:
   AWSAMIRegionMap:
     AMI:
       CITRIXADC: Citrix ADC VPX
-    ap-east-1:
-      CITRIXADC: ami-0b44e0d299d3b3a33
-    ap-northeast-1:
-      CITRIXADC: ami-0a5d628c2e1ea45e9
-    ap-northeast-2:
-      CITRIXADC: ami-0ad520c016e96f260
-    ap-south-1:
-      CITRIXADC: ami-027978a22dc893058
-    ap-southeast-1:
-      CITRIXADC: ami-0316840d86abe4e5e
-    ap-southeast-2:
-      CITRIXADC: ami-02098e6dfe08d9299
-    ca-central-1:
-      CITRIXADC: ami-02cbae7662e592d24
-    cn-north-1:
-      CITRIXADC: ami-0d9491d2d555c45a8
-    cn-northwest-1:
-      CITRIXADC: ami-03f29167b9413158e
-    eu-central-1:
-      CITRIXADC: ami-05d81856537a0cfc2
-    eu-north-1:
-      CITRIXADC: ami-01672d9e4fd60f85d
-    eu-west-1:
-      CITRIXADC: ami-023da45cff4446484
-    eu-west-2:
-      CITRIXADC: ami-037b51b95111f4231
-    eu-west-3:
-      CITRIXADC: ami-0bd4c025bd6afab4a
-    sa-east-1:
-      CITRIXADC: ami-0c66fc6fff94c64b9
-    us-east-1:
-      CITRIXADC: ami-0bb96d1f8f79db909
-    us-east-2:
-      CITRIXADC: ami-0e8e26c508fa94732
-    us-gov-east-1:
-      CITRIXADC: ami-21f11d50
-    us-gov-west-1:
-      CITRIXADC: ami-00d2e361
-    us-west-1:
-      CITRIXADC: ami-0707f52c208d83427
-    us-west-2:
-      CITRIXADC: ami-0503d15aed657c87d
+    us-iso-east-1:
+      CITRIXADC: ami-0bacfff5713bf5d2a
+    us-isob-east-1:
+      CITRIXADC: ami-0bacfff5713bf5d2a
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
