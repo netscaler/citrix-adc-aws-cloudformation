@@ -16,6 +16,14 @@ Parameters:
     Description: Strong password recommended. Password length must be minimum 8 and
       maximum 15 characters. Whitespace characters not allowed.
     NoEcho: true
+  RPCNodePassword:
+    Type: String
+    Default: ""
+    Description:
+      Leave it empty if you want to keep the RPCNodePassword same as the
+      ADCCustomPassword. For more details on RPC Node passoword, refer
+      https://docs.netscaler.com/en-us/citrix-adc/current-release/getting-started-with-citrix-adc/change-rpc-node-password.html
+    NoEcho: true
   ManagementPrivateIP:
     Type: String
     Default: ''
@@ -104,4 +112,5 @@ Resources:
       ADCInstanceID: !Ref 'ADCInstanceID'
       ADCPrivateNSIP: !Ref 'ManagementPrivateIP'
       CustomADCPassword: !Ref 'ADCCustomPassword'
+      RPCNodePassword: !Ref 'RPCNodePassword'
     Type: AWS::CloudFormation::CustomResource

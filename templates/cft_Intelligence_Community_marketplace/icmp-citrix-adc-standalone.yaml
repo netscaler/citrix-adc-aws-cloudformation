@@ -237,6 +237,12 @@ Parameters:
     Default: default
     Description: ''
     Type: String
+  RPCNodePassword:
+    Type: String
+    Description:
+      Citrix ADC RPC Node password. RPC Node passoword, refer
+      https://docs.netscaler.com/en-us/citrix-adc/current-release/getting-started-with-citrix-adc/change-rpc-node-password.html
+    NoEcho: true
 Resources:
   AssociateManagementEIP2ENI:
     Condition: AssignEIP2ManagementENI
@@ -269,7 +275,15 @@ Resources:
           Value: !Sub '${AWS::StackName}-CitrixADCInstance'
       Tenancy: !Ref 'VPCTenancy'
       UserData: !Base64
-        Fn::Sub: PublishCloudwatchMetrics=${PublishCloudwatchMetrics}
+        Fn::Sub: |-
+          PublishCloudwatchMetrics=${PublishCloudwatchMetrics}
+          <NS-PRE-BOOT-CONFIG>
+              <NS-CONFIG>
+                  set systemparameter -promptString "%u@%s"
+                  set ns ip ${ManagementENI.PrimaryPrivateIpAddress} -gui SECUREONLY
+                  set ns rpcnode ${ManagementENI.PrimaryPrivateIpAddress} -password ${RPCNodePassword}
+              </NS-CONFIG>
+          </NS-PRE-BOOT-CONFIG>
     Type: AWS::EC2::Instance
   ClientENI:
     Properties:

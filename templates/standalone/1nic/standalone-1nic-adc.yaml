@@ -21,6 +21,8 @@ Metadata:
         default: Citrix ADC management login Password
       CitrixADCInstanceType:
         default: Citrix ADC instance type
+      RPCNodePassword:
+        default: Citrix ADC RPC Node Password
       KeyPairName:
         default: Keypair to associate to ADCs
       PublishCloudwatchMetrics:
@@ -64,6 +66,7 @@ Metadata:
           - ADCProductName
           - ADCProductVersion
           - ADCCustomPassword
+          - RPCNodePassword
           - CitrixADCInstanceType
           - KeyPairName
           - PublishCloudwatchMetrics
@@ -84,6 +87,7 @@ Metadata:
           - Platform
           - VCPUEdition
 Conditions:
+  RPCNodePasswordSameAsADCCustomPassword: !Equals [!Ref RPCNodePassword, ""]
   UseLatestAMI: !Equals
     - !Ref 'CitrixADCImageID'
     - ''
@@ -173,10 +177,11 @@ Parameters:
   ADCProductVersion:
     Type: String
     Description: ''
-    Default: '13.0'
+    Default: '14.1'
     AllowedValues:
       - '13.0'
       - '13.1'
+      - '14.1'
   CitrixADCInstanceType:
     Type: String
     Description: ''
@@ -229,6 +234,14 @@ Parameters:
       Whitespace characters not allowed.
     Description: Strong password recommended. Password length must be minimum 8 and
       maximum 15 characters. Whitespace characters not allowed.
+    NoEcho: true
+  RPCNodePassword:
+    Type: String
+    Default: ""
+    Description:
+      Leave it empty if you want to keep the RPCNodePassword same as the
+      ADCCustomPassword. For more details on RPC Node passoword, refer
+      https://docs.netscaler.com/en-us/citrix-adc/current-release/getting-started-with-citrix-adc/change-rpc-node-password.html
     NoEcho: true
   KeyPairName:
     Description: ''
@@ -383,6 +396,10 @@ Resources:
     Properties:
       Parameters:
         ADCCustomPassword: !Ref 'ADCCustomPassword'
+        RPCNodePassword: !If
+          - RPCNodePasswordSameAsADCCustomPassword
+          - !Ref ADCCustomPassword
+          - !Ref RPCNodePassword
         ADCInstanceID: !GetAtt 'CitrixADCStack.Outputs.CitrixADCInstanceID'
         ManagementPrivateIP: !GetAtt 'CitrixADCStack.Outputs.ManagementPrivateIP'
         ManagementPrivateSubnetID: !Ref 'SubnetID'
