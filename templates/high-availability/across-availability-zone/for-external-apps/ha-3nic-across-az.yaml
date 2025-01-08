@@ -288,22 +288,6 @@ Parameters:
     Default: Citrix ADC VPX - Customer Licensed
     AllowedValues:
       - Citrix ADC VPX - Customer Licensed
-      - Citrix ADC VPX Express - 20 Mbps
-      - Citrix ADC VPX Standard Edition - 10 Mbps
-      - Citrix ADC VPX Standard Edition - 200 Mbps
-      - Citrix ADC VPX Standard Edition - 1000 Mbps
-      - Citrix ADC VPX Standard Edition - 3Gbps
-      - Citrix ADC VPX Standard Edition - 5Gbps
-      - Citrix ADC VPX Premium Edition - 10 Mbps
-      - Citrix ADC VPX Premium Edition - 200 Mbps
-      - Citrix ADC VPX Premium Edition - 1000 Mbps
-      - Citrix ADC VPX Premium Edition - 3Gbps
-      - Citrix ADC VPX Premium Edition - 5Gbps
-      - Citrix ADC VPX Advanced Edition - 10 Mbps
-      - Citrix ADC VPX Advanced Edition - 200 Mbps
-      - Citrix ADC VPX Advanced Edition - 1000 Mbps
-      - Citrix ADC VPX Advanced Edition - 3Gbps
-      - Citrix ADC VPX Advanced Edition - 5Gbps
   ADCProductVersion:
     Type: String
     Description: ''
