@@ -63,6 +63,12 @@ Metadata:
       VCPUEdition:
         default: CPU-Licensing Edition (Select this if the above LicensingMode is
           `CPU-Licensing`)
+      SecurityGroupIDForManagementInterface:
+        default: Security Group ID For Management Interface (If subnet is Shared)
+      SecurityGroupIDForClientInterface:
+        default: Security Group ID For Client Interface (If subnet is Shared)
+      SecurityGroupIDForServerInterface:
+        default: Security Group ID For Server Interface (If subnet is Shared)
 
       ADCRegistration2ADMService:
         default: Do you want to register the ADC to ADM Service?
@@ -109,6 +115,9 @@ Metadata:
           - CitrixADCImageID
           - ManagementENIEIP
           - ClientENIEIP
+          - SecurityGroupIDForManagementInterface
+          - SecurityGroupIDForClientInterface
+          - SecurityGroupIDForServerInterface
       - Label:
           default: License Server Configuration (Optional)
         Parameters:
@@ -133,6 +142,10 @@ Metadata:
           - ADMAgentRestrictedManagementCIDR
 
 Conditions:
+  IsManagementSGSharedProvided: !Not [!Equals [!Ref SecurityGroupIDForManagementInterface, ""]]
+  IsClientSGSharedProvided: !Not [!Equals [!Ref SecurityGroupIDForClientInterface, ""]]
+  IsServerSGSharedProvided: !Not [!Equals [!Ref SecurityGroupIDForServerInterface, ""]]
+  
   RPCNodePasswordSameAsADCCustomPassword: !Equals [!Ref RPCNodePassword, ""]
   UseLatestAMI: !Equals
     - !Ref 'CitrixADCImageID'
@@ -353,6 +366,18 @@ Parameters:
     AllowedValues:
       - 'No'
       - 'Yes'
+  SecurityGroupIDForManagementInterface:
+    Type: String
+    Description: "Provide the Security Group ID for the Management Interface only if the subnet is shared from another account. If not provided, a new Security Group will be created and bound."
+    Default: ""
+  SecurityGroupIDForClientInterface:
+    Type: String
+    Description: "Provide the Security Group ID for the Client Interface only if the subnet is shared from another account. If not provided, a new Security Group will be created and bound."
+    Default: ""
+  SecurityGroupIDForServerInterface:
+    Type: String
+    Description: "Provide the Security Group ID for the Server Interface only if the subnet is shared from another account. If not provided, a new Security Group will be created and bound."
+    Default: ""
   PublishCloudwatchMetrics:
     Type: String
     Description: ''
@@ -569,16 +594,25 @@ Resources:
         ClientENIEIP: 'No'
         ClientPrivateIP: ''
         ClientPublicSubnetID: !Ref 'ClientPublicSubnetID'
-        ClientSecurityGroupID: !GetAtt 'SecurityGroupStack.Outputs.ClientSG'
+        ClientSecurityGroupID: !If
+          - IsClientSGSharedProvided
+          - !Ref SecurityGroupIDForClientInterface
+          - !GetAtt 'SecurityGroupStack.Outputs.ClientSG'
         KeyPairName: !Ref 'KeyPairName'
         ManagementENIEIP: !Ref 'ManagementENIEIP'
         ManagementPrivateIP: ''
         ManagementPrivateSubnetID: !Ref 'ManagementPrivateSubnetID'
-        ManagementSecurityGroupID: !GetAtt 'SecurityGroupStack.Outputs.ManagementSG'
+        ManagementSecurityGroupID: !If
+          - IsManagementSGSharedProvided
+          - !Ref SecurityGroupIDForManagementInterface
+          - !GetAtt 'SecurityGroupStack.Outputs.ManagementSG'
         PublishCloudwatchMetrics: !Ref 'PublishCloudwatchMetrics'
         ServerPrivateIP: ''
         ServerPrivateSubnetID: !Ref 'ServerPrivateSubnetID'
-        ServerSecurityGroupID: !GetAtt 'SecurityGroupStack.Outputs.ServerSG'
+        ServerSecurityGroupID: !If 
+          - IsServerSGSharedProvided
+          - !Ref SecurityGroupIDForServerInterface
+          - !GetAtt 'SecurityGroupStack.Outputs.ServerSG'
         VPCTenancy: !Ref 'VPCTenancy'
       TemplateURL: !Sub 'https://${S3BucketName}.s3.${AWS::URLSuffix}/templates/nested-stacks/cft-stack-standalone-adc.yaml'
       Tags:
@@ -598,16 +632,25 @@ Resources:
         ClientENIEIP: 'No'
         ClientPrivateIP: ''
         ClientPublicSubnetID: !Ref 'ClientPublicSubnetID'
-        ClientSecurityGroupID: !GetAtt 'SecurityGroupStack.Outputs.ClientSG'
+        ClientSecurityGroupID: !If
+          - IsClientSGSharedProvided
+          - !Ref SecurityGroupIDForClientInterface
+          - !GetAtt 'SecurityGroupStack.Outputs.ClientSG'
         KeyPairName: !Ref 'KeyPairName'
         ManagementENIEIP: !Ref 'ManagementENIEIP'
         ManagementPrivateIP: ''
         ManagementPrivateSubnetID: !Ref 'ManagementPrivateSubnetID'
-        ManagementSecurityGroupID: !GetAtt 'SecurityGroupStack.Outputs.ManagementSG'
+        ManagementSecurityGroupID: !If
+          - IsManagementSGSharedProvided
+          - !Ref SecurityGroupIDForManagementInterface
+          - !GetAtt 'SecurityGroupStack.Outputs.ManagementSG'
         PublishCloudwatchMetrics: !Ref 'PublishCloudwatchMetrics'
         ServerPrivateIP: ''
         ServerPrivateSubnetID: !Ref 'ServerPrivateSubnetID'
-        ServerSecurityGroupID: !GetAtt 'SecurityGroupStack.Outputs.ServerSG'
+        ServerSecurityGroupID: !If 
+          - IsServerSGSharedProvided
+          - !Ref SecurityGroupIDForServerInterface
+          - !GetAtt 'SecurityGroupStack.Outputs.ServerSG'
         VPCTenancy: !Ref 'VPCTenancy'
       TemplateURL: !Sub 'https://${S3BucketName}.s3.${AWS::URLSuffix}/templates/nested-stacks/cft-stack-standalone-adc.yaml'
       Tags:
