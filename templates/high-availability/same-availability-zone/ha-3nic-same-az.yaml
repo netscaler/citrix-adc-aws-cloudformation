@@ -64,11 +64,11 @@ Metadata:
         default: CPU-Licensing Edition (Select this if the above LicensingMode is
           `CPU-Licensing`)
       SecurityGroupIDForManagementInterface:
-        default: Security Group ID For Management Interface (If subnet is Shared)
+        default: Security Group ID For Management Interface (If Management Subnet is Shared)
       SecurityGroupIDForClientInterface:
-        default: Security Group ID For Client Interface (If subnet is Shared)
+        default: Security Group ID For Client Interface (If Client Subnet is Shared)
       SecurityGroupIDForServerInterface:
-        default: Security Group ID For Server Interface (If subnet is Shared)
+        default: Security Group ID For Server Interface (If Server Subnet is Shared)
 
       ADCRegistration2ADMService:
         default: Do you want to register the ADC to ADM Service?
@@ -576,6 +576,9 @@ Resources:
         RestrictedSSHCIDR: !Ref 'RestrictedSSHCIDR'
         RestrictedWebAppCIDR: !Ref 'RestrictedWebAppCIDR'
         VPCID: !Ref 'VPCID'
+        CreateManagementSG: !If [SecurityGroupIDForManagementInterface, "false", "true"]
+        CreateClientSG: !If [SecurityGroupIDForClientInterface, "false", "true"]
+        CreateServerSG: !If [SecurityGroupIDForServerInterface, "false", "true"]
       TemplateURL: !Sub 'https://${S3BucketName}.s3.${AWS::URLSuffix}/templates/nested-stacks/cft-stack-securitygroup.yaml'
       Tags:
         - Key: Name
