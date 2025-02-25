@@ -36,12 +36,15 @@ Parameters:
   CreateManagementSG:
     Type: String
     Description: "Condition to create the Management Security Group"
+    Default: "true"
   CreateClientSG:
     Type: String
     Description: "Condition to create the Client Security Group"
+    Default: "true"
   CreateServerSG:
     Type: String
     Description: "Condition to create the Server Security Group"
+    Default: "true"
 
 
 Conditions:
