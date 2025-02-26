@@ -23,6 +23,8 @@ Description: This template provisions a Citrix ADC VPX in AWS. This template als
   gives an option to allocate Pooled License to Citrix ADCs while provisioning.
 Mappings:
   AWSAMIRegionMap:
+    us-east-1:
+      CITRIXADC: ami-0bb96d1f8f79db909
     AMI:
       CITRIXADC: Citrix ADC VPX  # 12.1-55.302-64
     us-iso-east-1:
