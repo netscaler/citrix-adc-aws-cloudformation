@@ -69,7 +69,8 @@ Metadata:
         default: Security Group ID For Client Interface (If Client Subnet is Shared)
       SecurityGroupIDForServerInterface:
         default: Security Group ID For Server Interface (If Server Subnet is Shared)
-
+      EncryptedRootVolume:
+        default: Encrypt the root volume of the Citrix ADC instances
       ADCRegistration2ADMService:
         default: Do you want to register the ADC to ADM Service?
       ADMAgentIP:
@@ -118,6 +119,7 @@ Metadata:
           - SecurityGroupIDForManagementInterface
           - SecurityGroupIDForClientInterface
           - SecurityGroupIDForServerInterface
+          - EncryptedRootVolume
       - Label:
           default: License Server Configuration (Optional)
         Parameters:
@@ -537,6 +539,13 @@ Parameters:
     AllowedValues:
       - "No"
       - "Yes"
+  EncryptedRootVolume:
+    Type: String
+    Description: Encrypt the root volume of the Citrix ADC instances
+    Default: false
+    AllowedValues:
+      - true
+      - false
 AWSTemplateFormatVersion: '2010-09-09'
 Resources:
   LambdaCopierStack:
@@ -617,6 +626,7 @@ Resources:
           - !Ref SecurityGroupIDForServerInterface
           - !GetAtt 'SecurityGroupStack.Outputs.ServerSG'
         VPCTenancy: !Ref 'VPCTenancy'
+        EncryptedRootVolume: !Ref 'EncryptedRootVolume'
       TemplateURL: !Sub 'https://${S3BucketName}.s3.${AWS::URLSuffix}/templates/nested-stacks/cft-stack-standalone-adc.yaml'
       Tags:
         - Key: Name
@@ -655,6 +665,7 @@ Resources:
           - !Ref SecurityGroupIDForServerInterface
           - !GetAtt 'SecurityGroupStack.Outputs.ServerSG'
         VPCTenancy: !Ref 'VPCTenancy'
+        EncryptedRootVolume: !Ref 'EncryptedRootVolume'
       TemplateURL: !Sub 'https://${S3BucketName}.s3.${AWS::URLSuffix}/templates/nested-stacks/cft-stack-standalone-adc.yaml'
       Tags:
         - Key: Name
