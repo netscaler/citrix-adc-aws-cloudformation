@@ -576,9 +576,9 @@ Resources:
         RestrictedSSHCIDR: !Ref 'RestrictedSSHCIDR'
         RestrictedWebAppCIDR: !Ref 'RestrictedWebAppCIDR'
         VPCID: !Ref 'VPCID'
-        CreateManagementSG: !If [SecurityGroupIDForManagementInterface, "false", "true"]
-        CreateClientSG: !If [SecurityGroupIDForClientInterface, "false", "true"]
-        CreateServerSG: !If [SecurityGroupIDForServerInterface, "false", "true"]
+        CreateManagementSG: !If [IsManagementSGSharedProvided, "false", "true"]
+        CreateClientSG: !If [IsClientSGSharedProvided, "false", "true"]
+        CreateServerSG: !If [IsServerSGSharedProvided, "false", "true"]
       TemplateURL: !Sub 'https://${S3BucketName}.s3.${AWS::URLSuffix}/templates/nested-stacks/cft-stack-securitygroup.yaml'
       Tags:
         - Key: Name

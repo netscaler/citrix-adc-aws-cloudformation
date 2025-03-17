@@ -859,7 +859,7 @@ Resources:
       Description: Delays execution of the next step in the deployment
       Handler: index.handler
       Role: !GetAtt DelayRole.Arn
-      Runtime: python3.8
+      Runtime: python3.12
       Timeout: 900
       Code:
         ZipFile: |
@@ -901,7 +901,7 @@ Resources:
       Description: RegisterADCFunction
       Handler: index.handler
       Role: !GetAtt "RegisterADCRole.Arn"
-      Runtime: python3.8
+      Runtime: python3.12
       Timeout: 900
       Code:
         ZipFile: |

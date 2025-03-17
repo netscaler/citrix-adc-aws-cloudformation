@@ -148,7 +148,7 @@ Resources:
       Description: RegisterADCFunction
       Handler: index.handler
       Role: !GetAtt "RegisterADCRole.Arn"
-      Runtime: python3.8
+      Runtime: python3.12
       Timeout: 900
       Code:
         ZipFile: |
