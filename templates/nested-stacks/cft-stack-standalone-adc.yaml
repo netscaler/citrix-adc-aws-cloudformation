@@ -84,6 +84,9 @@ Conditions:
     - !Equals
       - !Ref 'ServerPrivateIP'
       - ''
+  IsEncryptedRootVolume: !Equals
+    - !Ref EncryptedRootVolume
+    - 'true'
 Outputs:
   ManagementPrivateIP:
     Description: ADC Management Private IP (NSIP)
@@ -241,6 +244,14 @@ Parameters:
     AllowedValues:
       - 'No'
       - 'Yes'
+  EncryptedRootVolume:
+    Description: Should the root volume be encrypted? (true/false)
+    Type: String
+    Default: false
+    AllowedValues:
+      - true
+      - false
+    ConstraintDescription: Must be 'true' or 'false'.
 AWSTemplateFormatVersion: '2010-09-09'
 Resources:
   ManagementENI:
@@ -301,6 +312,13 @@ Resources:
           NetworkInterfaceId: !Ref 'ClientENI'
         - DeviceIndex: '2'
           NetworkInterfaceId: !Ref 'ServerENI'
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            Encrypted: !If
+              - IsEncryptedRootVolume
+              - true
+              - false
       Tenancy: !Ref 'VPCTenancy'
       UserData: !Base64
         Fn::Sub: PublishCloudwatchMetrics=${PublishCloudwatchMetrics}
