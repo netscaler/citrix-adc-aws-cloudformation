@@ -9,16 +9,19 @@ Outputs:
     Export:
       Name: !Sub '${AWS::StackName}-ManagementSG'
     Value: !Ref 'ManagementSG'
+    Condition: CreateManagementSGCondition
   ClientSG:
     Description: ''
     Export:
       Name: !Sub '${AWS::StackName}-ClientSG'
     Value: !Ref 'ClientSG'
+    Condition: CreateClientSGCondition
   ServerSG:
     Description: ''
     Export:
       Name: !Sub '${AWS::StackName}-ServerSG'
     Value: !Ref 'ServerSG'
+    Condition: CreateServerSGCondition
 Parameters:
   VPCID:
     Type: AWS::EC2::VPC::Id
