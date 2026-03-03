@@ -1,3 +1,12 @@
+# 🚨 Maintenance Notice
+<img src="https://img.shields.io/badge/Maintenance-Unmaintained-red.svg" />
+
+This repository is **archived and no longer maintained**.
+
+You can find all officially supported automation options [here](https://www.GitHub.com/netscaler/automation-toolkit)
+
+For any assistance related to NetScaler automation, please email 
+📧 **netscaler-automationtoolkit@cloud.com**
 
 Citrix ADC AWS Cloudformation templates
 --------------------------------------
